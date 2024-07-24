@@ -5,7 +5,7 @@ canvas.height = window.innerHeight;
 const ctx = canvas.getContext("2d");
 
 // Define grid and initial cell size
-let cellSize = 5;
+let cellSize = 7;
 let grid = [];
 const cols = Math.floor(window.innerWidth / cellSize);
 const rows = Math.floor(window.innerHeight / cellSize);
@@ -55,7 +55,7 @@ function drawGrid() {
     for (let col = 0; col < cols; col++) {
       // Update ring
       if (JSON.stringify(ringCells).indexOf(JSON.stringify([col, row])) != -1) {
-        ctx.fillStyle = "red"; // Color for highlighting
+        ctx.fillStyle = "rgba(255, 0, 0, 0.6)"; // Color for highlighting
         ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
       } else {
         ctx.fillStyle = grid[row][col] ? "white" : "black";
@@ -112,6 +112,20 @@ function updateGrid() {
   drawGrid();
 }
 
+function unique2DArr(arr) {
+  var unique = [];
+  var elementsFound = {};
+  for (var i = 0; i < arr.length; i++) {
+    var stringified = JSON.stringify(arr[i]);
+    if (elementsFound[stringified]) {
+      continue;
+    }
+    unique.push(arr[i]);
+    elementsFound[stringified] = true;
+  }
+  return unique;
+}
+
 // Midpoint circle algorithm
 function midpointCircle(x, y, r) {
   let points = [];
@@ -143,18 +157,31 @@ function midpointCircle(x, y, r) {
   }
 
   // Reduce to unique points
-  var uniquePoints = [];
-  var pointsFound = {};
-  for (var i = 0; i < points.length; i++) {
-    var stringified = JSON.stringify(points[i]);
-    if (pointsFound[stringified]) {
-      continue;
-    }
-    uniquePoints.push(points[i]);
-    pointsFound[stringified] = true;
-  }
-  return uniquePoints;
+  return unique2DArr(points);
 }
 
+function fillCircle(x, y, r) {
+  let points = [];
+  for (let i = 0; i <= r; i++) {
+    points.push(...midpointCircle(x, y, i));
+  }
+  return unique2DArr(points);
+}
+
+function drawLife(event) {
+  const rect = canvas.getBoundingClientRect();
+  mouseX = event.clientX - rect.left;
+  mouseY = event.clientY - rect.top;
+  let x = Math.floor(mouseX / cellSize);
+  let y = Math.floor(mouseY / cellSize);
+  let points = fillCircle(x, y, 9);
+
+  for (const [x, y] of points) {
+    grid[y][x] = 1;
+  }
+  drawGrid();
+}
+window.addEventListener("mousedown", drawLife);
+
 drawGrid();
-setInterval(updateGrid, 1000 / 10);
+setInterval(updateGrid, 1000 / 5);
