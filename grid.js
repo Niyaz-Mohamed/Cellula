@@ -26,7 +26,7 @@ function updateMousePosition(event) {
   const rect = canvas.getBoundingClientRect();
   mouseX = event.clientX - rect.left;
   mouseY = event.clientY - rect.top;
-  console.log(mouseX, mouseY);
+  drawGrid();
 }
 canvas.addEventListener("mousemove", updateMousePosition);
 
@@ -53,12 +53,13 @@ function drawGrid() {
   // Draw each square
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      ctx.fillStyle = grid[row][col] ? "white" : "black";
-      ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
       // Update ring
-      if (ringCells.includes([col, row])) {
+      if (JSON.stringify(ringCells).indexOf(JSON.stringify([col, row])) != -1) {
         ctx.fillStyle = "red"; // Color for highlighting
-        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+        ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+      } else {
+        ctx.fillStyle = grid[row][col] ? "white" : "black";
+        ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
       }
     }
   }
@@ -111,31 +112,49 @@ function updateGrid() {
   drawGrid();
 }
 
-// Midpoint circle algorithm (CREDIT TO THIS REFERENCE: https://www.youtube.com/watch?v=bo-5qEAiwIk)
+// Midpoint circle algorithm
 function midpointCircle(x, y, r) {
   let points = [];
-  // Draw bottom right quadrant as reference
   let dx = r;
   let dy = 0;
-  let p = (dx - 0.5) ** 2 + (dy + 1) ** 2 - r ** 2; // Decision parameter
+  let p = 1 - r; // Initial decision parameter
 
-  while (dy <= r) {
-    // Push points in all quadrants
+  // Draw the circle
+  while (dx >= dy) {
+    // Push points in all 8 octants
     points.push(
       [x + dx, y + dy],
       [x - dx, y + dy],
       [x + dx, y - dy],
-      [x - dx, y + dy]
+      [x - dx, y - dy],
+      [x + dy, y + dx],
+      [x - dy, y + dx],
+      [x + dy, y - dx],
+      [x - dy, y - dx]
     );
 
     dy++;
-    if (p > 0) {
+    if (p <= 0) {
+      p = p + 2 * dy + 1;
+    } else {
       dx--;
+      p = p + 2 * dy - 2 * dx + 1;
     }
-    p = (dx - 0.5) ** 2 + (dy + 1) ** 2 - r ** 2;
   }
-  return points;
+
+  // Reduce to unique points
+  var uniquePoints = [];
+  var pointsFound = {};
+  for (var i = 0; i < points.length; i++) {
+    var stringified = JSON.stringify(points[i]);
+    if (pointsFound[stringified]) {
+      continue;
+    }
+    uniquePoints.push(points[i]);
+    pointsFound[stringified] = true;
+  }
+  return uniquePoints;
 }
 
 drawGrid();
-setInterval(updateGrid, 1000 / 10); // 5FPS
+setInterval(updateGrid, 1000 / 10);
