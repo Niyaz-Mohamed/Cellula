@@ -14,6 +14,11 @@ export function unique2DArr(arr) {
 
 // Midpoint circle algorithm
 export function midpointCircle(x, y, r) {
+  // Special case r=0
+  if (r <= 1) {
+    return [[x, y]];
+  }
+
   let points = [];
   let dx = r;
   let dy = 0;
@@ -45,6 +50,11 @@ export function midpointCircle(x, y, r) {
 
 // Generate full circles (extends midpoint circle algo)
 export function fillCircle(x, y, r) {
+  // Special case
+  if (r <= 0) {
+    return [[x, y]];
+  }
+
   let points = [];
   let dx = r;
   let dy = 0;

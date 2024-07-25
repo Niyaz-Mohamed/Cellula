@@ -15,7 +15,7 @@ window.addEventListener("keydown", (event) => {
       setFillRadius(fillRadius + 1);
       break;
     case "-":
-      setFillRadius(fillRadius - 1 < 1 ? 1 : fillRadius - 1);
+      setFillRadius(fillRadius < 0 ? 0 : fillRadius - 1);
       break;
 
     // Controls for FPS throttling
@@ -23,7 +23,7 @@ window.addEventListener("keydown", (event) => {
       setFps(fps + 5);
       break;
     case "ArrowDown":
-      setFps(fps - 5 < 10 ? 10 : fps - 5);
+      setFps(fps - 5 < 1 ? 1 : fps - 5);
       break;
 
     // Controls for pausing

@@ -25,7 +25,7 @@ let intervalId = null;
 
 function startDrawing() {
   if (!intervalId) {
-    intervalId = setInterval(() => automata.drawLife(), 1000 / (1.1 * fps));
+    intervalId = setInterval(() => automata.draw(), 1000 / (1.05 * fps));
   }
 }
 

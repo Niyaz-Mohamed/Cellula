@@ -1,10 +1,10 @@
 import "./controls/keys.js";
 import { resizeCanvas } from "./canvas.js";
-import { Automata } from "./automata.js";
+import { LifeLikeAutomata } from "./automata.js";
 import { fps, setDrawGrid } from "./controls/controls.js";
 
-// Set the drawGrid function
-export const automata = new Automata();
+// Set the drawGrid funcxxtion
+export const automata = new LifeLikeAutomata("B3/S23"); // Conway's Gol
 setDrawGrid(() => automata.drawGrid()); // Stop loss of context
 resizeCanvas();
 
