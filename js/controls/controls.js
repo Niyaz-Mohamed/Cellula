@@ -8,7 +8,7 @@ export function setDrawGrid(drawFunc) {
 
 // Main settings to control behavior of automata
 export let cellSize = 10;
-export let fps = 30;
+export let fps = 40;
 export let fillRadius = 5;
 export let paused = false;
 export let stroke = false;
@@ -17,9 +17,14 @@ export function setCellSize(size) {
   cellSize = size;
 }
 
+let fpsChangeCallback = () => {};
 export function setFps(frames) {
   fps = frames;
+  fpsChangeCallback();
   console.log(`FPS set to: ${frames}`);
+}
+export function onFpsChange(callback) {
+  fpsChangeCallback = callback;
 }
 
 export function setFillRadius(radius) {

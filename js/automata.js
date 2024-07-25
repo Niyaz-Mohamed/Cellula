@@ -131,7 +131,7 @@ export class Automata {
     let points = fillCircle(x, y, fillRadius);
 
     for (const [x, y] of points) {
-      if (x >= 0 && x <= this.grid[0].length && y >= 0 && y <= this.grid.length)
+      if (x >= 0 && x < this.grid[0].length && y >= 0 && y < this.grid.length)
         this.grid[y][x] = this.penState;
     }
     this.drawGrid();
