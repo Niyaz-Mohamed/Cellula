@@ -1,19 +1,18 @@
 import { canvas, ctx } from "./canvas.js";
-import { CELLSIZE, FILLRADIUS } from "./controls/controls.js";
-import { fillCircle } from "./circle.js";
+import { cellSize, fillRadius } from "./controls/controls.js";
+import { fillCircle, midpointCircle } from "./circle.js";
 import { mouseX, mouseY, outlinePoints } from "./controls/mouse.js";
 
 export class Automata {
   // Create an automata for a grid of dim [rows, cols]
   constructor() {
-    const rows = Math.floor(canvas.height / CELLSIZE);
-    const cols = Math.floor(canvas.width / CELLSIZE);
+    let rows = Math.floor(canvas.height / cellSize);
+    let cols = Math.floor(canvas.width / cellSize);
     this.grid = new Array(rows)
       .fill(null)
       .map(() =>
         new Array(cols).fill(null).map(() => (Math.random() < 0 ? 1 : 0))
       );
-    console.log(this.grid[0].length, this.grid.length);
     // For automata needing to reference past
     this.prevGrid = this.grid.map((row) => row.slice());
     this.rows = rows;
@@ -31,7 +30,7 @@ export class Automata {
     ];
   }
 
-  drawGrid() {
+  drawGrid(m = 0) {
     // Canvas settings defined in canvas.js
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
@@ -40,15 +39,25 @@ export class Automata {
       for (let col = 0; col < this.cols; col++) {
         ctx.fillStyle = this.grid[row][col] ? "white" : "black";
         ctx.strokeStyle = "black";
-        ctx.fillRect(col * CELLSIZE, row * CELLSIZE, CELLSIZE, CELLSIZE);
-        // ctx.strokeRect(col * CELLSIZE, row * CELLSIZE, CELLSIZE, CELLSIZE); // Optional Stroke
+        ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+        // ctx.strokeRect(col * cellSize, row * cellSize, cellSize, cellSize); // Optional Stroke
       }
     }
 
-    // Draw outline of pen
-    for (const [col, row] of outlinePoints) {
-      ctx.fillStyle = "rgba(255, 0, 0, 0.6)";
-      ctx.fillRect(col * CELLSIZE, row * CELLSIZE, CELLSIZE, CELLSIZE);
+    // Update outlinePoints if the fill radius has changed
+    let x = Math.floor(mouseX / cellSize);
+    let y = Math.floor(mouseY / cellSize);
+    if (outlinePoints[0] != [x + fillRadius + 1, y]) {
+      // Draw outline of pen
+      for (const [col, row] of midpointCircle(x, y, fillRadius + 1)) {
+        ctx.fillStyle = "rgba(255, 0, 0, 0.6)";
+        ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+      }
+    } else {
+      for (const [col, row] of outlinePoints) {
+        ctx.fillStyle = "rgba(255, 0, 0, 0.6)";
+        ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+      }
     }
   }
 
@@ -92,12 +101,13 @@ export class Automata {
 
   // Handles updates of the grid when mouse is pressed
   drawLife() {
-    let x = Math.floor(mouseX / CELLSIZE);
-    let y = Math.floor(mouseY / CELLSIZE);
-    let points = fillCircle(x, y, FILLRADIUS);
+    let x = Math.floor(mouseX / cellSize);
+    let y = Math.floor(mouseY / cellSize);
+    let points = fillCircle(x, y, fillRadius);
 
-    for (const [px, py] of points) {
-      this.grid[py][px] = 1;
+    for (const [x, y] of points) {
+      if (x >= 0 && x <= this.grid[0].length && y >= 0 && y <= this.grid.length)
+        this.grid[y][x] = 1;
     }
     this.drawGrid();
   }
