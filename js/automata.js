@@ -139,33 +139,53 @@ export class Automata {
 }
 
 export class LifeLikeAutomata extends Automata {
-  constructor(ruleString, neighbourhood = null, lifeColor = "white") {
+  constructor(ruleString = "B/S", neighbourhood = null, lifeColor = "white") {
     super();
-    this.parseRules(ruleString);
+    this.parseRules(ruleString); // Defines this.birthRules and surviveRules
     if (neighbourhood) {
       this.neighbourhood = neighbourhood;
     }
     this.lifeColor = lifeColor;
+
+    // Log stats
+    console.log(
+      `Initialized life-like automata with neighbourhood size ${
+        this.neighbourhood.length
+      }\nBirth Rules: ${[...this.birthRules]}\nSurvive Rules: ${[
+        ...this.surviveRules,
+      ]}`
+    );
   }
 
-  // Parse Birth/Survival notation rule string (see https://conwaylife.com/wiki/Rulestring)
+  // Parse Birth/Survival notation rule string, extended for a neighborhood of size n
+  // If birth requires 9 or 10 neighbors, rulestring is B9(10)/S (see https://conwaylife.com/wiki/Rulestring)
   parseRules(ruleString) {
-    const nbSize = this.neighbourhood.length;
-    const regexBS = new RegExp(`B([0-${nbSize}]*)/S([0-${nbSize}]*)`);
-    const regexSB = new RegExp(`S([0-${nbSize}]*)/B([0-${nbSize}]*)`); // Technically not a valid rulestring, but might as well include
+    const regex = /^B((\d*(\(\d+\))?)\/S)((\d*(\(\d+\))?)+)$/;
 
-    if (regexBS.test(ruleString)) {
-      const [birth, survive] = ruleString
-        .split("/")
-        .map((r) => r.substring(1).split("").map(Number));
-      this.surviveRules = new Set(survive);
-      this.birthRules = new Set(birth);
-    } else if (regexBS.test(ruleString)) {
-      const [survive, birth] = ruleString
-        .split("/")
-        .map((r) => r.substring(1).split("").map(Number));
-      this.surviveRules = new Set(survive);
-      this.birthRules = new Set(birth);
+    // Extract required rules
+    if (ruleString.match(regex)) {
+      let ruleList = ruleString.slice(1).split("/S");
+      function parseSequence(seq) {
+        const pattern = /(\d+|\(\d+\))/g;
+        seq = seq.match(pattern) || [];
+        let rules = [];
+
+        // Iterate through each parenthesis/number and extract the rule
+        seq.forEach((e) => {
+          // Parse parenthesis number as base 10
+          if (e.startsWith("(") && e.endsWith(")")) {
+            rules.push(parseInt(e.slice(1, -1), 10));
+          }
+          // Parse singular number as base 10
+          else {
+            rules.push(parseInt(e, 10));
+          }
+        });
+        return rules;
+      }
+      // Parse sequences to obtain rules
+      this.birthRules = new Set(parseSequence(ruleList[0]));
+      this.surviveRules = new Set(parseSequence(ruleList[1]));
     } else {
       console.log("INVALID RULESTRING: " + ruleString);
       this.surviveRules = new Set();
