@@ -1,7 +1,5 @@
-import { canvas } from "../canvas.js";
-import { automata } from "../main.js";
-
 // Call drawGrid to update when changes occur, register drawGrid in main
+import { automata } from "../main.js";
 export let drawGrid;
 
 export function setDrawGrid(drawFunc) {
@@ -12,6 +10,7 @@ export function setDrawGrid(drawFunc) {
 export let cellSize = 10;
 export let fps = 30;
 export let fillRadius = 5;
+export let paused = false;
 
 export function setCellSize(size) {
   cellSize = size;
@@ -26,4 +25,9 @@ export function setFillRadius(radius) {
   fillRadius = radius;
   console.log(`Fill Radius set to: ${radius}`);
   automata.drawGrid(1);
+}
+
+export function changePaused() {
+  paused = !paused;
+  console.log(paused ? "Simulation paused" : "Simulation continued");
 }

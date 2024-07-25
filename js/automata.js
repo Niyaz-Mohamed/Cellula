@@ -1,5 +1,5 @@
 import { canvas, ctx } from "./canvas.js";
-import { cellSize, fillRadius } from "./controls/controls.js";
+import { cellSize, fillRadius, paused } from "./controls/controls.js";
 import { fillCircle, midpointCircle } from "./circle.js";
 import { mouseX, mouseY, outlinePoints } from "./controls/mouse.js";
 
@@ -63,18 +63,20 @@ export class Automata {
 
   // Calculates the next state for the grid
   updateGrid() {
-    let newGrid = new Array(this.grid.length)
-      .fill(null)
-      .map(() => new Array(this.grid[0].length).fill(0));
-    for (let y = 0; y < this.rows; y++) {
-      for (let x = 0; x < this.cols; x++) {
-        newGrid[y][x] = this.getNextState([x, y]);
+    if (!paused) {
+      let newGrid = new Array(this.grid.length)
+        .fill(null)
+        .map(() => new Array(this.grid[0].length).fill(0));
+      for (let y = 0; y < this.rows; y++) {
+        for (let x = 0; x < this.cols; x++) {
+          newGrid[y][x] = this.getNextState([x, y]);
+        }
       }
+      // Update grid state and draw
+      this.prevGrid = this.grid.map((row) => row.slice());
+      this.grid = newGrid;
+      this.drawGrid();
     }
-    // Update grid state and draw
-    this.prevGrid = this.grid.map((row) => row.slice());
-    this.grid = newGrid;
-    this.drawGrid();
   }
 
   // TODO: Override for custom automata

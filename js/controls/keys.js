@@ -1,4 +1,11 @@
-import { fps, fillRadius, setFps, setFillRadius } from "./controls.js";
+import {
+  fps,
+  fillRadius,
+  paused,
+  setFps,
+  setFillRadius,
+  changePaused,
+} from "./controls.js";
 
 window.addEventListener("keydown", (event) => {
   switch (event.key) {
@@ -17,6 +24,11 @@ window.addEventListener("keydown", (event) => {
       break;
     case "ArrowDown":
       setFps(fps - 5 < 10 ? 10 : fps - 5);
+      break;
+
+    // Controls for pausing
+    case "p":
+      changePaused(!paused);
       break;
 
     default:

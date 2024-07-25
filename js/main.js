@@ -9,4 +9,6 @@ setDrawGrid(() => automata.drawGrid()); // Stop loss of context
 resizeCanvas();
 
 automata.drawGrid();
-setInterval(() => automata.updateGrid(), 1000 / fps);
+setInterval(() => {
+  automata.updateGrid(), 1000 / fps;
+});
