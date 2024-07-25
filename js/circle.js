@@ -55,6 +55,8 @@ export function fillCircle(x, y, r) {
     return [[x, y]];
   }
 
+  // Draw circle of radius r+1 and calculate inner points
+  r++;
   let points = [];
   let dx = r;
   let dy = 0;

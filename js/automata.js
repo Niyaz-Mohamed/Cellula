@@ -151,9 +151,9 @@ export class LifeLikeAutomata extends Automata {
     console.log(
       `Initialized life-like automata with neighbourhood size ${
         this.neighbourhood.length
-      }\nBirth Rules: ${[...this.birthRules]}\nSurvive Rules: ${[
-        ...this.surviveRules,
-      ]}`
+      }\nBirth Rules: ${JSON.stringify([
+        ...this.birthRules,
+      ])}\nSurvive Rules: ${JSON.stringify([...this.surviveRules])}`
     );
   }
 
@@ -178,7 +178,8 @@ export class LifeLikeAutomata extends Automata {
           }
           // Parse singular number as base 10
           else {
-            rules.push(parseInt(e, 10));
+            e = e.split("").map((e) => parseInt(e, 10));
+            rules = rules.concat(e);
           }
         });
         return rules;

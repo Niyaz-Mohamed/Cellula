@@ -9,7 +9,7 @@ export function setDrawGrid(drawFunc) {
 // Main settings to control behavior of automata
 export let cellSize = 10;
 export let fps = 40;
-export let fillRadius = 5;
+export let fillRadius = 3;
 export let paused = false;
 export let stroke = false;
 
