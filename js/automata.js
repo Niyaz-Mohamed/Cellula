@@ -1,5 +1,5 @@
 import { canvas, ctx } from "./canvas.js";
-import { cellSize, fillRadius, paused } from "./controls/controls.js";
+import { cellSize, fillRadius, paused, stroke } from "./controls/controls.js";
 import { fillCircle, midpointCircle } from "./circle.js";
 import { mouseX, mouseY, outlinePoints } from "./controls/mouse.js";
 
@@ -30,17 +30,28 @@ export class Automata {
     ];
   }
 
-  drawGrid(m = 0) {
+  drawGrid() {
     // Canvas settings defined in canvas.js
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     // Update cell colors
+    let drawRect;
+    if (stroke) {
+      drawRect = (x, y, width, height, stroke) => {
+        ctx.fillRect(x, y, width, height);
+        ctx.strokeRect(x, y, width, height);
+      };
+    } else {
+      drawRect = (x, y, width, height, stroke) => {
+        ctx.fillRect(x, y, width, height);
+      };
+    }
+
     for (let row = 0; row < this.rows; row++) {
       for (let col = 0; col < this.cols; col++) {
         ctx.fillStyle = this.grid[row][col] ? "white" : "black";
         ctx.strokeStyle = "black";
-        ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
-        // ctx.strokeRect(col * cellSize, row * cellSize, cellSize, cellSize); // Optional Stroke
+        drawRect(col * cellSize, row * cellSize, cellSize, cellSize);
       }
     }
 

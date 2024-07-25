@@ -1,10 +1,10 @@
 import {
   fps,
   fillRadius,
-  paused,
   setFps,
   setFillRadius,
   changePaused,
+  changeStroke,
 } from "./controls.js";
 
 window.addEventListener("keydown", (event) => {
@@ -28,7 +28,12 @@ window.addEventListener("keydown", (event) => {
 
     // Controls for pausing
     case "p":
-      changePaused(!paused);
+      changePaused();
+      break;
+
+    // Controls for grid stroke
+    case "s":
+      changeStroke();
       break;
 
     default:

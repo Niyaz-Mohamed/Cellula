@@ -11,6 +11,7 @@ export let cellSize = 10;
 export let fps = 30;
 export let fillRadius = 5;
 export let paused = false;
+export let stroke = false;
 
 export function setCellSize(size) {
   cellSize = size;
@@ -30,4 +31,9 @@ export function setFillRadius(radius) {
 export function changePaused() {
   paused = !paused;
   console.log(paused ? "Simulation paused" : "Simulation continued");
+}
+
+export function changeStroke() {
+  stroke = !stroke;
+  console.log(stroke ? "Added gridlines" : "Removed gridlines");
 }
