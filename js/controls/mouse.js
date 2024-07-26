@@ -1,6 +1,6 @@
 import { canvas } from "../canvas.js";
 import { automata } from "../main.js";
-import { midpointCircle } from "../circle.js";
+import { midpointCircle } from "../utils.js";
 import { cellSize, fillRadius, fps } from "./controls.js";
 
 export let mouseX = 0;
@@ -25,7 +25,10 @@ let intervalId = null;
 
 function startDrawing() {
   if (!intervalId) {
-    intervalId = setInterval(() => automata.draw(), 1000 / (1.05 * fps));
+    intervalId = setInterval(
+      () => automata.draw(),
+      1000 / (fps > 10 ? fps : 10)
+    );
   }
 }
 

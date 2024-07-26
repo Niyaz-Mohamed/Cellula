@@ -17,6 +17,7 @@ export function setCellSize(size) {
   cellSize = size;
 }
 
+// Function to reregister updateGrid
 let fpsChangeCallback = () => {};
 export function setFps(frames) {
   fps = frames;

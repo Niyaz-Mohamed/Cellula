@@ -1,6 +1,11 @@
 import { canvas, ctx } from "./canvas.js";
 import { cellSize, fillRadius, paused, stroke } from "./controls/controls.js";
-import { fillCircle, midpointCircle } from "./circle.js";
+import {
+  fillCircle,
+  midpointCircle,
+  mooreNeighborhod,
+  vonNeumannNeighborhood,
+} from "./utils.js";
 import { mouseX, mouseY, outlinePoints } from "./controls/mouse.js";
 
 export class Automata {
@@ -40,7 +45,7 @@ export class Automata {
     let drawRect;
     if (stroke) {
       drawRect = (x, y, width, height) => {
-        let strokeWidth = 1;
+        let strokeWidth = cellSize / 10;
         ctx.fillRect(
           x + strokeWidth,
           y + strokeWidth,
@@ -139,12 +144,22 @@ export class Automata {
 }
 
 export class LifeLikeAutomata extends Automata {
-  constructor(ruleString = "B/S", neighbourhood = null, lifeColor = "white") {
+  // Rulestrings for common lifelike automata, Moore neighborhood n=1 (See https://en.wikipedia.org/wiki/Life-like_cellular_automaton for more):
+  // GoL: B3/S23
+  // HighLife: B36/S23
+  // Day & Night: B3678/S34678
+  // Maze: B2/S12
+  // Seeds: B2/S
+  // Diamoeba: B357/S123
+
+  constructor(
+    ruleString = "B/S",
+    neighbourhood = mooreNeighborhod(),
+    lifeColor = "white"
+  ) {
     super();
     this.parseRules(ruleString); // Defines this.birthRules and surviveRules
-    if (neighbourhood) {
-      this.neighbourhood = neighbourhood;
-    }
+    this.neighbourhood = neighbourhood;
     this.lifeColor = lifeColor;
 
     // Log stats

@@ -15,7 +15,7 @@ window.addEventListener("keydown", (event) => {
       setFillRadius(fillRadius + 1);
       break;
     case "-":
-      setFillRadius(fillRadius < 0 ? 0 : fillRadius - 1);
+      setFillRadius(fillRadius - 1 < 0 ? 0 : fillRadius - 1);
       break;
 
     // Controls for FPS throttling
@@ -27,6 +27,7 @@ window.addEventListener("keydown", (event) => {
       break;
 
     // Controls for pausing
+    case " ":
     case "p":
       changePaused();
       break;

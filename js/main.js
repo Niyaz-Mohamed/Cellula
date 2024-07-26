@@ -4,7 +4,7 @@ import { LifeLikeAutomata } from "./automata.js";
 import { fps, setDrawGrid, onFpsChange } from "./controls/controls.js";
 
 // Set the drawGrid function
-export const automata = new LifeLikeAutomata("B3/S23"); // Conway's Gol
+export const automata = new LifeLikeAutomata("B1/S0123456789"); // Conway's Gol
 setDrawGrid(() => automata.drawGrid()); // Stop loss of context
 resizeCanvas();
 automata.drawGrid();

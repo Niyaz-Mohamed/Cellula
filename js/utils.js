@@ -45,7 +45,7 @@ export function midpointCircle(x, y, r) {
     }
   }
 
-  return unique2DArr(points);
+  return points;
 }
 
 // Generate full circles (extends midpoint circle algo)
@@ -91,4 +91,28 @@ export function fillCircle(x, y, r) {
   }
 
   return unique2DArr(points);
+}
+
+export function mooreNeighborhod(n = 1) {
+  points = [];
+  // Draw a square
+  for (let dx = -n; dx <= n; x++) {
+    for (let dy = -n; dy <= n; y++) {
+      points.push([dx, dy]);
+    }
+  }
+  return points;
+}
+
+export function vonNeumannNeighborhood(n = 1) {
+  points = [];
+  // Subset of Moore neighbourhood with Manhattan distance <= n
+  for (let dx = -n; dx <= n; dx++) {
+    for (let dy = -n; dy <= n; dy++) {
+      if (dx + dy <= n) {
+        neighborhood.push([dx, dy]);
+      }
+    }
+  }
+  return points;
 }
