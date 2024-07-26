@@ -35,6 +35,40 @@ export class Automata {
     ];
     // Cell state that pen draws
     this.penState = 1;
+
+    // Initialize GPU.js
+    this.gpu = new GPU();
+    //TODO: Override this to define how next value of each cell is determined
+    // Flatten the neighbourhood array for GPU.js
+    this.getNextStateKernel = this.gpu
+      .createKernel(function (grid, rows, cols, flatNeighbourhood) {
+        const x = this.thread.x;
+        const y = this.thread.y;
+
+        // Reconstruct neighbourhood from flat array
+        const neighbourhood = [];
+        for (let i = 0; i < flatNeighbourhood.length; i += 2) {
+          neighbourhood.push([flatNeighbourhood[i], flatNeighbourhood[i + 1]]);
+        }
+
+        // Count neighbors
+        let neighbourCount = 0;
+        for (let i = 0; i < neighbourhood.length; i++) {
+          let [dx, dy] = neighbourhood[i];
+          let nx = (x + dx + cols) % cols; // Wrap around
+          let ny = (y + dy + rows) % rows; // Wrap around
+          neighbourCount += grid[ny][nx];
+        }
+
+        // Update cell state
+        if (neighbourCount === 3 && grid[y][x] === 0) return 1; // Birth condition
+        if ((neighbourCount === 2 || neighbourCount === 3) && grid[y][x] === 1)
+          return 1; // Survival condition
+        return 0;
+      })
+      .setOutput([this.cols, this.rows])
+      .setGraphical(false)
+      .setDynamicOutput(true); // Allow dynamic resizing
   }
 
   drawGrid() {
@@ -59,6 +93,7 @@ export class Automata {
       };
     }
 
+    // Actually render the grid
     for (let row = 0; row < this.rows; row++) {
       for (let col = 0; col < this.cols; col++) {
         ctx.fillStyle = this.stateColor(this.grid[row][col]);
@@ -87,41 +122,17 @@ export class Automata {
   // Calculates the next state for the grid
   updateGrid() {
     if (!paused) {
-      let newGrid = new Array(this.grid.length)
-        .fill(null)
-        .map(() => new Array(this.grid[0].length).fill(0));
-      for (let y = 0; y < this.rows; y++) {
-        for (let x = 0; x < this.cols; x++) {
-          newGrid[y][x] = this.getNextState([x, y]);
-        }
-      }
+      let newGrid = this.getNextStateKernel(
+        this.grid,
+        this.rows,
+        this.cols,
+        this.neighbourhood.flat()
+      );
       // Update grid state and draw
       this.prevGrid = this.grid.map((row) => row.slice());
       this.grid = newGrid;
       this.drawGrid();
     }
-  }
-
-  // TODO: Override for custom automata
-  // Calculates the next state for a single cell in the grid (GoL by default)
-  getNextState(position) {
-    const [x, y] = position;
-    // Count neighbors
-    let neighbourCount = 0;
-    for (let [dx, dy] of this.neighbourhood) {
-      // Loop around grid
-      if (y + dy >= this.rows) dy -= this.rows;
-      else if (y + dy < 0) dy += this.rows;
-      if (x + dx >= this.cols) dx -= this.cols;
-      else if (x + dx < 0) dx += this.cols;
-      neighbourCount += this.grid[y + dy][x + dx];
-    }
-
-    // Update cell state
-    if (neighbourCount === 3 && this.grid[y][x] === 0) return 1; // Birth condition
-    if ((neighbourCount === 2 || neighbourCount === 3) && this.grid[y][x] === 1)
-      return 1; // Survival condition
-    return 0;
   }
 
   // Calculate color required by a specific state (in hex, rgb, or word)
@@ -144,13 +155,9 @@ export class Automata {
 }
 
 export class LifeLikeAutomata extends Automata {
-  // Rulestrings for common lifelike automata, Moore neighborhood n=1 (See https://en.wikipedia.org/wiki/Life-like_cellular_automaton for more):
-  // GoL: B3/S23
-  // HighLife: B36/S23
-  // Day & Night: B3678/S34678
-  // Maze: B2/S12
-  // Seeds: B2/S
-  // Diamoeba: B357/S123
+  // Lifelike automata with more Moore neighborhood n=1 can be defined by B/S format rulestrings (See https://conwaylife.com/wiki/List_of_Life-like_rules for more)
+  // This class has been extended to accept neighborhoods with more than 10 cells. Rulestrings for such neighborhoods are formatted differently
+  // B12(10)\S3(12) would result in cell birth if 1,2 or 10 neighbors, and survival if 3 or 12 neighbors
 
   constructor(
     ruleString = "B/S",
@@ -170,6 +177,8 @@ export class LifeLikeAutomata extends Automata {
         ...this.birthRules,
       ])}\nSurvive Rules: ${JSON.stringify([...this.surviveRules])}`
     );
+
+    //! Logic for determining next state here
   }
 
   // Parse Birth/Survival notation rule string, extended for a neighborhood of size n
