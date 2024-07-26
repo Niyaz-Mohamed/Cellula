@@ -94,10 +94,10 @@ export function fillCircle(x, y, r) {
 }
 
 export function mooreNeighborhod(n = 1) {
-  points = [];
+  let points = [];
   // Draw a square
-  for (let dx = -n; dx <= n; x++) {
-    for (let dy = -n; dy <= n; y++) {
+  for (let dx = -n; dx <= n; dx++) {
+    for (let dy = -n; dy <= n; dy++) {
       points.push([dx, dy]);
     }
   }
@@ -105,7 +105,7 @@ export function mooreNeighborhod(n = 1) {
 }
 
 export function vonNeumannNeighborhood(n = 1) {
-  points = [];
+  let points = [];
   // Subset of Moore neighbourhood with Manhattan distance <= n
   for (let dx = -n; dx <= n; dx++) {
     for (let dy = -n; dy <= n; dy++) {
