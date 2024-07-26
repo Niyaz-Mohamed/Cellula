@@ -11,64 +11,16 @@ import { mouseX, mouseY, outlinePoints } from "./controls/mouse.js";
 export class Automata {
   // Create an automata for a grid of dim [rows, cols]
   constructor() {
-    let rows = Math.floor(canvas.height / cellSize);
-    let cols = Math.floor(canvas.width / cellSize);
-    this.grid = new Array(rows)
+    this.rows = Math.floor(canvas.height / cellSize);
+    this.cols = Math.floor(canvas.width / cellSize);
+    this.grid = new Array(this.rows)
       .fill(null)
       .map(() =>
-        new Array(cols).fill(null).map(() => (Math.random() < 0 ? 1 : 0))
+        new Array(this.cols).fill(null).map(() => (Math.random() < 0 ? 1 : 0))
       );
-    // For automata needing to reference past
     this.prevGrid = this.grid.map((row) => row.slice());
-    this.rows = rows;
-    this.cols = cols;
-    // Moore neighbourhood by default
-    this.neighbourhood = [
-      [-1, -1],
-      [-1, 0],
-      [-1, 1],
-      [0, -1],
-      [0, 1],
-      [1, -1],
-      [1, 0],
-      [1, 1],
-    ];
-    // Cell state that pen draws
+    this.neighbourhood = mooreNeighborhod();
     this.penState = 1;
-
-    // Initialize GPU.js
-    this.gpu = new GPU();
-    //TODO: Override this to define how next value of each cell is determined
-    // Flatten the neighbourhood array for GPU.js
-    this.getNextStateKernel = this.gpu
-      .createKernel(function (grid, rows, cols, flatNeighbourhood) {
-        const x = this.thread.x;
-        const y = this.thread.y;
-
-        // Reconstruct neighbourhood from flat array
-        const neighbourhood = [];
-        for (let i = 0; i < flatNeighbourhood.length; i += 2) {
-          neighbourhood.push([flatNeighbourhood[i], flatNeighbourhood[i + 1]]);
-        }
-
-        // Count neighbors
-        let neighbourCount = 0;
-        for (let i = 0; i < neighbourhood.length; i++) {
-          let [dx, dy] = neighbourhood[i];
-          let nx = (x + dx + cols) % cols; // Wrap around
-          let ny = (y + dy + rows) % rows; // Wrap around
-          neighbourCount += grid[ny][nx];
-        }
-
-        // Update cell state
-        if (neighbourCount === 3 && grid[y][x] === 0) return 1; // Birth condition
-        if ((neighbourCount === 2 || neighbourCount === 3) && grid[y][x] === 1)
-          return 1; // Survival condition
-        return 0;
-      })
-      .setOutput([this.cols, this.rows])
-      .setGraphical(false)
-      .setDynamicOutput(true); // Allow dynamic resizing
   }
 
   drawGrid() {
@@ -76,9 +28,8 @@ export class Automata {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     // Update cell colors
-    let drawRect;
-    if (stroke) {
-      drawRect = (x, y, width, height) => {
+    const drawRect = (x, y, width, height) => {
+      if (stroke) {
         let strokeWidth = cellSize / 10;
         ctx.fillRect(
           x + strokeWidth,
@@ -86,14 +37,12 @@ export class Automata {
           width - 2 * strokeWidth,
           height - 2 * strokeWidth
         );
-      };
-    } else {
-      drawRect = (x, y, width, height) => {
+      } else {
         ctx.fillRect(x, y, width, height);
-      };
-    }
+      }
+    };
 
-    // Actually render the grid
+    // Render the grid
     for (let row = 0; row < this.rows; row++) {
       for (let col = 0; col < this.cols; col++) {
         ctx.fillStyle = this.stateColor(this.grid[row][col]);
@@ -122,15 +71,14 @@ export class Automata {
   // Calculates the next state for the grid
   updateGrid() {
     if (!paused) {
-      let newGrid = this.getNextStateKernel(
-        this.grid,
-        this.rows,
-        this.cols,
-        this.neighbourhood.flat()
-      );
-      // Update grid state and draw
+      // Run the GPU kernel to get the new grid state
+      const newGrid = new Array(this.rows)
+        .fill(null)
+        .map(() => new Array(this.cols).fill(0));
+      // Update prevGrid
       this.prevGrid = this.grid.map((row) => row.slice());
       this.grid = newGrid;
+      // Draw the grid
       this.drawGrid();
     }
   }
@@ -147,8 +95,9 @@ export class Automata {
     let points = fillCircle(x, y, fillRadius);
 
     for (const [x, y] of points) {
-      if (x >= 0 && x < this.grid[0].length && y >= 0 && y < this.grid.length)
+      if (x >= 0 && x < this.grid[0].length && y >= 0 && y < this.grid.length) {
         this.grid[y][x] = this.penState;
+      }
     }
     this.drawGrid();
   }
@@ -173,16 +122,53 @@ export class LifeLikeAutomata extends Automata {
     console.log(
       `Initialized life-like automata with neighbourhood size ${
         this.neighbourhood.length
-      }\nBirth Rules: ${JSON.stringify([
-        ...this.birthRules,
-      ])}\nSurvive Rules: ${JSON.stringify([...this.surviveRules])}`
+      }\nBirth Rules: ${JSON.stringify(
+        this.birthRules
+      )}\nSurvive Rules: ${JSON.stringify(this.surviveRules)}`
     );
 
     //! Logic for determining next state here
+    this.gpu = new GPU();
+    this.getNextStateKernel = this.gpu
+      .createKernel(function (grid, neighbourhood, birthRules, surviveRules) {
+        const x = this.thread.x;
+        const y = this.thread.y;
+        // Unpack constants
+        const neighbourhoodSize = this.constants.neighbourhoodSize;
+        const rows = this.constants.dim[0];
+        const cols = this.constants.dim[1];
+
+        let neighbourCount = 0;
+        for (let i = 0; i < neighbourhoodSize; i += 1) {
+          const dx = neighbourhood[i];
+          const dy = neighbourhood[i];
+          // if (y + dy >= rows) dy -= rows;
+          // else if (y + dy < 0) dy += rows;
+          // if (x + dx >= cols) dx -= cols;
+          // else if (x + dx < 0) dx += cols;
+          // neighbourCount += grid[y + dy][x + dx];
+        }
+
+        // // Check birth and survival rules
+        // const isBirth = birthRules[neighbourCount] || 0;
+        // const isSurvive = surviveRules[neighbourCount] || 0;
+        // if (grid[y][x] === 0 && isBirth) {
+        //   return 1; // Birth condition
+        // }
+        // if (grid[y][x] === 1 && isSurvive) {
+        //   return 1; // Survival condition
+        // }
+
+        return 0;
+      })
+      .setConstants({
+        neighbourhoodSize: this.neighbourhood.length,
+        dim: [this.grid.length, this.grid[0].length],
+      })
+      .setOutput([this.rows, this.cols]);
   }
 
   // Parse Birth/Survival notation rule string, extended for a neighborhood of size n
-  // If birth requires 9 or 10 neighbors, rulestring is B9(10)/S (see https://conwaylife.com/wiki/Rulestring)
   parseRules(ruleString) {
     const regex = /^B((\d*(\(\d+\))?)\/S)((\d*(\(\d+\))?)+)$/;
 
@@ -209,8 +195,8 @@ export class LifeLikeAutomata extends Automata {
         return rules;
       }
       // Parse sequences to obtain rules
-      this.birthRules = new Set(parseSequence(ruleList[0]));
-      this.surviveRules = new Set(parseSequence(ruleList[1]));
+      this.birthRules = [...new Set(parseSequence(ruleList[0]))];
+      this.surviveRules = [...new Set(parseSequence(ruleList[1]))];
     } else {
       console.log("INVALID RULESTRING: " + ruleString);
       this.surviveRules = new Set();
@@ -218,26 +204,22 @@ export class LifeLikeAutomata extends Automata {
     }
   }
 
-  // Override getNextState
-  getNextState(position) {
-    const [x, y] = position;
-    let neighbourCount = 0;
-    for (let [dx, dy] of this.neighbourhood) {
-      if (y + dy >= this.rows) dy -= this.rows;
-      else if (y + dy < 0) dy += this.rows;
-      if (x + dx >= this.cols) dx -= this.cols;
-      else if (x + dx < 0) dx += this.cols;
-      neighbourCount += this.grid[y + dy][x + dx];
+  // Calculates the next state for the grid
+  updateGrid() {
+    if (!paused) {
+      // Run the GPU kernel to get the new grid state
+      const newGrid = this.getNextStateKernel(
+        this.grid,
+        this.neighbourhood,
+        this.birthRules,
+        this.surviveRules
+      );
+      // Update prevGrid
+      this.prevGrid = this.grid.map((row) => row.slice());
+      this.grid = newGrid;
+      // Draw the grid
+      this.drawGrid();
     }
-
-    // Update cell state
-    if (this.grid[y][x] === 0 && this.birthRules.has(neighbourCount)) {
-      return 1; // Birth condition
-    }
-    if (this.grid[y][x] === 1 && this.surviveRules.has(neighbourCount)) {
-      return 1; // Survival condition
-    }
-    return 0;
   }
 
   // Override stateColor
