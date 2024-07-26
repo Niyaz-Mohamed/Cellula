@@ -7,14 +7,9 @@ body {
   background-color: black;
 }
 
-#toolbar {
-  height: 5vh;
-  background-color: burlywood;
-}
-
 canvas {
   display: block;
   width: 100vw;
-  height: 95vh;
+  height: 100vh;
   border: 1px black;
 }
