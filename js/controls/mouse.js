@@ -10,7 +10,7 @@ export var outlinePoints = [];
 function updateMousePosition(event) {
   const rect = canvas.getBoundingClientRect();
   mouseX = event.clientX - rect.left;
-  mouseY = event.clientY - rect.top;
+  mouseY = event.clientY - rect.top + window.innerHeight * 0.025;
   outlinePoints = midpointCircle(
     Math.floor(mouseX / cellSize),
     Math.floor(mouseY / cellSize),
@@ -25,10 +25,7 @@ let intervalId = null;
 
 function startDrawing() {
   if (!intervalId) {
-    intervalId = setInterval(
-      () => automata.draw(),
-      1000 / (fps > 10 ? fps : 10)
-    );
+    intervalId = setInterval(() => automata.draw(), 5);
   }
 }
 

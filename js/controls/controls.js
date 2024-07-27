@@ -7,11 +7,11 @@ export function setDrawGrid(drawFunc) {
 }
 
 // Main settings to control behavior of automata
-export let cellSize = 8;
+export let cellSize = 2;
 export let fps = 40;
 export let fillRadius = 3;
 export let paused = false;
-export let stroke = false;
+export let backgroundColor = [21, 25, 31]; // #15191f
 
 export function setCellSize(size) {
   cellSize = size;
@@ -31,15 +31,10 @@ export function onFpsChange(callback) {
 export function setFillRadius(radius) {
   fillRadius = radius;
   console.log(`Fill Radius set to: ${radius}`);
-  automata.drawGrid(1);
+  automata.drawGrid();
 }
 
 export function changePaused() {
   paused = !paused;
   console.log(paused ? "Simulation paused" : "Simulation continued");
-}
-
-export function changeStroke() {
-  stroke = !stroke;
-  console.log(stroke ? "Added gridlines" : "Removed gridlines");
 }

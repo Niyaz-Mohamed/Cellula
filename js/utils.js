@@ -12,6 +12,13 @@ export function unique2DArr(arr) {
   return unique;
 }
 
+// Pads an array shorter than a specific length to a specific length, filling up with pad value
+export function padArray(arr, size, padValue) {
+  if (arr.length < size)
+    return [...arr, ...Array(size - arr.length).fill(padValue)];
+  else return arr;
+}
+
 // Midpoint circle algorithm
 export function midpointCircle(x, y, r) {
   // Special case r=0
@@ -98,20 +105,18 @@ export function mooreNeighborhod(n = 1) {
   // Draw a square
   for (let dx = -n; dx <= n; dx++) {
     for (let dy = -n; dy <= n; dy++) {
-      points.push([dx, dy]);
+      if (!(dx == 0 && dy == 0)) points.push([dx, dy]);
     }
   }
   return points;
 }
 
-export function vonNeumannNeighborhood(n = 1) {
+export function vonNeumannNeighbourhood(n = 1) {
   let points = [];
   // Subset of Moore neighbourhood with Manhattan distance <= n
   for (let dx = -n; dx <= n; dx++) {
     for (let dy = -n; dy <= n; dy++) {
-      if (dx + dy <= n) {
-        neighborhood.push([dx, dy]);
-      }
+      if (dx + dy <= n && !(dx == 0 && dy == 0)) points.push([dx, dy]);
     }
   }
   return points;

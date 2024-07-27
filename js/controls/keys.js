@@ -4,7 +4,6 @@ import {
   setFps,
   setFillRadius,
   changePaused,
-  changeStroke,
 } from "./controls.js";
 
 window.addEventListener("keydown", (event) => {
@@ -30,11 +29,6 @@ window.addEventListener("keydown", (event) => {
     case " ":
     case "p":
       changePaused();
-      break;
-
-    // Controls for grid stroke
-    case "s":
-      changeStroke();
       break;
 
     default:
