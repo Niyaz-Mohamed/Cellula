@@ -4,10 +4,9 @@ import { LifeLikeAutomata } from "./automata.js";
 import { fps, setDrawGrid, onFpsChange } from "./controls/controls.js";
 
 // Set the drawGrid function
-export const automata = new LifeLikeAutomata("B4678/S35678"); // Conway's Gol
-setDrawGrid(() => automata.drawGrid()); // Stop loss of context
+export const automata = new LifeLikeAutomata("B4678/S35678"); // Automata Definition
+setDrawGrid(() => automata.drawGrid()); // Register callback for drawing grid
 resizeCanvas();
-automata.drawGrid();
 
 // Update interval when fps changes
 let intervalId;

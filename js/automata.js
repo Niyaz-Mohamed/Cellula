@@ -33,7 +33,7 @@ export class Automata {
 
   // Draw a grid on the canvas
   drawGrid() {
-    console.time("Draw");
+    //// console.time("Draw");
     // Create an ImageData object to batch update the canvas
     const imageData = ctx.createImageData(ctx.canvas.width, ctx.canvas.height);
     const data = imageData.data;
@@ -75,7 +75,7 @@ export class Automata {
         ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
       }
     }
-    console.timeEnd("Draw");
+    //// console.timeEnd("Draw");
   }
 
   // Calculate color required by a specific state as rgb value
@@ -86,9 +86,9 @@ export class Automata {
   // Calculates the next state for the grid
   updateGrid() {
     if (!paused) {
-      console.time("Update");
+      //// console.time("Update");
       let newGrid = this.getNextState();
-      console.timeEnd("Update");
+      //// console.timeEnd("Update");
       // Update grid state and draw
       this.grid = newGrid;
       this.drawGrid();

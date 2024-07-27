@@ -5,14 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <title>Cellula</title>
-    <link rel="icon" type="image/x-icon" href="./favicon.ico">
-    <link rel="stylesheet" href="./css/styles.css">
     <base href=".">
+    <!--Import Resources-->
+    <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
+    <link rel="stylesheet" href="./css/styles.css">
+    <!--GPU.js CDN-->
     <script src="https://cdn.jsdelivr.net/npm/gpu.js@2.10.1/dist/gpu-browser.min.js"></script>
+    <!--Pixelify Sans Font-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
 </head>
 
 <body>
-    <div id="toolbar"></div>
+    <div id="toolbar">
+        <p>Cellula</p>
+    </div>
     <canvas id="cellGrid"></canvas>
     <script type="module" src="./js/main.js" defer></script>
 </body>
