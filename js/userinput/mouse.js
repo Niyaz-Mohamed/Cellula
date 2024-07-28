@@ -21,18 +21,22 @@ function updateMousePosition(event) {
 
 ctx.canvas.addEventListener("mousemove", updateMousePosition);
 
-let intervalId = null;
+// Draw using requestAnimationFrame
+let isDrawing = false;
 
 function startDrawing() {
-  if (!intervalId) {
-    intervalId = setInterval(() => automata.draw(), 5);
-  }
+  isDrawing = true;
+  requestAnimationFrame(drawLoop);
 }
 
 function stopDrawing() {
-  if (intervalId) {
-    clearInterval(intervalId);
-    intervalId = null;
+  isDrawing = false;
+}
+
+function drawLoop() {
+  if (isDrawing) {
+    automata.draw();
+    requestAnimationFrame(drawLoop);
   }
 }
 

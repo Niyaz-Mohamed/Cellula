@@ -23,7 +23,7 @@ body {
   width: 100%;
   align-content: center;
   background-color: var(--toolbar-bg-color);
-  opacity: 0.95;
+  opacity: 0.97;
 }
 
 #toolbar > * {

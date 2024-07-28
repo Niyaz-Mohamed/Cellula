@@ -53,7 +53,7 @@ export function midpointCircle(x, y, r) {
     }
   }
 
-  return points;
+  return unique2DArr(points);
 }
 
 // Generate full circles (extends midpoint circle algo)

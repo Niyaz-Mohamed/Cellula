@@ -101,6 +101,9 @@ export class Automata {
       }
       // Automatically loop animation
       window.requestAnimationFrame(() => this.updateGrid());
+    } else {
+      // Handles mouse drawings
+      window.requestAnimationFrame(() => this.drawGrid());
     }
   }
 
@@ -120,7 +123,6 @@ export class Automata {
       if (x >= 0 && x < this.grid[0].length && y >= 0 && y < this.grid.length)
         this.grid[y][x] = this.penState;
     }
-    this.drawGrid();
   }
 }
 
@@ -135,7 +137,7 @@ export class LifeLikeAutomata extends Automata {
     lifeColor = "white"
   ) {
     super();
-    this.parseRules(ruleString); // Defines this.birthRules and surviveRules
+    this.setRules(ruleString);
     this.neighbourhood = neighbourhood;
     this.lifeColor = lifeColor;
 
@@ -201,7 +203,7 @@ export class LifeLikeAutomata extends Automata {
   }
 
   // Parse Birth/Survival notation rule string, extended for a neighbourhood of size n
-  parseRules(ruleString) {
+  setRules(ruleString) {
     const regex = /^B((\d*(\(\d+\))?)\/S)((\d*(\(\d+\))?)+)$/;
 
     // Extract required rules
