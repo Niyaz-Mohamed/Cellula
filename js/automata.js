@@ -242,7 +242,6 @@ export class LifeLikeAutomata extends Automata {
             rules = rules.concat(e);
           }
         });
-        console.log(rules);
         return rules;
       }
       // Parse sequences to obtain rules
@@ -265,7 +264,6 @@ export class LifeLikeAutomata extends Automata {
 
   // Rules for life-like
   getNextState() {
-    console.log(this.birthRules, this.surviveRules);
     const maxRules = Math.max(this.birthRules.length, this.surviveRules.length);
     const newGrid = this.gridUpdateKernel(
       this.grid,
