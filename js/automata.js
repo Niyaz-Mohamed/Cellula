@@ -5,7 +5,7 @@ import {
   fillRadius,
   paused,
   waitTime,
-} from "./userInput/controls.js";
+} from "./controls.js";
 import {
   fillCircle,
   getConsoleText,
@@ -14,7 +14,7 @@ import {
   padArray,
   updateConsole,
 } from "./utils.js";
-import { mouseX, mouseY, outlinePoints } from "./userInput/mouse.js";
+import { mouseX, mouseY, outlinePoints } from "./mouse.js";
 
 export class Automata {
   // Create an automata for a grid of dim [rows, cols]
