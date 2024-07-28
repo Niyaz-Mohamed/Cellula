@@ -127,6 +127,10 @@ export function vonNeumannNeighbourhood(n = 1) {
 
 // Update the console element
 export function updateConsole(text) {
-  console.log("UPDATED");
   document.getElementById("console").innerText = "> " + text;
+}
+
+// Get console text
+export function getConsoleText() {
+  return document.getElementById("console").innerText.slice(2);
 }

@@ -3,7 +3,7 @@ import { automata } from "../main.js";
 import { updateConsole } from "../utils.js";
 
 // Main settings to control behavior of automata
-export let cellSize = 2;
+export let cellSize = 3;
 export let waitTime = 0;
 export let fillRadius = 3;
 export let paused = false;

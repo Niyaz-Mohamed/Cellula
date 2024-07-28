@@ -5,25 +5,23 @@ import {
   fillRadius,
   paused,
   waitTime,
-} from "./userinput/controls.js";
+} from "./userInput/controls.js";
 import {
   fillCircle,
+  getConsoleText,
   midpointCircle,
   mooreNeighborhod,
   padArray,
+  updateConsole,
 } from "./utils.js";
-import { mouseX, mouseY, outlinePoints } from "./userinput/mouse.js";
+import { mouseX, mouseY, outlinePoints } from "./userInput/mouse.js";
 
 export class Automata {
   // Create an automata for a grid of dim [rows, cols]
   constructor() {
     const rows = Math.floor(ctx.canvas.height / cellSize);
     const cols = Math.floor(ctx.canvas.width / cellSize);
-    this.grid = new Array(rows)
-      .fill(null)
-      .map(() =>
-        new Array(cols).fill(null).map(() => (Math.random() < 0 ? 1 : 0))
-      );
+    this.grid = new Array(rows).fill(null).map(() => new Array(cols).fill(0));
     this.rows = rows;
     this.cols = cols;
     // Moore neighbourhood by default
@@ -111,6 +109,15 @@ export class Automata {
   // Calculates the next grid state
   getNextState() {
     return this.grid;
+  }
+
+  // Randomizes the grid
+  randomize() {
+    this.grid = new Array(this.rows)
+      .fill(null)
+      .map(() =>
+        new Array(this.cols).fill(null).map(() => (Math.random() < 0.5 ? 1 : 0))
+      );
   }
 
   // Handles updates of the grid when mouse is pressed
@@ -205,9 +212,16 @@ export class LifeLikeAutomata extends Automata {
   // Parse Birth/Survival notation rule string, extended for a neighbourhood of size n
   setRules(ruleString) {
     const regex = /^B((\d*(\(\d+\))?)\/S)((\d*(\(\d+\))?)+)$/;
+    ruleString = ruleString.replaceAll(" ", "");
 
     // Extract required rules
     if (ruleString.match(regex)) {
+      // Update console
+      if (getConsoleText() == "Invalid Rulestring!") {
+        updateConsole("Valid Rulestring!");
+      }
+
+      // Parse rulestring
       let ruleList = ruleString.slice(1).split("/S");
       function parseSequence(seq) {
         const pattern = /(\d+|\(\d+\))/g;
@@ -232,12 +246,11 @@ export class LifeLikeAutomata extends Automata {
       this.birthRules = [...new Set(parseSequence(ruleList[0]))];
       this.surviveRules = [...new Set(parseSequence(ruleList[1]))];
     } else {
-      console.log("INVALID RULESTRING: " + ruleString);
-      this.surviveRules = [...new Set()];
-      this.birthRules = [...new Set()];
+      updateConsole("Invalid Rulestring!");
     }
   }
 
+  // Rules for life-like
   getNextState() {
     const maxRules = Math.max(this.birthRules.length, this.surviveRules.length);
     const newGrid = this.gridUpdateKernel(

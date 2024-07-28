@@ -1,3 +1,4 @@
+import { automata } from "../main.js";
 import {
   fillRadius,
   setFillRadius,
@@ -25,12 +26,15 @@ window.addEventListener("keydown", (event) => {
       setWaitTime(waitTime - 50 < 0 ? 0 : waitTime - 50);
       break;
 
-    // Controls for pausing
+    // Controls for pausing on space
     case " ":
       changePaused();
       break;
 
     //TODO: Add grid randomizing with tab
+    case "Tab":
+    case "r":
+      automata.randomize();
 
     default:
       break;

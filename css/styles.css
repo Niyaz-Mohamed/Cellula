@@ -5,6 +5,44 @@
   --toolbar-height: 5vh;
 }
 
+/* Boilerplate for inputs */
+input::-webkit-input-placeholder {
+  font-family: "Pixelify Sans", sans-serif;
+}
+
+input:-ms-input-placeholder {
+  font-family: "Pixelify Sans", sans-serif;
+}
+
+input:-moz-placeholder {
+  font-family: "Pixelify Sans", sans-serif;
+}
+
+input::-moz-placeholder {
+  font-family: "Pixelify Sans", sans-serif;
+}
+
+input {
+  border: none;
+  outline: none;
+  border-radius: 0px;
+  appearance: none;
+  background-color: transparent;
+  caret-color: var(--toolbar-theme-color);
+  font-family: "Pixelify Sans", sans-serif;
+  font-size: 0.8em;
+  font-weight: bold;
+  color: var(--toolbar-theme-color);
+}
+
+input::placeholder {
+  color: var(--toolbar-theme-color);
+  font-size: 1em;
+  opacity: 0.5;
+  transition: color 0.5s ease;
+}
+
+/* Layout Styling */
 html,
 body {
   margin: 0;
@@ -33,7 +71,7 @@ body {
   padding: 0px 10px 0px 10px;
   color: var(--toolbar-theme-color);
   line-height: var(--toolbar-height);
-  font-size: 1.3em;
+  font-size: 1em;
   text-align: center;
   text-decoration: none;
   box-shadow: inset 0px 0px 0px 2px var(--toolbar-theme-color);
@@ -54,6 +92,6 @@ canvas {
   padding: 0px 10px 0px 10px;
   float: none;
   overflow: hidden;
-  font-size: 0.8em;
+  font-size: 1em;
   text-align: left;
 }
