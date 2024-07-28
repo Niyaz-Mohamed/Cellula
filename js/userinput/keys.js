@@ -1,8 +1,8 @@
 import {
-  fps,
   fillRadius,
-  setFps,
   setFillRadius,
+  waitTime,
+  setWaitTime,
   changePaused,
 } from "./controls.js";
 
@@ -19,10 +19,10 @@ window.addEventListener("keydown", (event) => {
 
     // Controls for FPS throttling
     case "ArrowUp":
-      setFps(fps + 3);
+      setWaitTime(waitTime + 50);
       break;
     case "ArrowDown":
-      setFps(fps - 3 < 1 ? 1 : fps - 3);
+      setWaitTime(waitTime - 50 < 0 ? 0 : waitTime - 50);
       break;
 
     // Controls for pausing

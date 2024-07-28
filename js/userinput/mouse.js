@@ -1,16 +1,16 @@
-import { canvas } from "../canvas.js";
+import { ctx } from "../canvas.js";
 import { automata } from "../main.js";
 import { midpointCircle } from "../utils.js";
-import { cellSize, fillRadius, fps } from "./controls.js";
+import { cellSize, fillRadius } from "./controls.js";
 
 export let mouseX = 0;
 export let mouseY = 0;
 export var outlinePoints = [];
 
 function updateMousePosition(event) {
-  const rect = canvas.getBoundingClientRect();
+  const rect = ctx.canvas.getBoundingClientRect();
   mouseX = event.clientX - rect.left;
-  mouseY = event.clientY - rect.top + window.innerHeight * 0.025;
+  mouseY = event.clientY - rect.top;
   outlinePoints = midpointCircle(
     Math.floor(mouseX / cellSize),
     Math.floor(mouseY / cellSize),
@@ -19,7 +19,7 @@ function updateMousePosition(event) {
   automata.drawGrid();
 }
 
-canvas.addEventListener("mousemove", updateMousePosition);
+ctx.canvas.addEventListener("mousemove", updateMousePosition);
 
 let intervalId = null;
 
@@ -36,6 +36,6 @@ function stopDrawing() {
   }
 }
 
-canvas.addEventListener("mousedown", startDrawing);
-canvas.addEventListener("mouseup", stopDrawing);
-canvas.addEventListener("mouseleave", stopDrawing);
+ctx.canvas.addEventListener("mousedown", startDrawing);
+ctx.canvas.addEventListener("mouseup", stopDrawing);
+ctx.canvas.addEventListener("mouseleave", stopDrawing);

@@ -1,34 +1,45 @@
+:root {
+  --bg-color: #15191f;
+  --toolbar-bg-color: #323a49;
+  --toolbar-theme-color: #95b0dc;
+  --toolbar-height: 5vh;
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
-  background-color: #15191f;
+  background-color: var(--bg-color);
   overflow: hidden;
   font-family: "Pixelify Sans", sans-serif;
   font-weight: bold;
 }
 
 #toolbar {
-  height: 5vh;
-  display: flex;
-  flex-wrap: nowrap;
-  background-color: white;
+  position: absolute;
+  height: var(--toolbar-height);
+  width: 100%;
   align-content: center;
+  background-color: var(--toolbar-bg-color);
+  opacity: 0.95;
 }
 
 #toolbar > * {
-  display: block;
+  float: left;
   height: 100%;
-  margin: 0px 10px 0px 10px;
+  margin: 0px;
+  padding: 0px 10px 0px 10px;
+  color: var(--toolbar-theme-color);
+  line-height: var(--toolbar-height);
+  font-size: 1.3em;
   text-align: center;
-  font-size: 2em;
+  text-decoration: none;
+  box-shadow: inset 0px 0px 0px 2px var(--toolbar-theme-color);
 }
 
 canvas {
-  display: block;
   width: 100vw;
-  height: 95vh;
-  border: 5px white;
+  height: 100vh;
 }

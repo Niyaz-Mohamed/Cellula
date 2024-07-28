@@ -1,23 +1,24 @@
-import { canvas, ctx } from "./canvas.js";
+import { ctx } from "./canvas.js";
 import {
   backgroundColor,
   cellSize,
   fillRadius,
   paused,
-} from "./controls/controls.js";
+  waitTime,
+} from "./userinput/controls.js";
 import {
   fillCircle,
   midpointCircle,
   mooreNeighborhod,
   padArray,
 } from "./utils.js";
-import { mouseX, mouseY, outlinePoints } from "./controls/mouse.js";
+import { mouseX, mouseY, outlinePoints } from "./userinput/mouse.js";
 
 export class Automata {
   // Create an automata for a grid of dim [rows, cols]
   constructor() {
-    const rows = Math.floor(canvas.height / cellSize);
-    const cols = Math.floor(canvas.width / cellSize);
+    const rows = Math.floor(ctx.canvas.height / cellSize);
+    const cols = Math.floor(ctx.canvas.width / cellSize);
     this.grid = new Array(rows)
       .fill(null)
       .map(() =>
@@ -29,6 +30,8 @@ export class Automata {
     this.neighbourhood = mooreNeighborhod();
     // Cell state that pen draws
     this.penState = 1;
+    // Prepare for FPS throttling
+    this.lastUpdateTime = Date.now();
   }
 
   // Draw a grid on the canvas
@@ -89,9 +92,15 @@ export class Automata {
       //// console.time("Update");
       let newGrid = this.getNextState();
       //// console.timeEnd("Update");
-      // Update grid state and draw
-      this.grid = newGrid;
-      this.drawGrid();
+      // Update grid state and draw, only if enough time has passed
+      const currentTime = Date.now();
+      if (currentTime - this.lastUpdateTime >= waitTime) {
+        this.lastUpdateTime = currentTime;
+        this.grid = newGrid;
+        this.drawGrid();
+      }
+      // Automatically loop animation
+      window.requestAnimationFrame(() => this.updateGrid());
     }
   }
 
@@ -116,7 +125,7 @@ export class Automata {
 }
 
 export class LifeLikeAutomata extends Automata {
-  // Common lifelike automata with Moore neighbourhood n=1 can be represented by rulestrings (See https://en.wikipedia.org/wiki/Life-like_cellular_automaton)
+  // Common lifelike automata with Moore neighbourhood n=1 can be represented by rulestrings (See https://conwaylife.com/wiki/List_of_Life-like_rules)
   // This class extends to neighbourhoods with more than 10 neighbours. Rulestrings have been adapted accordingly
   // Rulestring B1(10)/S3(11)(12) means birth when 1 or 10 neighbours, and survival if 3, 11 or 12 neighbours
 
@@ -139,8 +148,16 @@ export class LifeLikeAutomata extends Automata {
       )}\nSurvive Rules: ${JSON.stringify(this.surviveRules)}`
     );
 
+    // Create GPU, account for issues in chrome
+    function initGPU() {
+      try {
+        return new window.GPU.GPU();
+      } catch (e) {
+        return new GPU();
+      }
+    }
+    const gpu = initGPU();
     // Implement GPU kernel to update grid
-    const gpu = new GPU();
     this.gridUpdateKernel = gpu
       .createKernel(
         function (grid, neighbourhood, birthRules, survivalRules) {
@@ -184,7 +201,6 @@ export class LifeLikeAutomata extends Automata {
   }
 
   // Parse Birth/Survival notation rule string, extended for a neighbourhood of size n
-  // If birth requires 9 or 10 neighbors, rulestring is B9(10)/S (see https://conwaylife.com/wiki/Rulestring)
   parseRules(ruleString) {
     const regex = /^B((\d*(\(\d+\))?)\/S)((\d*(\(\d+\))?)+)$/;
 

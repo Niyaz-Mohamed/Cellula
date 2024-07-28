@@ -1,3 +1,4 @@
+// Removes all duplicate elements in a 2D array
 export function unique2DArr(arr) {
   var unique = [];
   var elementsFound = {};
@@ -100,6 +101,7 @@ export function fillCircle(x, y, r) {
   return unique2DArr(points);
 }
 
+// Generate Moore neighborhood relative to point (0,0)
 export function mooreNeighborhod(n = 1) {
   let points = [];
   // Draw a square
@@ -111,6 +113,7 @@ export function mooreNeighborhod(n = 1) {
   return points;
 }
 
+// Generate Von Neumann neighborhood relative to point (0,0)
 export function vonNeumannNeighbourhood(n = 1) {
   let points = [];
   // Subset of Moore neighbourhood with Manhattan distance <= n
