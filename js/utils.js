@@ -124,3 +124,9 @@ export function vonNeumannNeighbourhood(n = 1) {
   }
   return points;
 }
+
+// Update the console element
+export function updateConsole(text) {
+  console.log("UPDATED");
+  document.getElementById("console").innerText = "> " + text;
+}

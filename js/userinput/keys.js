@@ -9,27 +9,28 @@ import {
 window.addEventListener("keydown", (event) => {
   switch (event.key) {
     // Controls for fillRadius increase
-    case "=":
-    case "+":
+    case "ArrowUp":
       setFillRadius(fillRadius + 1);
       break;
-    case "-":
+    case "ArrowDown":
       setFillRadius(fillRadius - 1 < 0 ? 0 : fillRadius - 1);
       break;
 
     // Controls for FPS throttling
-    case "ArrowUp":
+    case "=":
+    case "+":
       setWaitTime(waitTime + 50);
       break;
-    case "ArrowDown":
+    case "-":
       setWaitTime(waitTime - 50 < 0 ? 0 : waitTime - 50);
       break;
 
     // Controls for pausing
     case " ":
-    case "p":
       changePaused();
       break;
+
+    //TODO: Add grid randomizing with tab
 
     default:
       break;

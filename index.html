@@ -23,7 +23,13 @@
 
 <body>
     <div id="toolbar">
-        <p>Cellula</p>
+        <p id="app-title">Cellula</p>
+        <div id="rule-div">
+            <label for="rule-input">Rulestring:</label>
+            <input type="text" id="rule-input" name="rule-input">
+        </div>
+        <p id="console">> Space to pause, Arrow Up/Down to change fill radius, -/+ to change grid update interval, tab
+            to randomize grid</p>
     </div>
     <canvas id="cellGrid"></canvas>
     <script type="module" src="./js/main.js" defer></script>

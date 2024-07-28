@@ -43,3 +43,17 @@ canvas {
   width: 100vw;
   height: 100vh;
 }
+
+/* Toolbar Styles */
+#app-title {
+  background-color: var(--toolbar-theme-color);
+  color: var(--toolbar-bg-color);
+}
+
+#console {
+  padding: 0px 10px 0px 10px;
+  float: none;
+  overflow: hidden;
+  font-size: 0.8em;
+  text-align: left;
+}
