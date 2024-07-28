@@ -1,6 +1,7 @@
 import { ctx } from "../canvas.js";
 import { automata } from "../main.js";
 import { midpointCircle } from "../utils.js";
+import { cellSize, fillRadius } from "./controls.js";
 
 export let mouseX = 0;
 export let mouseY = 0;

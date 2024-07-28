@@ -1,4 +1,5 @@
 import { automata } from "../main.js";
+import { changePaused } from "./controls.js";
 
 window.addEventListener("keydown", (event) => {
   switch (event.key) {
