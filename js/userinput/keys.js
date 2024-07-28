@@ -27,6 +27,7 @@ window.addEventListener("keydown", (event) => {
       break;
 
     // Controls for pausing on space
+    case "p":
     case " ":
       changePaused();
       break;

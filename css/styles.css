@@ -42,6 +42,11 @@ input::placeholder {
   transition: color 0.5s ease;
 }
 
+a:link,
+a:visited {
+  color: var(--toolbar-theme-color);
+}
+
 /* Layout Styling */
 html,
 body {

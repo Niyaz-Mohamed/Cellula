@@ -162,7 +162,7 @@ export class LifeLikeAutomata extends Automata {
       try {
         return new window.GPU.GPU();
       } catch (e) {
-        return new GPU();
+        return new GPU({ mode: "dev" });
       }
     }
     const gpu = initGPU();
@@ -213,6 +213,8 @@ export class LifeLikeAutomata extends Automata {
   setRules(ruleString) {
     const regex = /^B((\d*(\(\d+\))?)\/S)((\d*(\(\d+\))?)+)$/;
     ruleString = ruleString.replaceAll(" ", "");
+    // Update rulestring selector
+    document.getElementById("rule-input").value = ruleString;
 
     // Extract required rules
     if (ruleString.match(regex)) {
@@ -240,6 +242,7 @@ export class LifeLikeAutomata extends Automata {
             rules = rules.concat(e);
           }
         });
+        console.log(rules);
         return rules;
       }
       // Parse sequences to obtain rules
@@ -248,10 +251,21 @@ export class LifeLikeAutomata extends Automata {
     } else {
       updateConsole("Invalid Rulestring!");
     }
+
+    // Update constants
+    if (this.gridUpdateKernel) {
+      this.gridUpdateKernel.setConstants({
+        rows: this.rows,
+        cols: this.cols,
+        neighbourhoodSize: this.neighbourhood.length,
+        rulesSize: Math.max(this.birthRules.length, this.surviveRules.length),
+      });
+    }
   }
 
   // Rules for life-like
   getNextState() {
+    console.log(this.birthRules, this.surviveRules);
     const maxRules = Math.max(this.birthRules.length, this.surviveRules.length);
     const newGrid = this.gridUpdateKernel(
       this.grid,
