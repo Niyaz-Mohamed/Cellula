@@ -1,11 +1,4 @@
 import { automata } from "../main.js";
-import {
-  fillRadius,
-  setFillRadius,
-  waitTime,
-  setWaitTime,
-  changePaused,
-} from "./controls.js";
 
 window.addEventListener("keydown", (event) => {
   switch (event.key) {
