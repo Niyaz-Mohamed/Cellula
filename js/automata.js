@@ -14,7 +14,7 @@ import {
   padArray,
   updateConsole,
 } from "./utils.js";
-import { mouseX, mouseY, outlinePoints } from "./mouse.js";
+import { mouseX, mouseY, outlinePoints } from "./userInput.js";
 
 export class Automata {
   // Create an automata for a grid of dim [rows, cols]
