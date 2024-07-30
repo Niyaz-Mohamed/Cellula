@@ -1,0 +1,26 @@
+.window {
+  position: absolute;
+  margin: 10% 10%; /*TODO: Remove once draggable is done*/
+  z-index: 9;
+  background-color: var(--bg-color);
+  border: 3px solid var(--theme-color);
+  text-align: center;
+  color: var(--theme-color);
+}
+
+.window-header {
+  height: var(--toolbar-height);
+  padding: 0px 10px;
+  cursor: move;
+  z-index: 10;
+  background-color: var(--theme-color);
+  color: var(--bg-color);
+}
+
+.window-header span {
+  line-height: var(--toolbar-height);
+}
+
+.window-title {
+  margin-right: 30px;
+}

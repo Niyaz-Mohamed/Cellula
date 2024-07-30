@@ -53,8 +53,9 @@ ctx.canvas.addEventListener("mouseup", stopDrawing);
 ctx.canvas.addEventListener("mouseleave", stopDrawing);
 
 // Key inputs
-window.addEventListener("keydown", (event) => {
-  switch (event.key) {
+window.addEventListener("keydown", (e) => {
+  e.preventDefault();
+  switch (e.key) {
     // Controls for fillRadius increase
     case "ArrowUp":
       setFillRadius(fillRadius + 1);
@@ -91,3 +92,46 @@ window.addEventListener("keydown", (event) => {
       break;
   }
 });
+
+// Trigger window dragging for all draggable windows
+// dragElement(document.getElementById("mydiv"));
+
+function triggerDragElement(element) {
+  let xPos = 0,
+    yPos = 0,
+    changeOfX = 0,
+    changeOfY = 0;
+
+  // Check for presence of a header
+  if (document.getElementById(element.id + "header")) {
+    document.getElementById(element.id + "header").onmousedown = dragMouseDown;
+  } else {
+    element.onmousedown = dragMouseDown;
+  }
+
+  function dragMouseDown(e) {
+    e.preventDefault();
+    // Get starting mouse position
+    xPos = e.clientX;
+    yPos = e.clientY;
+    document.onmouseup = closeDragElement;
+    document.onmousemove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    e.preventDefault();
+    changeOfX = pos3 - e.clientX;
+    changeOfY = pos4 - e.clientY;
+    xPos = e.clientX;
+    yPos = e.clientY;
+    // Set new position
+    element.style.top = element.offsetTop - pos2 + "px";
+    element.style.left = element.offsetLeft - pos1 + "px";
+  }
+
+  function closeDragElement() {
+    // stop moving when mouse button is released:
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
+}

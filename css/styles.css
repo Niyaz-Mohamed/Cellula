@@ -1,8 +1,8 @@
 :root {
-  --bg-color: #15191f;
-  --toolbar-bg-color: #323a49;
-  --toolbar-highlight-color: #48546a;
-  --toolbar-theme-color: #95b0dc;
+  --grid-bg-color: #15191f;
+  --bg-color: #323a49;
+  --highlight-color: #48546a;
+  --theme-color: #95b0dc;
   --toolbar-height: 5vh;
 }
 
@@ -43,15 +43,15 @@ input {
   border-radius: 0px;
   appearance: none;
   background-color: transparent;
-  caret-color: var(--toolbar-theme-color);
+  caret-color: var(--theme-color);
   font-family: "Pixelify Sans", sans-serif;
   font-size: 0.8em;
   font-weight: bold;
-  color: var(--toolbar-theme-color);
+  color: var(--theme-color);
 }
 
 input::placeholder {
-  color: var(--toolbar-theme-color);
+  color: var(--theme-color);
   font-size: 1em;
   opacity: 0.5;
   transition: color 0.5s ease;
@@ -59,7 +59,7 @@ input::placeholder {
 
 a:link,
 a:visited {
-  color: var(--toolbar-theme-color);
+  color: var(--theme-color);
 }
 
 /* Layout Styling */
@@ -69,7 +69,7 @@ body {
   padding: 0;
   width: 100%;
   height: 100%;
-  background-color: var(--bg-color);
+  background-color: var(--grid-bg-color);
   overflow: hidden;
   font-family: "Pixelify Sans", sans-serif !important;
   font-weight: bold;
@@ -81,7 +81,7 @@ body {
   height: var(--toolbar-height);
   width: 100%;
   align-content: center;
-  background-color: var(--toolbar-bg-color);
+  background-color: var(--bg-color);
   opacity: 0.97;
 }
 
@@ -90,12 +90,12 @@ body {
   height: 100%;
   margin: 0px;
   padding: 0px 10px 0px 10px;
-  color: var(--toolbar-theme-color);
+  color: var(--theme-color);
   line-height: var(--toolbar-height);
   font-size: 1em;
   text-align: center;
   text-decoration: none;
-  box-shadow: inset 0px 0px 0px 2px var(--toolbar-theme-color);
+  box-shadow: inset 0px 0px 0px 2px var(--theme-color);
 }
 
 canvas {

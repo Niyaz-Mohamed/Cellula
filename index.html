@@ -11,6 +11,7 @@
     <link rel="icon" type="image/x-icon" href="./images/favicon.ico" />
     <link rel="stylesheet" href="./css/styles.css" />
     <link rel="stylesheet" href="./css/toolbar.css" />
+    <link rel="stylesheet" href="./css/windows.css" />
     <!--GPU.js CDN-->
     <script src="https://cdn.jsdelivr.net/npm/gpu.js@2.10.1/dist/gpu-browser.min.js"></script>
     <!--Pixelify Sans Font-->
@@ -39,6 +40,9 @@
                 </button>
             </div>
         </div>
+        <div class="dropdown window-trigger" id="settings">
+            <button class="dropbtn">Settings</button>
+        </div>
         <div id="rule-div">
             <label for="rule-input"><a
                     href="https://conwaylife.com/wiki/List_of_Life-like_rules">Rulestring:</a></label>
@@ -51,7 +55,15 @@
             </span>
         </p>
     </div>
-    <canvas id="cellGrid"></canvas>
+    <!-- Draggable Settings -->
+    <div id="settings" class="window">
+        <div id="settings-header" class="window-header">
+            <span class="window-title">Click here to move</span>
+            <span class="window-delete">X</span>
+        </div>
+        <p>Content</p>
+    </div>
+    <canvas id="cellGrid"> </canvas>
     <script type="module" src="./js/main.js"></script>
     <script type="module" src="./js/userInput.js"></script>
 </body>

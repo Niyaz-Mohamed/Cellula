@@ -1,7 +1,7 @@
 /*! Title to left of tabbar */
 #app-title {
-  background-color: var(--toolbar-theme-color);
-  color: var(--toolbar-bg-color);
+  background-color: var(--theme-color);
+  color: var(--bg-color);
 }
 
 /*! Console */
@@ -30,32 +30,32 @@
   display: none;
   position: absolute;
   min-width: 160px;
-  background-color: var(--toolbar-bg-color);
-  border: 3px solid var(--toolbar-theme-color);
+  background-color: var(--bg-color);
+  border: 3px solid var(--theme-color);
   border-top: 0px;
   z-index: 1;
 }
 
 .dropdown-option {
   display: block;
-  height: 5vh;
+  height: var(--toolbar-height);
   padding: 0px 15px;
 }
 
 .option-name {
   float: left;
-  line-height: 5vh;
+  line-height: var(--toolbar-height);
 }
 
 .option-shortcut {
   float: right;
-  line-height: 5vh;
+  line-height: var(--toolbar-height);
   opacity: 0.5;
 }
 
 /* Hover changes */
 .dropdown-option:hover {
-  background-color: var(--toolbar-highlight-color);
+  background-color: var(--highlight-color);
 }
 
 .dropdown:hover .dropdown-content {
@@ -63,11 +63,11 @@
 }
 
 .dropdown:hover {
-  background-color: var(--toolbar-theme-color);
+  background-color: var(--theme-color);
 }
 
 .dropdown:hover .dropbtn {
-  color: var(--toolbar-bg-color);
+  color: var(--bg-color);
 }
 
 /*! Trigger Boilerplate */
