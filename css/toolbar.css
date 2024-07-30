@@ -1,19 +1,28 @@
-/*Dropdown Boilerplate */
+/*! Title to left of tabbar */
+#app-title {
+  background-color: var(--toolbar-theme-color);
+  color: var(--toolbar-bg-color);
+}
+
+/*! Console */
+#console-container {
+  padding: 0px 10px 0px 10px;
+  float: none;
+  overflow: hidden;
+  font-size: 1em;
+  text-align: left;
+}
+
+/*! Dropdown Boilerplate */
 .dropdown {
   padding: 0px !important;
+  width: 10%;
+  min-width: 100px;
 }
 
 .dropbtn {
-  width: 100%;
-  height: 100%;
-  padding: 0px 3px 0px 3px;
-  border: none;
-  /* Inherit other properties */
-  font-family: inherit;
-  font-weight: inherit;
-  font-size: inherit;
-  background-color: inherit;
-  color: inherit;
+  padding: 0px;
+  cursor: grab;
 }
 
 /* Dropdown Content (Hidden by Default) */
@@ -22,41 +31,43 @@
   position: absolute;
   min-width: 160px;
   background-color: var(--toolbar-bg-color);
+  border: 3px solid var(--toolbar-theme-color);
+  border-top: 0px;
   z-index: 1;
 }
 
-/* Change the background color of the dropdown button when the dropdown content is shown */
-.dropdown:hover .dropbtn {
-  background-color: var(--toolbar-theme-color);
-  color: white;
-}
-
-.dropdown-content > * {
-  padding: 2px 6px;
+.dropdown-option {
   display: block;
   height: 5vh;
+  padding: 0px 15px;
 }
 
-.dropdown-content a:hover {
+.option-name {
+  float: left;
+  line-height: 5vh;
+}
+
+.option-shortcut {
+  float: right;
+  line-height: 5vh;
+  opacity: 0.5;
+}
+
+/* Hover changes */
+.dropdown-option:hover {
   background-color: var(--toolbar-highlight-color);
 }
 
-/* Show the dropdown menu on hover */
 .dropdown:hover .dropdown-content {
   display: block;
 }
 
-/* Title to left of tabbar */
-#app-title {
+.dropdown:hover {
   background-color: var(--toolbar-theme-color);
+}
+
+.dropdown:hover .dropbtn {
   color: var(--toolbar-bg-color);
 }
 
-/* Console */
-#console-container {
-  padding: 0px 10px 0px 10px;
-  float: none;
-  overflow: hidden;
-  font-size: 1em;
-  text-align: left;
-}
+/*! Trigger Boilerplate */

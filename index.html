@@ -2,45 +2,58 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1" />
     <title>Cellula</title>
     <!--Base for github pages-->
-    <base href="./" target="_blank">
+    <base href="./" target="_blank" />
     <!--Import Resources-->
-    <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
-    <link rel="stylesheet" href="./css/styles.css">
-    <link rel="stylesheet" href="./css/toolbar.css">
+    <link rel="icon" type="image/x-icon" href="./images/favicon.ico" />
+    <link rel="stylesheet" href="./css/styles.css" />
+    <link rel="stylesheet" href="./css/toolbar.css" />
     <!--GPU.js CDN-->
     <script src="https://cdn.jsdelivr.net/npm/gpu.js@2.10.1/dist/gpu-browser.min.js"></script>
     <!--Pixelify Sans Font-->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet" />
 </head>
 
 <body>
     <div id="toolbar">
         <p id="app-title">Cellula</p>
-        <div id="rule-div">
-            <label for="rule-input"><a
-                    href="https://conwaylife.com/wiki/List_of_Life-like_rules">Rulestring:</a></label>
-            <input type="text" id="rule-input" name="rule-input" placeholder="B/S">
-        </div>
         <div class="dropdown">
             <button class="dropbtn">Controls</button>
             <div class="dropdown-content">
-                <a href="#">Option 1</a>
-                <a href="#">Option 2</a>
-                <a href="#">Option 3</a>
+                <button class="dropdown-option">
+                    <span class="option-name">Option 1</span>
+                    <span class="option-shortcut">P</span>
+                </button>
+                <button class="dropdown-option">
+                    <span class="option-name">Option 2</span>
+                    <span class="option-shortcut">P</span>
+                </button>
+                <button class="dropdown-option">
+                    <span class="option-name">Option 3</span>
+                    <span class="option-shortcut">P</span>
+                </button>
             </div>
         </div>
-        <p id="console-container">> <span id="console">Space to pause, Arrows to change fill radius, -/+ to change grid
-                update interval, Tab/R
-                to randomize grid </span>
+        <div id="rule-div">
+            <label for="rule-input"><a
+                    href="https://conwaylife.com/wiki/List_of_Life-like_rules">Rulestring:</a></label>
+            <input type="text" id="rule-input" name="rule-input" placeholder="B/S" />
+        </div>
+        <p id="console-container">
+            »
+            <span id="console">Space to pause, Arrows to change fill radius, -/+ to change grid
+                update interval, Tab/R to randomize grid
+            </span>
         </p>
     </div>
     <canvas id="cellGrid"></canvas>
     <script type="module" src="./js/main.js"></script>
     <script type="module" src="./js/userInput.js"></script>
 </body>
+
+</html>

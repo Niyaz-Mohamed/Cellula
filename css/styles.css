@@ -6,6 +6,20 @@
   --toolbar-height: 5vh;
 }
 
+/* Boilerplate for buttons */
+button {
+  width: 100%;
+  height: 100%;
+  padding: 0px 3px;
+  border: none;
+  /* Inherit other properties */
+  font-family: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+  background-color: inherit;
+  color: inherit;
+}
+
 /* Boilerplate for inputs */
 input::-webkit-input-placeholder {
   font-family: "Pixelify Sans", sans-serif;
@@ -59,6 +73,7 @@ body {
   overflow: hidden;
   font-family: "Pixelify Sans", sans-serif !important;
   font-weight: bold;
+  cursor: crosshair;
 }
 
 #toolbar {
