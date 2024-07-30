@@ -1,13 +1,12 @@
 .window {
   position: absolute;
-  top: 10vh;
-  left: 10vw;
+  text-align: center;
+  min-width: 300px;
   z-index: 9;
+  color: var(--theme-color);
   background-color: var(--bg-color);
   border: 3px solid var(--theme-color);
-  text-align: center;
-  color: var(--theme-color);
-  min-width: 300px;
+  opacity: var(--toolbar-opacity);
   display: none;
 }
 

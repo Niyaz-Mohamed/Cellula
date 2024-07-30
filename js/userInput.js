@@ -14,6 +14,8 @@ export let mouseX = 0;
 export let mouseY = 0;
 export var outlinePoints = [];
 
+//! MOUSE FUNCTIONS
+
 // Update mouse coordinate whenever mouse moves
 function updateMousePosition(event) {
   const rect = ctx.canvas.getBoundingClientRect();
@@ -48,50 +50,7 @@ function drawLoop() {
   }
 }
 
-ctx.canvas.addEventListener("mousedown", startDrawing);
-ctx.canvas.addEventListener("mouseup", stopDrawing);
-ctx.canvas.addEventListener("mouseleave", stopDrawing);
-
-// Key inputs
-window.addEventListener("keydown", (e) => {
-  e.preventDefault();
-  switch (e.key) {
-    // Controls for fillRadius increase
-    case "ArrowUp":
-      setFillRadius(fillRadius + 1);
-      break;
-    case "ArrowDown":
-      setFillRadius(fillRadius - 1 < 0 ? 0 : fillRadius - 1);
-      break;
-
-    // Controls for FPS throttling
-    case "=":
-    case "+":
-      setWaitTime(waitTime + 50);
-      break;
-    case "-":
-      setWaitTime(waitTime - 50 < 0 ? 0 : waitTime - 50);
-      break;
-
-    // Controls for pausing on space
-    case "p":
-    case " ":
-      changePaused();
-      break;
-
-    // Grid randomization
-    case "Tab":
-    case "r":
-      setConsoleText("Randomizing Grid");
-      automata.randomize();
-
-    case "Shift":
-      automata.cycleDraw();
-
-    default:
-      break;
-  }
-});
+//! DRAGGEABLE WINDOW FUNCTIONS
 
 // Trigger window dragging for all draggable windows
 document.querySelectorAll(".window").forEach((element) => {
@@ -148,7 +107,58 @@ function triggerDragElement(element) {
 
 // Hide window when X is pressed
 document.querySelectorAll(".window-delete").forEach((btn) => {
-  btn.addEventListener("click", function () {
-    this.closest(".window").style.display = "none";
+  btn.addEventListener("click", () => {
+    btn.closest(".window").style.display = "none";
   });
+});
+
+// Trigger a window to open
+document.querySelectorAll(".triggerbtn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.getElementById(btn.id.slice(0, -4)).style.display = "block";
+  });
+});
+
+ctx.canvas.addEventListener("mousedown", startDrawing);
+ctx.canvas.addEventListener("mouseup", stopDrawing);
+ctx.canvas.addEventListener("mouseleave", stopDrawing);
+
+//! Key inputs
+window.addEventListener("keydown", (e) => {
+  switch (e.key) {
+    // Controls for fillRadius increase
+    case "ArrowUp":
+      setFillRadius(fillRadius + 1);
+      break;
+    case "ArrowDown":
+      setFillRadius(fillRadius - 1 < 0 ? 0 : fillRadius - 1);
+      break;
+
+    // Controls for FPS throttling
+    case "=":
+    case "+":
+      setWaitTime(waitTime + 50);
+      break;
+    case "-":
+      setWaitTime(waitTime - 50 < 0 ? 0 : waitTime - 50);
+      break;
+
+    // Controls for pausing on space
+    case "p":
+    case " ":
+      changePaused();
+      break;
+
+    // Grid randomization
+    case "Tab":
+    case "r":
+      setConsoleText("Randomizing Grid");
+      automata.randomize();
+
+    case "Shift":
+      automata.cycleDraw();
+
+    default:
+      break;
+  }
 });

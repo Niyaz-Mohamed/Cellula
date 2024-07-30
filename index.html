@@ -23,6 +23,29 @@
 <body>
     <div id="toolbar">
         <p id="app-title">Cellula</p>
+        <!--Automata window trigger-->
+        <div class="dropdown window-trigger">
+            <button class="dropbtn triggerbtn" id="automata-btn">Life</button>
+        </div>
+        <!--Settings window trigger-->
+        <div class="dropdown window-trigger">
+            <button class="dropbtn triggerbtn" id="settings-btn">Settings</button>
+        </div>
+        <!--File dropdown-->
+        <div class="dropdown">
+            <button class="dropbtn">File</button>
+            <div class="dropdown-content">
+                <button class="dropdown-option">
+                    <span class="option-name">Option 1</span>
+                    <span class="option-shortcut">P</span>
+                </button>
+                <button class="dropdown-option">
+                    <span class="option-name">Option 2</span>
+                    <span class="option-shortcut">P</span>
+                </button>
+            </div>
+        </div>
+        <!--Controls dropdown-->
         <div class="dropdown">
             <button class="dropbtn">Controls</button>
             <div class="dropdown-content">
@@ -40,25 +63,24 @@
                 </button>
             </div>
         </div>
-        <div class="dropdown window-trigger">
-            <button class="dropbtn" id="settings-btn" onclick="triggerWindow('settings')">Settings</button>
-        </div>
+        <!--TODO: Remove this rule div by moving it to the settings-->
         <div id="rule-div">
             <label for="rule-input"><a
                     href="https://conwaylife.com/wiki/List_of_Life-like_rules">Rulestring:</a></label>
             <input type="text" id="rule-input" name="rule-input" placeholder="B/S" />
         </div>
+        <!--Console-->
         <p id="console-container">
             »
-            <span id="console">Space to pause, Arrows to change fill radius, -/+ to change grid
-                update interval, Tab/R to randomize grid
+            <span id="console">Space/P to pause, Arrows to change pen radius, -/+ to change grid
+                update interval, R to randomize grid, Shift to change pen
             </span>
         </p>
     </div>
     <!-- Draggable Automata Select -->
     <div id="automata" class="window">
         <div id="automata-header" class="window-header">
-            <span class="window-title">Automata</span>
+            <span class="window-title">Select Automata</span>
             <span class="window-delete">X</span>
         </div>
         <p>Content</p>
