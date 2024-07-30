@@ -22,7 +22,7 @@
 
 .dropbtn {
   padding: 0px;
-  cursor: grab;
+  cursor: pointer;
 }
 
 /* Dropdown Content (Hidden by Default) */

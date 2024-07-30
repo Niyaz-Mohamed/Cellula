@@ -6,7 +6,7 @@
   --toolbar-height: 5vh;
 }
 
-/* Boilerplate for buttons */
+/*! Boilerplate for buttons */
 button {
   width: 100%;
   height: 100%;
@@ -20,7 +20,7 @@ button {
   color: inherit;
 }
 
-/* Boilerplate for inputs */
+/*! Boilerplate for inputs */
 input::-webkit-input-placeholder {
   font-family: "Pixelify Sans", sans-serif;
 }
@@ -62,17 +62,18 @@ a:visited {
   color: var(--theme-color);
 }
 
-/* Layout Styling */
+/*! Layout Styling */
 html,
 body {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
-  background-color: var(--grid-bg-color);
+  background-color: var(--bg-color);
   overflow: hidden;
   font-family: "Pixelify Sans", sans-serif !important;
   font-weight: bold;
+  position: relative;
   cursor: crosshair;
 }
 
@@ -93,7 +94,6 @@ body {
   color: var(--theme-color);
   line-height: var(--toolbar-height);
   font-size: 1em;
-  text-align: center;
   text-decoration: none;
   box-shadow: inset 0px 0px 0px 2px var(--theme-color);
 }
@@ -101,4 +101,5 @@ body {
 canvas {
   width: 100vw;
   height: 100vh;
+  border: 3px solid var(--grid-bg-color);
 }

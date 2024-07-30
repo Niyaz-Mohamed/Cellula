@@ -94,17 +94,25 @@ window.addEventListener("keydown", (e) => {
 });
 
 // Trigger window dragging for all draggable windows
-// dragElement(document.getElementById("mydiv"));
+document.querySelectorAll(".window").forEach((element) => {
+  triggerDragElement(element);
+  // Shift positions of windows randomly
+  element.style.top =
+    element.offsetTop + Math.floor(Math.random() * 500) + "px";
+  element.style.left =
+    element.offsetLeft + Math.floor(Math.random() * 500) + "px";
+});
 
 function triggerDragElement(element) {
   let xPos = 0,
     yPos = 0,
     changeOfX = 0,
     changeOfY = 0;
+  const minTop = window.innerHeight * 0.05; // 5vh, for clamping y position
 
   // Check for presence of a header
-  if (document.getElementById(element.id + "header")) {
-    document.getElementById(element.id + "header").onmousedown = dragMouseDown;
+  if (document.getElementById(element.id + "-header")) {
+    document.getElementById(element.id + "-header").onmousedown = dragMouseDown;
   } else {
     element.onmousedown = dragMouseDown;
   }
@@ -120,18 +128,27 @@ function triggerDragElement(element) {
 
   function elementDrag(e) {
     e.preventDefault();
-    changeOfX = pos3 - e.clientX;
-    changeOfY = pos4 - e.clientY;
+    changeOfX = xPos - e.clientX;
+    changeOfY = yPos - e.clientY;
     xPos = e.clientX;
-    yPos = e.clientY;
+    yPos = e.clientY < minTop ? yPos : e.clientY; // Clamp mouse y position
+
     // Set new position
-    element.style.top = element.offsetTop - pos2 + "px";
-    element.style.left = element.offsetLeft - pos1 + "px";
+    let newTop = element.offsetTop - changeOfY;
+    element.style.top = (newTop < minTop ? minTop : newTop) + "px";
+    element.style.left = element.offsetLeft - changeOfX + "px";
   }
 
   function closeDragElement() {
-    // stop moving when mouse button is released:
+    // Stop moving when mouse stops
     document.onmouseup = null;
     document.onmousemove = null;
   }
 }
+
+// Hide window when X is pressed
+document.querySelectorAll(".window-delete").forEach((btn) => {
+  btn.addEventListener("click", function () {
+    this.closest(".window").style.display = "none";
+  });
+});

@@ -40,8 +40,8 @@
                 </button>
             </div>
         </div>
-        <div class="dropdown window-trigger" id="settings">
-            <button class="dropbtn">Settings</button>
+        <div class="dropdown window-trigger">
+            <button class="dropbtn" id="settings-btn" onclick="triggerWindow('settings')">Settings</button>
         </div>
         <div id="rule-div">
             <label for="rule-input"><a
@@ -55,10 +55,18 @@
             </span>
         </p>
     </div>
+    <!-- Draggable Automata Select -->
+    <div id="automata" class="window">
+        <div id="automata-header" class="window-header">
+            <span class="window-title">Automata</span>
+            <span class="window-delete">X</span>
+        </div>
+        <p>Content</p>
+    </div>
     <!-- Draggable Settings -->
     <div id="settings" class="window">
         <div id="settings-header" class="window-header">
-            <span class="window-title">Click here to move</span>
+            <span class="window-title">Settings</span>
             <span class="window-delete">X</span>
         </div>
         <p>Content</p>
