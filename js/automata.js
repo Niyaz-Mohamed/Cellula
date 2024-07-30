@@ -119,6 +119,7 @@ export class Automata {
       .map(() =>
         new Array(this.cols).fill(null).map(() => (Math.random() < 0.5 ? 1 : 0))
       );
+    this.drawGrid();
   }
 
   // Handles updates of the grid for a single click of the mouse (Call multiple times for press & hold)

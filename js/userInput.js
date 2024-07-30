@@ -135,94 +135,81 @@ document.querySelectorAll("button").forEach(function (item) {
   });
 });
 
-//! KEY INPUTS
-window.addEventListener("keydown", (e) => {
-  switch (e.key) {
+//! ACTIONS FOR KEY OR SETTING BUTTON INPUTS
+function handleAction(action) {
+  switch (action) {
     // Controls for stepping through
     case ".":
+    case "Step":
       if (paused) changePaused(); // Unpause the sim to update
-      //automata.updateGrid();
+      automata.updateGrid();
       if (!paused) changePaused(); // Pause the sim
+      setConsoleText("Stepped forward by 1 evolution");
+      break;
 
-    // Controls for fillRadius increase
+    // Controls for fillRadius changes
     case "ArrowUp":
+    case "Higher Fill Amt":
       setFillRadius(fillRadius + 1);
       break;
     case "ArrowDown":
+    case "Lower Fill Amt":
       setFillRadius(fillRadius - 1 < 0 ? 0 : fillRadius - 1);
       break;
 
     // Controls for FPS throttling
     case "=":
     case "+":
+    case "Higher Delay":
       setWaitTime(waitTime + 50);
       break;
     case "-":
+    case "Lower Delay":
       setWaitTime(waitTime - 50 < 0 ? 0 : waitTime - 50);
       break;
 
-    // Controls for pausing on space
+    // Controls for pausing
     case "p":
     case " ":
+    case "Pause/Unpause":
       changePaused();
       break;
 
-    // Grid randomization
+    // Controls for grid randomization
     case "Tab":
     case "r":
-      setConsoleText("Randomizing Grid");
+    case "Randomize Grid":
       automata.randomize();
+      setConsoleText("Randomized Grid");
+      break;
 
+    // Controls for swapping pen fill
     case "Shift":
+    case "Change Pen Fill":
       automata.cycleDraw();
+      break;
+
+    // Controls for toggling toolbar existence
+    case "Escape":
+    case "Toggle Toolbar":
+      const toolbar = document.getElementById("toolbar");
+      if (toolbar.style.display == "none") toolbar.style.display = "block";
+      else toolbar.style.display = "none";
 
     default:
       break;
   }
+}
+
+//! KEY INPUTS
+window.addEventListener("keydown", (e) => {
+  handleAction(e.key);
 });
 
 //! SETTINGS BUTTON PRESSED
 document.querySelectorAll(".dropdown-option").forEach((btn) => {
   btn.addEventListener("click", () => {
     const action = btn.querySelector(".option-name").innerHTML;
-    switch (action) {
-      // Controls for stepping through
-      case "Step":
-        if (paused) changePaused(); // Unpause the sim to update
-        automata.updateGrid();
-        changePaused(); // Pause the sim
-
-      // Controls for fillRadius increase
-      case "Higher Fill Amt":
-        setFillRadius(fillRadius + 1);
-        break;
-      case "Lower Fill Amt":
-        setFillRadius(fillRadius - 1 < 0 ? 0 : fillRadius - 1);
-        break;
-
-      // Controls for FPS throttling
-      case "Higher Delay":
-        setWaitTime(waitTime + 50);
-        break;
-      case "Lower Delay":
-        setWaitTime(waitTime - 50 < 0 ? 0 : waitTime - 50);
-        break;
-
-      // Controls for pausing on space
-      case "Pause/Unpause":
-        changePaused();
-        break;
-
-      // Grid randomization
-      case "Randomize Grid":
-        setConsoleText("Randomizing Grid");
-        automata.randomize();
-
-      case "Change Pen Fill":
-        automata.cycleDraw();
-
-      default:
-        break;
-    }
+    handleAction(action);
   });
 });
