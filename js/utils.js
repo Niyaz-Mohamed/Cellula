@@ -126,11 +126,11 @@ export function vonNeumannNeighbourhood(n = 1) {
 }
 
 // Update the console element
-export function updateConsole(text) {
-  document.getElementById("console").innerText = "> " + text;
+export function setConsoleText(text) {
+  document.getElementById("console").innerText = text;
 }
 
 // Get console text
 export function getConsoleText() {
-  return document.getElementById("console").innerText.slice(2);
+  return document.getElementById("console").innerText;
 }

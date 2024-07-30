@@ -1,6 +1,7 @@
 :root {
   --bg-color: #15191f;
   --toolbar-bg-color: #323a49;
+  --toolbar-highlight-color: #48546a;
   --toolbar-theme-color: #95b0dc;
   --toolbar-height: 5vh;
 }
@@ -56,7 +57,7 @@ body {
   height: 100%;
   background-color: var(--bg-color);
   overflow: hidden;
-  font-family: "Pixelify Sans", sans-serif;
+  font-family: "Pixelify Sans", sans-serif !important;
   font-weight: bold;
 }
 
@@ -85,18 +86,4 @@ body {
 canvas {
   width: 100vw;
   height: 100vh;
-}
-
-/* Toolbar Styles */
-#app-title {
-  background-color: var(--toolbar-theme-color);
-  color: var(--toolbar-bg-color);
-}
-
-#console {
-  padding: 0px 10px 0px 10px;
-  float: none;
-  overflow: hidden;
-  font-size: 1em;
-  text-align: left;
 }

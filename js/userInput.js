@@ -1,6 +1,6 @@
 import { ctx } from "./canvas.js";
 import { automata } from "./main.js";
-import { midpointCircle } from "./utils.js";
+import { midpointCircle, setConsoleText } from "./utils.js";
 import {
   cellSize,
   changePaused,
@@ -81,7 +81,11 @@ window.addEventListener("keydown", (event) => {
     // Grid randomization
     case "Tab":
     case "r":
+      setConsoleText("Randomizing Grid");
       automata.randomize();
+
+    case "Shift":
+      automata.cycleDraw();
 
     default:
       break;

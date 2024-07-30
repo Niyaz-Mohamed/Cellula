@@ -9,10 +9,10 @@ import {
 import {
   fillCircle,
   getConsoleText,
+  setConsoleText,
   midpointCircle,
   mooreNeighborhod,
   padArray,
-  updateConsole,
 } from "./utils.js";
 import { mouseX, mouseY, outlinePoints } from "./userInput.js";
 
@@ -131,6 +131,18 @@ export class Automata {
         this.grid[y][x] = this.penState;
     }
   }
+
+  // Cycle draw state
+  cycleDraw() {
+    // Define state names
+    let stateNames = { 0: "Dead", 1: "Life" };
+
+    // Change pen state
+    this.penState = (this.penState + 1) % 2;
+    setConsoleText(
+      `Updated pen to draw ${this.penState} [${stateNames[this.penState]}]`
+    );
+  }
 }
 
 export class LifeLikeAutomata extends Automata {
@@ -220,7 +232,7 @@ export class LifeLikeAutomata extends Automata {
     if (ruleString.match(regex)) {
       // Update console
       if (getConsoleText() == "Invalid Rulestring!") {
-        updateConsole("Valid Rulestring!");
+        setConsoleText("Valid Rulestring!");
       }
 
       // Parse rulestring
@@ -248,7 +260,7 @@ export class LifeLikeAutomata extends Automata {
       this.birthRules = [...new Set(parseSequence(ruleList[0]))];
       this.surviveRules = [...new Set(parseSequence(ruleList[1]))];
     } else {
-      updateConsole("Invalid Rulestring!");
+      setConsoleText("Invalid Rulestring!");
     }
 
     // Update constants
