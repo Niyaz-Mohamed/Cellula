@@ -22,7 +22,6 @@
 
 .dropbtn {
   padding: 0px;
-  cursor: pointer;
 }
 
 /* Dropdown Content (Hidden by Default) */
@@ -36,15 +35,23 @@
   z-index: 1;
 }
 
+.dropdown-content p {
+  padding: 0px 10px;
+  margin: 0px;
+  background-color: var(--highlight-color);
+}
+
 .dropdown-option {
   display: block;
   height: var(--toolbar-height);
-  padding: 0px 15px;
+  padding: 0px 10px;
+  cursor: pointer;
 }
 
 .option-name {
   float: left;
   line-height: var(--toolbar-height);
+  margin-right: 5px;
 }
 
 .option-shortcut {
@@ -71,3 +78,6 @@
 }
 
 /*! Trigger Boilerplate */
+.triggerbtn {
+  cursor: pointer;
+}

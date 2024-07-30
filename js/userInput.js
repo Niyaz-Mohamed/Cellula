@@ -3,6 +3,7 @@ import { automata } from "./main.js";
 import { midpointCircle, setConsoleText } from "./utils.js";
 import {
   cellSize,
+  paused,
   changePaused,
   fillRadius,
   setFillRadius,
@@ -50,6 +51,10 @@ function drawLoop() {
   }
 }
 
+ctx.canvas.addEventListener("mousedown", startDrawing);
+ctx.canvas.addEventListener("mouseup", stopDrawing);
+ctx.canvas.addEventListener("mouseleave", stopDrawing);
+
 //! DRAGGEABLE WINDOW FUNCTIONS
 
 // Trigger window dragging for all draggable windows
@@ -57,9 +62,13 @@ document.querySelectorAll(".window").forEach((element) => {
   triggerDragElement(element);
   // Shift positions of windows randomly
   element.style.top =
-    element.offsetTop + Math.floor(Math.random() * 500) + "px";
+    element.offsetTop +
+    Math.floor(Math.random() * window.innerHeight * 0.85) +
+    "px";
   element.style.left =
-    element.offsetLeft + Math.floor(Math.random() * 500) + "px";
+    element.offsetLeft +
+    Math.floor(Math.random() * window.innerWidth * 0.85) +
+    "px";
 });
 
 function triggerDragElement(element) {
@@ -119,13 +128,22 @@ document.querySelectorAll(".triggerbtn").forEach((btn) => {
   });
 });
 
-ctx.canvas.addEventListener("mousedown", startDrawing);
-ctx.canvas.addEventListener("mouseup", stopDrawing);
-ctx.canvas.addEventListener("mouseleave", stopDrawing);
+// Prevent any button from being focused and pressed on space
+document.querySelectorAll("button").forEach(function (item) {
+  item.addEventListener("focus", function () {
+    this.blur();
+  });
+});
 
-//! Key inputs
+//! KEY INPUTS
 window.addEventListener("keydown", (e) => {
   switch (e.key) {
+    // Controls for stepping through
+    case ".":
+      if (paused) changePaused(); // Unpause the sim to update
+      //automata.updateGrid();
+      if (!paused) changePaused(); // Pause the sim
+
     // Controls for fillRadius increase
     case "ArrowUp":
       setFillRadius(fillRadius + 1);
@@ -161,4 +179,50 @@ window.addEventListener("keydown", (e) => {
     default:
       break;
   }
+});
+
+//! SETTINGS BUTTON PRESSED
+document.querySelectorAll(".dropdown-option").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const action = btn.querySelector(".option-name").innerHTML;
+    switch (action) {
+      // Controls for stepping through
+      case "Step":
+        if (paused) changePaused(); // Unpause the sim to update
+        automata.updateGrid();
+        changePaused(); // Pause the sim
+
+      // Controls for fillRadius increase
+      case "Higher Fill Amt":
+        setFillRadius(fillRadius + 1);
+        break;
+      case "Lower Fill Amt":
+        setFillRadius(fillRadius - 1 < 0 ? 0 : fillRadius - 1);
+        break;
+
+      // Controls for FPS throttling
+      case "Higher Delay":
+        setWaitTime(waitTime + 50);
+        break;
+      case "Lower Delay":
+        setWaitTime(waitTime - 50 < 0 ? 0 : waitTime - 50);
+        break;
+
+      // Controls for pausing on space
+      case "Pause/Unpause":
+        changePaused();
+        break;
+
+      // Grid randomization
+      case "Randomize Grid":
+        setConsoleText("Randomizing Grid");
+        automata.randomize();
+
+      case "Change Pen Fill":
+        automata.cycleDraw();
+
+      default:
+        break;
+    }
+  });
 });

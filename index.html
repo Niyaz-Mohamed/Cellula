@@ -35,13 +35,15 @@
         <div class="dropdown">
             <button class="dropbtn">File</button>
             <div class="dropdown-content">
+                <!--TODO: Replace these with proper shortcuts-->
                 <button class="dropdown-option">
-                    <span class="option-name">Option 1</span>
-                    <span class="option-shortcut">P</span>
+                    <span class="option-name">Save</span>
+                    <span class="option-shortcut">S</span>
                 </button>
+                <!--TODO: This should open a window-->
                 <button class="dropdown-option">
-                    <span class="option-name">Option 2</span>
-                    <span class="option-shortcut">P</span>
+                    <span class="option-name">Load</span>
+                    <span class="option-shortcut">V</span>
                 </button>
             </div>
         </div>
@@ -49,17 +51,40 @@
         <div class="dropdown">
             <button class="dropbtn">Controls</button>
             <div class="dropdown-content">
+                <p>View</p>
                 <button class="dropdown-option">
-                    <span class="option-name">Option 1</span>
-                    <span class="option-shortcut">P</span>
+                    <span class="option-name">Step</span>
+                    <span class="option-shortcut">.</span>
                 </button>
                 <button class="dropdown-option">
-                    <span class="option-name">Option 2</span>
-                    <span class="option-shortcut">P</span>
+                    <span class="option-name">Pause/Unpause</span>
+                    <span class="option-shortcut">Space/P</span>
                 </button>
                 <button class="dropdown-option">
-                    <span class="option-name">Option 3</span>
-                    <span class="option-shortcut">P</span>
+                    <span class="option-name">Randomize Grid</span>
+                    <span class="option-shortcut">Tab/R</span>
+                </button>
+                <button class="dropdown-option">
+                    <span class="option-name">Higher Delay</span>
+                    <span class="option-shortcut">+</span>
+                </button>
+                <button class="dropdown-option">
+                    <span class="option-name">Lower Delay</span>
+                    <span class="option-shortcut">-</span>
+                </button>
+                <!--TODO: Implement cell size changes-->
+                <p>Pen</p>
+                <button class="dropdown-option">
+                    <span class="option-name">Higher Fill Amt</span>
+                    <span class="option-shortcut">ArrowUp</span>
+                </button>
+                <button class="dropdown-option">
+                    <span class="option-name">Lower Fill Amt</span>
+                    <span class="option-shortcut">ArrowDown</span>
+                </button>
+                <button class="dropdown-option">
+                    <span class="option-name">Change Pen Fill</span>
+                    <span class="option-shortcut">Shift</span>
                 </button>
             </div>
         </div>
@@ -89,6 +114,14 @@
     <div id="settings" class="window">
         <div id="settings-header" class="window-header">
             <span class="window-title">Settings</span>
+            <span class="window-delete">X</span>
+        </div>
+        <p>Content</p>
+    </div>
+    <!--Draggeable file load-->
+    <div id="load" class="window">
+        <div id="load-header" class="window-header">
+            <span class="window-title">Load File</span>
             <span class="window-delete">X</span>
         </div>
         <p>Content</p>

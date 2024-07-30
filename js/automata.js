@@ -67,12 +67,12 @@ export class Automata {
     if (outlinePoints[0] != [x + fillRadius + 1, y]) {
       // Draw outline of pen
       for (const [col, row] of midpointCircle(x, y, fillRadius + 1)) {
-        ctx.fillStyle = "rgba(255, 0, 0, 0.6)";
+        ctx.fillStyle = this.getPenColor();
         ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
       }
     } else {
       for (const [col, row] of outlinePoints) {
-        ctx.fillStyle = "rgba(255, 0, 0, 0.6)";
+        ctx.fillStyle = this.getPenColor();
         ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
       }
     }
@@ -85,8 +85,8 @@ export class Automata {
   }
 
   // Calculates the next state for the grid
-  updateGrid() {
-    if (!paused) {
+  updateGrid(ignorePaused = false) {
+    if (!paused && !ignorePaused) {
       //// console.time("Update");
       let newGrid = this.getNextState();
       //// console.timeEnd("Update");
@@ -111,6 +111,7 @@ export class Automata {
     return this.grid;
   }
 
+  // TODO: Override for automata with >2 states
   // Randomizes the grid
   randomize() {
     this.grid = new Array(this.rows)
@@ -120,7 +121,7 @@ export class Automata {
       );
   }
 
-  // Handles updates of the grid when mouse is pressed
+  // Handles updates of the grid for a single click of the mouse (Call multiple times for press & hold)
   draw() {
     let x = Math.floor(mouseX / cellSize);
     let y = Math.floor(mouseY / cellSize);
@@ -132,16 +133,28 @@ export class Automata {
     }
   }
 
-  // Cycle draw state
+  // TODO: Override for automata with >2 states
+  // Cycle between draw state
   cycleDraw() {
     // Define state names
-    let stateNames = { 0: "Dead", 1: "Life" };
+    let stateNames = { 0: "Dead", 1: "Alive" };
 
     // Change pen state
     this.penState = (this.penState + 1) % 2;
     setConsoleText(
       `Updated pen to draw ${this.penState} [${stateNames[this.penState]}]`
     );
+    this.drawGrid();
+  }
+
+  // TODO: Override for automata with >2 states
+  // Calculate color of the fill circle depending on pen state, as rgba string
+  getPenColor() {
+    let stateColors = {
+      0: "rgba(255, 255, 255, 0.6)",
+      1: "rgba(255, 0, 0, 0.6)",
+    };
+    return stateColors[this.penState];
   }
 }
 
