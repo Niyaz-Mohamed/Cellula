@@ -1,7 +1,7 @@
-import { LifeLikeAutomata } from "./automata.js";
+import { BriansBrain, LifeLikeAutomata } from "./automata.js";
 
 // Set the drawGrid function
-export const automata = new LifeLikeAutomata("B3/S23"); // Automata Definition
+export const automata = new BriansBrain(); // Automata Definition
 automata.updateGrid();
 
 // Handle rule changes

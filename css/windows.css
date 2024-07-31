@@ -38,7 +38,7 @@
 .window-content {
   display: flex;
   width: 100%;
-  max-width: 50vw;
+  max-width: 40vw;
   min-height: 100px;
   max-height: 30vh;
   background-color: transparent;

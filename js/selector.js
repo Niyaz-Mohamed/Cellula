@@ -9,6 +9,8 @@ document.querySelectorAll(".select-btn").forEach((button) => {
       this.classList.add("selected");
       document.getElementById("automata-btn").innerHTML = this.innerHTML;
 
+      //TODO: Toggle the info tab that is being shown
+
       //TODO: Update the automata class to the new class chosen
     }
   });
