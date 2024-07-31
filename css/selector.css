@@ -1,10 +1,24 @@
+/* Content box */
+#automata-content {
+  min-height: 50vh;
+}
+
+/* Side Navbar */
 .sidenav {
-  width: 30%; /* Adjust as needed */
-  height: 100%;
-  text-align: left;
+  width: 30%;
+  min-width: 130px;
+  max-height: 100%;
+  text-align: center;
   border-right: 3px solid var(--theme-color);
   overflow-y: scroll;
-  box-sizing: border-box;
+}
+
+.sidenav p {
+  width: 100%;
+  background-color: var(--theme-color);
+  color: var(--bg-color);
+  margin: 0px;
+  padding: 5px 20px;
 }
 
 .select-btn {
@@ -14,8 +28,8 @@
 }
 
 .selected {
-  background-color: var(--theme-color);
-  color: var(--bg-color);
+  background-color: var(--highlight-color);
+  color: var(--theme-color);
   cursor: auto;
 }
 
@@ -23,14 +37,34 @@
   background-color: var(--highlight-color);
 }
 
-.selected:hover {
-  background-color: var(--theme-color);
-}
-
-/* Style the tab content */
+/* Side content */
 .side-content {
-  width: 70%; /* Adjust as needed */
+  width: 70%;
+  min-width: 300px;
+  max-height: 100%;
   margin: 0;
   padding: 20px;
-  box-sizing: border-box;
+  overflow-y: scroll;
+  text-align: center;
+}
+
+.side-content > * {
+  text-align: left;
+}
+
+.side-content img {
+  max-width: 100%;
+  height: auto;
+  margin-left: auto;
+  border: 5px solid var(--highlight-color);
+}
+
+.side-content h1 {
+  font-size: 2em;
+  margin: 0px;
+  margin-bottom: 10px;
+}
+
+.side-content p {
+  margin: 10px 0px;
 }

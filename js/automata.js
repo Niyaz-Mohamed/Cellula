@@ -160,10 +160,6 @@ export class Automata {
 }
 
 export class LifeLikeAutomata extends Automata {
-  // Common lifelike automata with Moore neighbourhood n=1 can be represented by rulestrings (See https://conwaylife.com/wiki/List_of_Life-like_rules)
-  // This class extends to neighbourhoods with more than 10 neighbours. Rulestrings have been adapted accordingly
-  // Rulestring B1(10)/S3(11)(12) means birth when 1 or 10 neighbours, and survival if 3, 11 or 12 neighbours
-
   constructor(
     ruleString = "B/S",
     neighbourhood = mooreNeighborhod(),

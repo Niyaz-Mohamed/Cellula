@@ -112,17 +112,45 @@
             <span class="window-title">Select Automata</span>
             <span class="window-delete">X</span>
         </div>
-        <div class='window-content'>
+        <div id='automata-content' class='window-content'>
             <!--Buttons for selection-->
             <div class="sidenav">
-                <button class="select-btn selected" onclick="console.log('Clicked')">Life</button>
-                <button class="select-btn" onclick="console.log('Clicked')">Brian's Brain</button>
-                <button class="select-btn" onclick="console.log('Clicked')">Wireworld</button>
+                <p>Discrete Automata</p>
+                <button class="select-btn selected">Life</button>
+                <button class="select-btn">Brian's Brain</button>
+                <button class="select-btn">Wireworld</button>
             </div>
             <!--Content for Life-->
             <div id="life-info" class="side-content">
-                <p>London</p>
-                <p>London is the capital city of England.</p>
+                <h1>Game of Life</h1>
+                <img src="./images/Life.gif" alt="Life GIF">
+                <h2>Description</h2>
+                <p>
+                    Conway's Game of Life (GoL) is a zero-player game, where the evolution of the game board depends
+                    only on the state of the board.
+                    It is the best known example of a cellular automaton. To interact with the game, you can create an
+                    initial configuration and see how it involves,
+                    pausing or stepping through the states of the board. Interestingly, the GoL is turing complete and
+                    can simulate a universal constructor or any other turing machine.
+                </p>
+                <h2>Rules</h2>
+                <p>The game of life has cells in 2 states, alive and dead. The evolution of a cell depends on its 8
+                    neighbors. For the GoL, the below are the rules:</p>
+                <ul>
+                    <li>A dead cell comes alive if it has exactly 3 neighbors</li>
+                    <li>A live cell survives only if it has 2 or 3 neighbors</li>
+                </ul>
+                <p>The above rules can be represented by the rulestring B3/S23. Life-like automata are a class of
+                    automata which can be represented by such rulestring. For example, the automata "HighLife" is
+                    represented by B36/S23, where birth occurs when a cell has 3 or 6 neighbors, and survival occurs
+                    when a live cell has 2 or 3 neighbors</p>
+                <h2>Additional Info</h2>
+                <p>This simulator has been modified to allow for modification of the neighborhoods for life-like
+                    automata. For automata with neighborhoods of size greater than 10, numbers in rulestrings can be
+                    wrapped in brackets [Example: B1(10)/S2(10)]</p>
+                <p>Click here for more info on <a href="https://conwaylife.com/wiki/Rulestring">rulestrings</a> and
+                    <a href="https://conwaylife.com/wiki/List_of_Life-like_rules">life-like automata</a>.
+                </p>
             </div>
         </div>
     </div>
