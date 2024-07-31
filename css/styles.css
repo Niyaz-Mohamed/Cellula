@@ -4,7 +4,13 @@
   --highlight-color: #48546a;
   --theme-color: #95b0dc;
   --toolbar-height: 5vh;
-  --toolbar-opacity: 0.97;
+  --toolbar-opacity: 0.96;
+}
+
+* {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 /*! Boilerplate for buttons */
@@ -19,6 +25,7 @@ button {
   font-size: inherit;
   background-color: inherit;
   color: inherit;
+  transition: 0.05s;
 }
 
 /*! Boilerplate for inputs */

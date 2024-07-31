@@ -1,0 +1,36 @@
+.sidenav {
+  width: 30%; /* Adjust as needed */
+  height: 100%;
+  text-align: left;
+  border-right: 3px solid var(--theme-color);
+  overflow-y: scroll;
+  box-sizing: border-box;
+}
+
+.select-btn {
+  display: block;
+  height: var(--toolbar-height);
+  cursor: pointer;
+}
+
+.selected {
+  background-color: var(--theme-color);
+  color: var(--bg-color);
+  cursor: auto;
+}
+
+.select-btn:hover {
+  background-color: var(--highlight-color);
+}
+
+.selected:hover {
+  background-color: var(--theme-color);
+}
+
+/* Style the tab content */
+.side-content {
+  width: 70%; /* Adjust as needed */
+  margin: 0;
+  padding: 20px;
+  box-sizing: border-box;
+}

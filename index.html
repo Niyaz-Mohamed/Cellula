@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="./css/styles.css" />
     <link rel="stylesheet" href="./css/toolbar.css" />
     <link rel="stylesheet" href="./css/windows.css" />
+    <link rel="stylesheet" href="./css/selector.css" />
     <!--GPU.js CDN-->
     <script src="https://cdn.jsdelivr.net/npm/gpu.js@2.10.1/dist/gpu-browser.min.js"></script>
     <!--Pixelify Sans Font-->
@@ -111,7 +112,19 @@
             <span class="window-title">Select Automata</span>
             <span class="window-delete">X</span>
         </div>
-        <p>Content</p>
+        <div class='window-content'>
+            <!--Buttons for selection-->
+            <div class="sidenav">
+                <button class="select-btn selected" onclick="console.log('Clicked')">Life</button>
+                <button class="select-btn" onclick="console.log('Clicked')">Brian's Brain</button>
+                <button class="select-btn" onclick="console.log('Clicked')">Wireworld</button>
+            </div>
+            <!--Content for Life-->
+            <div id="life-info" class="side-content">
+                <p>London</p>
+                <p>London is the capital city of England.</p>
+            </div>
+        </div>
     </div>
     <!-- Draggable Settings -->
     <div id="settings" class="window">
@@ -132,6 +145,7 @@
     <canvas id="cellGrid"> </canvas>
     <script type="module" src="./js/main.js"></script>
     <script type="module" src="./js/userInput.js"></script>
+    <script type="module" src="./js/selector.js"></script>
 </body>
 
 </html>

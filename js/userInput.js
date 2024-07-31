@@ -193,8 +193,9 @@ function handleAction(action) {
     case "Escape":
     case "Toggle Toolbar":
       const toolbar = document.getElementById("toolbar");
-      if (toolbar.style.display == "none") toolbar.style.display = "block";
-      else toolbar.style.display = "none";
+      if (toolbar.style.display == "block" || !toolbar.style.display)
+        toolbar.style.display = "none";
+      else toolbar.style.display = "block";
 
     default:
       break;
