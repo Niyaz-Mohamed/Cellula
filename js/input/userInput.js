@@ -26,7 +26,7 @@ function updateMousePosition(event) {
     Math.floor(mouseY / cellSize),
     fillRadius + 1
   );
-  automata.drawGrid();
+  automata.drawCursor();
 }
 
 // Draw using requestAnimationFrame

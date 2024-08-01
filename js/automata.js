@@ -59,7 +59,6 @@ export class Automata {
     // Create an ImageData object to batch update the canvas
     const imageData = ctx.createImageData(ctx.canvas.width, ctx.canvas.height);
     const data = imageData.data;
-
     // Calculate cell colors and draw
     for (let row = 0; row < this.rows; row++) {
       for (let col = 0; col < this.cols; col++) {
@@ -79,10 +78,16 @@ export class Automata {
         }
       }
     }
-    // Apply the imageData to the canvas
-    ctx.putImageData(imageData, 0, 0);
+    // Apply the imageData to the canvas (done in drawCursor)
+    this.gridImageData = imageData;
+    this.drawCursor();
+    //// console.timeEnd("Draw");
+  }
 
-    // Update outlinePoints if the fill radius has changed
+  drawCursor() {
+    ctx.putImageData(this.gridImageData, 0, 0);
+
+    // Draw the cursor/pen outline
     let x = Math.floor(mouseX / cellSize);
     let y = Math.floor(mouseY / cellSize);
     if (outlinePoints[0] != [x + fillRadius + 1, y]) {
@@ -97,7 +102,6 @@ export class Automata {
         ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
       }
     }
-    //// console.timeEnd("Draw");
   }
 
   // TODO: Override for custom automata with >2 states
@@ -154,6 +158,7 @@ export class Automata {
       if (x >= 0 && x < this.grid[0].length && y >= 0 && y < this.grid.length)
         this.grid[y][x] = this.penState;
     }
+    window.requestAnimationFrame(() => this.drawGrid());
   }
 
   // TODO: Override for automata with >2 states
@@ -186,15 +191,6 @@ export class LifeLikeAutomata extends Automata {
     super();
     this.setRules(ruleString);
     this.neighbourhood = neighbourhood;
-
-    // Log stats
-    console.log(
-      `Initialized life-like automata with neighbourhood size ${
-        this.neighbourhood.length
-      }\nBirth Rules: ${JSON.stringify(
-        this.birthRules
-      )}\nSurvive Rules: ${JSON.stringify(this.surviveRules)}`
-    );
 
     // Create GPU, account for issues in chrome
     function initGPU() {
@@ -317,13 +313,6 @@ export class BriansBrain extends Automata {
     super();
     this.setRule(ruleString);
     this.neighbourhood = neighbourhood;
-
-    // Log stats
-    console.log(
-      `Initialized Brian's Brain with neighbourhood size ${
-        this.neighbourhood.length
-      }\nBirth Rules: ${JSON.stringify(this.birthRules)}`
-    );
 
     // Create GPU, account for issues in chrome
     function initGPU() {
@@ -453,20 +442,29 @@ export class BriansBrain extends Automata {
 
 //! Intialize and trigger automata class
 //TODO: Fix bug with switching between 2 automata
-export let automata = new BriansBrain(); // Automata Definition
+export let automata = new LifeLikeAutomata(); // Automata Definition
 export function setAutomata(newAutomataName) {
-  console.log(newAutomataName);
-  // Change value of automata
+  const oldGrid = automata.grid;
+  // Change automata class
   switch (newAutomataName) {
     case "Life":
-      console.log("LIFESWITCH");
       automata = new LifeLikeAutomata();
+      // Convert non 0/1 cells to 1
+      automata.grid = oldGrid.map((row) =>
+        row.map((state) => ([0, 1].includes(state) ? state : 1))
+      );
+      break;
     case "Brian's Brain":
       automata = new BriansBrain();
+      // Convert non 0/1/2 cells to 1
+      automata.grid = oldGrid.map((row) =>
+        row.map((state) => ([0, 1, 2].includes(state) ? state : 1))
+      );
+      break;
     default:
-      null;
+      break;
   }
-  console.log(automata.constructor.name);
   automata.updateGrid();
+  return null;
 }
 automata.updateGrid();
