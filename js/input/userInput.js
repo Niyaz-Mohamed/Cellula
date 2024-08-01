@@ -141,8 +141,7 @@ function handleAction(action) {
     // Controls for stepping through
     case ".":
     case "Step":
-      if (paused) changePaused(); // Unpause the sim to update
-      automata.updateGrid();
+      if (paused) changePaused(); // Unpause the sim to trigger a single update
       if (!paused) changePaused(); // Pause the sim
       setConsoleText("Stepped forward by 1 evolution");
       break;

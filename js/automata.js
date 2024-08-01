@@ -111,8 +111,10 @@ export class Automata {
   }
 
   // Calculates the next state for the grid
-  updateGrid(ignorePaused = false) {
-    if (!paused && !ignorePaused) {
+  updateGrid(ignorePaused = false, drawGrid = true) {
+    if (!drawGrid) {
+      this.grid = this.getNextState();
+    } else if (!paused && !ignorePaused) {
       //// console.time("Update");
       let newGrid = this.getNextState();
       //// console.timeEnd("Update");
@@ -197,44 +199,42 @@ export class LifeLikeAutomata extends Automata {
       try {
         return new window.GPU.GPU();
       } catch (e) {
-        return new GPU({ mode: "dev" });
+        return new GPU();
       }
     }
     const gpu = initGPU();
     // Implement GPU kernel to update grid
     this.gridUpdateKernel = gpu
-      .createKernel(
-        function (grid, neighbourhood, birthRules, surviveRules) {
-          const x = this.thread.x;
-          const y = this.thread.y;
-          const current = grid[y][x];
-          let neighbors = 0;
+      .createKernel(function (grid, neighbourhood, birthRules, surviveRules) {
+        const x = this.thread.x;
+        const y = this.thread.y;
+        const current = grid[y][x];
+        let neighbors = 0;
 
-          for (let i = 0; i < this.constants.neighbourhoodSize; i++) {
-            const dx = neighbourhood[i * 2];
-            const dy = neighbourhood[i * 2 + 1];
-            neighbors +=
-              grid[(y + dy + this.constants.rows) % this.constants.rows][
-                (x + dx + this.constants.cols) % this.constants.cols
-              ];
-          }
+        for (let i = 0; i < this.constants.neighbourhoodSize; i++) {
+          const dx = neighbourhood[i * 2];
+          const dy = neighbourhood[i * 2 + 1];
+          neighbors +=
+            grid[(y + dy + this.constants.rows) % this.constants.rows][
+              (x + dx + this.constants.cols) % this.constants.cols
+            ];
+        }
 
-          let isBirth = 0;
-          for (let i = 0; i < this.constants.rulesSize; i++) {
-            if (birthRules[i] === neighbors) isBirth = 1;
-          }
+        let isBirth = 0;
+        for (let i = 0; i < this.constants.rulesSize; i++) {
+          if (birthRules[i] === neighbors) isBirth = 1;
+        }
 
-          let isSurvival = 0;
-          for (let i = 0; i < this.constants.rulesSize; i++) {
-            if (surviveRules[i] === neighbors) isSurvival = 1;
-          }
+        let isSurvival = 0;
+        for (let i = 0; i < this.constants.rulesSize; i++) {
+          if (surviveRules[i] === neighbors) isSurvival = 1;
+        }
 
-          if (current === 0 && isBirth === 1) return 1;
-          if (current === 1 && isSurvival === 1) return 1;
-          return 0;
-        },
-        { output: [this.cols, this.rows] }
-      )
+        if (current === 0 && isBirth === 1) return 1;
+        if (current === 1 && isSurvival === 1) return 1;
+        return 0;
+      })
+      .setOutput([this.cols, this.rows])
       .setConstants({
         rows: this.rows,
         cols: this.cols,
@@ -319,46 +319,44 @@ export class BriansBrain extends Automata {
       try {
         return new window.GPU.GPU();
       } catch (e) {
-        return new GPU({ mode: "dev" });
+        return new GPU();
       }
     }
     const gpu = initGPU();
     // Implement GPU kernel to update grid
     this.gridUpdateKernel = gpu
-      .createKernel(
-        function (grid, neighbourhood, birthRules) {
-          const x = this.thread.x;
-          const y = this.thread.y;
-          const current = grid[y][x];
+      .createKernel(function (grid, neighbourhood, birthRules) {
+        const x = this.thread.x;
+        const y = this.thread.y;
+        const current = grid[y][x];
 
-          // Cell transitions
-          if (current == 0) {
-            let liveNeighbors = 0;
+        // Cell transitions
+        if (current == 0) {
+          let liveNeighbors = 0;
 
-            // Count live neighbors
-            for (let i = 0; i < this.constants.neighbourhoodSize; i++) {
-              const dx = neighbourhood[i * 2];
-              const dy = neighbourhood[i * 2 + 1];
-              const neighborValue =
-                grid[(y + dy + this.constants.rows) % this.constants.rows][
-                  (x + dx + this.constants.cols) % this.constants.cols
-                ];
-              if (neighborValue == 1) {
-                liveNeighbors++;
-              }
+          // Count live neighbors
+          for (let i = 0; i < this.constants.neighbourhoodSize; i++) {
+            const dx = neighbourhood[i * 2];
+            const dy = neighbourhood[i * 2 + 1];
+            const neighborValue =
+              grid[(y + dy + this.constants.rows) % this.constants.rows][
+                (x + dx + this.constants.cols) % this.constants.cols
+              ];
+            if (neighborValue == 1) {
+              liveNeighbors++;
             }
+          }
 
-            // Update cell value
-            for (let i = 0; i < this.constants.ruleSize; i++) {
-              if (birthRules[i] === liveNeighbors) return 1;
-            }
-            return 0;
-          } else if (current == 1) {
-            return 2;
-          } else return 0;
-        },
-        { output: [this.cols, this.rows] }
-      )
+          // Update cell value
+          for (let i = 0; i < this.constants.ruleSize; i++) {
+            if (birthRules[i] === liveNeighbors) return 1;
+          }
+          return 0;
+        } else if (current == 1) {
+          return 2;
+        } else return 0;
+      })
+      .setOutput([this.cols, this.rows])
       .setConstants({
         rows: this.rows,
         cols: this.cols,
@@ -443,11 +441,154 @@ export class BriansBrain extends Automata {
   }
 }
 
+export class WireWorld extends Automata {
+  constructor() {
+    super();
+    this.neighbourhood = mooreNeighborhod();
+    this.penState = 3;
+
+    // Create GPU, account for issues in chrome
+    function initGPU() {
+      try {
+        return new window.GPU.GPU();
+      } catch (e) {
+        return new GPU();
+      }
+    }
+    const gpu = initGPU();
+    // Implement GPU kernel to update grid
+    this.gridUpdateKernel = gpu
+      .createKernel(function (grid, neighbourhood) {
+        const x = this.thread.x;
+        const y = this.thread.y;
+        const current = grid[y][x];
+
+        // Cell transitions
+        if (current == 0) {
+          return 0;
+        } else if (current == 1) {
+          return 2;
+        } else if (current == 2) {
+          return 3;
+        } else {
+          // Handle conductor becoming electron on 1 or 2 electron head neighbors
+          let headNeighbors = 0;
+
+          // Count electron head neighbors
+          for (let i = 0; i < this.constants.neighbourhoodSize; i++) {
+            const dx = neighbourhood[i * 2];
+            const dy = neighbourhood[i * 2 + 1];
+            const neighborValue =
+              grid[(y + dy + this.constants.rows) % this.constants.rows][
+                (x + dx + this.constants.cols) % this.constants.cols
+              ];
+            if (neighborValue == 1) {
+              headNeighbors++;
+            }
+          }
+
+          // Update cell value
+          if (headNeighbors === 1 || headNeighbors === 2) {
+            return 1;
+          } else return 3;
+        }
+      })
+      .setOutput([this.cols, this.rows])
+      .setConstants({
+        rows: this.rows,
+        cols: this.cols,
+        neighbourhoodSize: this.neighbourhood.length,
+      });
+  }
+
+  // Override calculation of color required by a specific state as rgb value
+  stateColor(state) {
+    const stateSpace = {
+      0: backgroundColor,
+      1: [0, 0, 256],
+      2: [255, 0, 0],
+      3: [255, 255, 0],
+    };
+    return stateSpace[state];
+  }
+
+  // Override calculating the next grid state
+  getNextState() {
+    return this.gridUpdateKernel(this.grid, this.neighbourhood.flat());
+  }
+
+  // Override randomizing the grid
+  randomize() {
+    // Construct a wirelike pattern using life-like rule B1/S12345678
+    let randEngine = new LifeLikeAutomata("B1/S1234568");
+    randEngine.grid = new Array(this.rows).fill(null).map(
+      () =>
+        new Array(this.cols)
+          .fill(null)
+          .map(() => (Math.random() < 0.001 ? 1 : 0)) // Change probability of 1 to get sparser/denser patterns
+    );
+    for (let i = 0; i <= 20; i++) {
+      randEngine.updateGrid(false, false);
+    }
+
+    this.grid = randEngine.grid.map((row) =>
+      row.map((value) => (value == 1 ? 3 : value))
+    );
+    this.drawGrid();
+  }
+
+  // Override drawing the grid
+  draw() {
+    let x = Math.floor(mouseX / cellSize);
+    let y = Math.floor(mouseY / cellSize);
+    let points = fillCircle(x, y, fillRadius);
+
+    for (const [x, y] of points) {
+      if (x >= 0 && x < this.grid[0].length && y >= 0 && y < this.grid.length) {
+        // Fill only conductors when penstate is electrons
+        if (this.penState == 1 || this.penState == 2) {
+          if (this.grid[y][x] == 3) this.grid[y][x] = this.penState;
+        } else this.grid[y][x] = this.penState;
+      }
+    }
+    window.requestAnimationFrame(() => this.drawGrid());
+  }
+
+  // Override cycle between draw state
+  cycleDraw() {
+    // Define state names
+    let stateNames = {
+      0: "Empty",
+      1: "Electron Head",
+      2: "Electron Tail",
+      3: "Conductor",
+    };
+    // Change pen state
+    this.penState = (this.penState + 1) % 4;
+    setConsoleText(
+      `Updated pen to draw ${this.penState} [${stateNames[this.penState]}]`
+    );
+    this.drawGrid();
+  }
+
+  // Override get pen color
+  getPenColor() {
+    let stateColors = {
+      0: "rgba(255, 255, 255, 0.6)",
+      1: "rgba(0, 0, 255, 0.6)",
+      2: "rgba(255, 0, 0, 0.6)",
+      3: "rgba(255, 255, 0, 0.6)",
+    };
+    return stateColors[this.penState];
+  }
+}
+
 //! Intialize and trigger automata class
-//TODO: Fix bug with switching between 2 automata
 export let automata = new LifeLikeAutomata(); // Automata Definition
 export function setAutomata(newAutomataName) {
   const oldGrid = automata.grid;
+  console.log(newAutomataName);
+
   // Change automata class
   switch (newAutomataName) {
     case "Life":
@@ -466,6 +607,9 @@ export function setAutomata(newAutomataName) {
       );
       setConsoleText("Changed automata to Brian's Brain");
       break;
+    case "Wireworld":
+      automata = new WireWorld();
+      setConsoleText("Changed automata to Wireworld");
     default:
       break;
   }
