@@ -1,6 +1,6 @@
 // Call drawGrid to update when changes occur, register drawGrid in main
-import { automata } from "./main.js";
-import { setConsoleText } from "./utils.js";
+import { automata } from "../automata.js";
+import { setConsoleText } from "../utils.js";
 
 // Main settings to control behavior of automata
 export let cellSize = 3;

@@ -1,6 +1,5 @@
-import { ctx } from "./canvas.js";
-import { automata } from "./main.js";
-import { midpointCircle, setConsoleText } from "./utils.js";
+import { automata, ctx } from "../automata.js";
+import { midpointCircle, setConsoleText } from "../utils.js";
 import {
   cellSize,
   paused,
@@ -30,8 +29,6 @@ function updateMousePosition(event) {
   automata.drawGrid();
 }
 
-ctx.canvas.addEventListener("mousemove", updateMousePosition);
-
 // Draw using requestAnimationFrame
 let isDrawing = false;
 
@@ -51,9 +48,12 @@ function drawLoop() {
   }
 }
 
-ctx.canvas.addEventListener("mousedown", startDrawing);
-ctx.canvas.addEventListener("mouseup", stopDrawing);
-ctx.canvas.addEventListener("mouseleave", stopDrawing);
+export function registerCanvasCallbacks() {
+  ctx.canvas.addEventListener("mousemove", updateMousePosition);
+  ctx.canvas.addEventListener("mousedown", startDrawing);
+  ctx.canvas.addEventListener("mouseup", stopDrawing);
+  ctx.canvas.addEventListener("mouseleave", stopDrawing);
+}
 
 //! DRAGGEABLE WINDOW FUNCTIONS
 

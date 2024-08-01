@@ -39,13 +39,17 @@
 
 /* Side content */
 .side-content {
+  display: none;
   width: 70%;
   min-width: 300px;
-  max-height: 100%;
   margin: 0;
   padding: 20px;
   overflow-y: scroll;
   text-align: center;
+}
+
+#life-info {
+  display: block; /* Only show life on load */
 }
 
 .side-content > * {

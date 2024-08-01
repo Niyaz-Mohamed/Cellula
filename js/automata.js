@@ -1,11 +1,10 @@
-import { ctx } from "./canvas.js";
 import {
   backgroundColor,
   cellSize,
   fillRadius,
   paused,
   waitTime,
-} from "./controls.js";
+} from "./input/controls.js";
 import {
   fillCircle,
   getConsoleText,
@@ -14,8 +13,30 @@ import {
   mooreNeighborhod,
   padArray,
 } from "./utils.js";
-import { mouseX, mouseY, outlinePoints } from "./userInput.js";
+import {
+  mouseX,
+  mouseY,
+  outlinePoints,
+  registerCanvasCallbacks,
+} from "./input/userInput.js";
 
+//! Intialize Canvas
+const canvas = document.getElementById("cellGrid");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+export const ctx = canvas.getContext("2d");
+
+// Handle any instance of window becoming smaller
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resizeCanvas);
+window.addEventListener("orientationchange", resizeCanvas);
+resizeCanvas();
+registerCanvasCallbacks();
+
+//! Define types of automata
 export class Automata {
   // Create an automata for a grid of dim [rows, cols]
   constructor() {
@@ -161,7 +182,7 @@ export class Automata {
 }
 
 export class LifeLikeAutomata extends Automata {
-  constructor(ruleString = "B2/S23", neighbourhood = mooreNeighborhod()) {
+  constructor(ruleString = "B3/S23", neighbourhood = mooreNeighborhod()) {
     super();
     this.setRules(ruleString);
     this.neighbourhood = neighbourhood;
@@ -429,3 +450,23 @@ export class BriansBrain extends Automata {
     return stateColors[this.penState];
   }
 }
+
+//! Intialize and trigger automata class
+//TODO: Fix bug with switching between 2 automata
+export let automata = new BriansBrain(); // Automata Definition
+export function setAutomata(newAutomataName) {
+  console.log(newAutomataName);
+  // Change value of automata
+  switch (newAutomataName) {
+    case "Life":
+      console.log("LIFESWITCH");
+      automata = new LifeLikeAutomata();
+    case "Brian's Brain":
+      automata = new BriansBrain();
+    default:
+      null;
+  }
+  console.log(automata.constructor.name);
+  automata.updateGrid();
+}
+automata.updateGrid();

@@ -4,7 +4,6 @@
   text-align: center;
   top: 5vh;
   min-width: 300px;
-  max-width: 50vw;
   color: var(--theme-color);
   background-color: var(--bg-color);
   border: 3px solid var(--theme-color);
@@ -38,6 +37,7 @@
 .window-content {
   display: flex;
   width: 100%;
+  min-width: fit-content;
   max-width: 40vw;
   min-height: 100px;
   max-height: 30vh;
