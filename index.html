@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="./css/toolbar.css" />
     <link rel="stylesheet" href="./css/windows.css" />
     <link rel="stylesheet" href="./css/selector.css" />
+    <link rel="stylesheet" href="./css/settings.css" />
     <!--GPU.js CDN-->
     <script src="https://cdn.jsdelivr.net/npm/gpu.js@2.10.1/dist/gpu-browser.min.js"></script>
     <!--Pixelify Sans Font-->
@@ -92,12 +93,6 @@
                 </button>
             </div>
         </div>
-        <!--TODO: Remove this rule div by moving it to the settings-->
-        <div id="rule-div">
-            <label for="rule-input"><a
-                    href="https://conwaylife.com/wiki/List_of_Life-like_rules">Rulestring:</a></label>
-            <input type="text" id="rule-input" name="rule-input" placeholder="B/S" />
-        </div>
         <!--Console-->
         <p id="console-container">
             »
@@ -106,7 +101,7 @@
             </span>
         </p>
     </div>
-    <!-- Draggable Automata Select -->
+    <!--! Draggable Automata Select -->
     <div id="automata" class="window">
         <div id="automata-header" class="window-header">
             <span class="window-title">Select Automata</span>
@@ -189,15 +184,37 @@
             </div>
         </div>
     </div>
-    <!-- Draggable Settings -->
+    <!--! Draggable Settings -->
     <div id="settings" class="window">
         <div id="settings-header" class="window-header">
             <span class="window-title">Settings</span>
             <span class="window-delete">X</span>
         </div>
-        <p>Content</p>
+        <!--Content for Settings-->
+        <div id="settings-window-content" class='window-content'>
+            <!--Settings for GoL-->
+            <div id="life-settings" class="automata-settings">
+                <div class="rule-div">
+                    <label for="life-rule-input">Rulestring</label>
+                    <p class="desc">B/S rulestring. See "Select Automata" window for details.</p>
+                    <input type="text" id="life-rule-input" name="life-rule-input" placeholder="B/S" />
+                </div>
+            </div>
+            <!--Settings for Brian's Brain-->
+            <div id="brain-settings" class="automata-settings">
+                <div class="rule-div">
+                    <label for="rule-input">Rulestring</label>
+                    <p class="desc">Number of neighbors for survival, separated by slash (/). Example: 2/3</p>
+                    <input type="text" id="brain-rule-input" name="rule-input" placeholder="2/3" />
+                </div>
+            </div>
+            <!--Settings for Wireworld-->
+            <div id="wire-settings" class="automata-settings">
+                <p>No settings available</p>
+            </div>
+        </div>
     </div>
-    <!--Draggeable file load-->
+    <!--!Draggeable file load-->
     <div id="load" class="window">
         <div id="load-header" class="window-header">
             <span class="window-title">Load File</span>
@@ -209,6 +226,7 @@
     <script type="module" src="./js/automata.js"></script>
     <script type="module" src="./js/input/userInput.js"></script>
     <script type="module" src="./js/input/selector.js"></script>
+    <script type="module" src="./js/input/settings.js"></script>
 </body>
 
 </html>

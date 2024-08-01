@@ -1,0 +1,41 @@
+/* Window sizing */
+#settings {
+  max-width: 25vw;
+}
+
+#settings-window-content {
+  padding: 20px;
+  overflow-y: scroll;
+  font-size: 1em;
+  text-align: left;
+}
+
+#settings-window-content > * {
+  width: 100%;
+}
+
+/* Text input element */
+.rule-div > * {
+  margin: 0px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.rule-div label {
+  margin-top: 0px;
+  text-decoration: underline;
+}
+
+.rule-div .desc {
+  opacity: 0.5;
+  margin-top: 5px;
+  font-size: 0.8em;
+}
+
+.automata-settings {
+  display: none;
+}
+
+#life-settings {
+  display: block;
+}

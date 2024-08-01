@@ -248,7 +248,7 @@ export class LifeLikeAutomata extends Automata {
     const regex = /^B((\d*(\(\d+\))?)\/S)((\d*(\(\d+\))?)+)$/;
     ruleString = ruleString.replaceAll(" ", "");
     // Update rulestring selector
-    document.getElementById("rule-input").value = ruleString;
+    document.getElementById("life-rule-input").value = ruleString;
 
     // Extract required rules
     if (ruleString.match(regex)) {
@@ -311,7 +311,7 @@ export class LifeLikeAutomata extends Automata {
 export class BriansBrain extends Automata {
   constructor(ruleString = "2", neighbourhood = mooreNeighborhod()) {
     super();
-    this.setRule(ruleString);
+    this.setRules(ruleString);
     this.neighbourhood = neighbourhood;
 
     // Create GPU, account for issues in chrome
@@ -368,8 +368,8 @@ export class BriansBrain extends Automata {
   }
 
   // Parse the rule required for Brian's Brain to come alive
-  setRule(ruleString) {
-    const regex = /^\d+(\/\d+)*$/;
+  setRules(ruleString) {
+    const regex = /\d+(\/\d+)*$/;
 
     // Extract required rules
     if (ruleString.match(regex)) {
@@ -377,10 +377,13 @@ export class BriansBrain extends Automata {
       if (getConsoleText() == "Invalid Rulestring!") {
         setConsoleText("Valid Rulestring!");
       }
-
+      // Update rulestring selector
+      document.getElementById("brain-rule-input").value = ruleString;
       // Parse rulestring
-      let ruleList = ruleString.split("/").slice(1).map(Number);
+      let ruleList = ruleString.split("/").map(Number);
       this.birthRules = [...new Set(ruleList)];
+    } else if (ruleString == "") {
+      this.birthRules = [0];
     } else {
       setConsoleText("Invalid Rulestring!");
     }
@@ -453,6 +456,7 @@ export function setAutomata(newAutomataName) {
       automata.grid = oldGrid.map((row) =>
         row.map((state) => ([0, 1].includes(state) ? state : 1))
       );
+      setConsoleText("Changed automata to life-like");
       break;
     case "Brian's Brain":
       automata = new BriansBrain();
@@ -460,6 +464,7 @@ export function setAutomata(newAutomataName) {
       automata.grid = oldGrid.map((row) =>
         row.map((state) => ([0, 1, 2].includes(state) ? state : 1))
       );
+      setConsoleText("Changed automata to Brian's Brain");
       break;
     default:
       break;

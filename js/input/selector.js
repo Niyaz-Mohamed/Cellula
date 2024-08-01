@@ -23,15 +23,21 @@ document.querySelectorAll(".select-btn").forEach((button) => {
         .forEach((content) => (content.style.display = "none"));
       document.getElementById(infoMap[this.innerHTML]).style.display = "block";
 
+      // Reassign the settings shown
+      const settingsMap = {
+        Life: "life-settings",
+        "Brian's Brain": "brain-settings",
+        Wireworld: "wire-settings",
+        "Rock, Paper, Scissors": "rps-settings",
+      }; //! This maps each automata name to the id of its info content
+      document
+        .querySelectorAll(".automata-settings")
+        .forEach((content) => (content.style.display = "none"));
+      document.getElementById(settingsMap[this.innerHTML]).style.display =
+        "block";
+
       // Update automata to new class chosen
       setAutomata(this.innerHTML);
     }
   });
 });
-
-// Handle rule changes
-document
-  .getElementById("rule-input")
-  .addEventListener("input", function (event) {
-    automata.setRules(event.target.value);
-  });
