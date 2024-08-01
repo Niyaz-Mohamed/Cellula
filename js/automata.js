@@ -309,7 +309,7 @@ export class LifeLikeAutomata extends Automata {
 }
 
 export class BriansBrain extends Automata {
-  constructor(ruleString = "/2", neighbourhood = mooreNeighborhod()) {
+  constructor(ruleString = "2", neighbourhood = mooreNeighborhod()) {
     super();
     this.setRule(ruleString);
     this.neighbourhood = neighbourhood;
@@ -369,7 +369,7 @@ export class BriansBrain extends Automata {
 
   // Parse the rule required for Brian's Brain to come alive
   setRule(ruleString) {
-    const regex = /^\/\d+(\/\d+)*$/;
+    const regex = /^\d+(\/\d+)*$/;
 
     // Extract required rules
     if (ruleString.match(regex)) {

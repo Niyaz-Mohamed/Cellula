@@ -60,15 +60,16 @@
   max-width: 100%;
   height: auto;
   margin-left: auto;
-  border: 5px solid var(--highlight-color);
+  border: 8px solid var(--highlight-color);
 }
 
 .side-content h1 {
   font-size: 2em;
   margin: 0px;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
-.side-content p {
-  margin: 10px 0px;
+.side-content p,
+h2 {
+  margin: 8px 0px;
 }

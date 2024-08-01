@@ -23,7 +23,7 @@ export function setWaitTime(time) {
 export function setFillRadius(radius) {
   fillRadius = radius;
   setConsoleText(`Fill Radius set to: ${radius}`);
-  automata.updateGrid();
+  automata.drawGrid();
 }
 
 export function changePaused() {
