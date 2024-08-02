@@ -9,7 +9,15 @@ document.querySelectorAll(".select-btn").forEach((button) => {
         .querySelectorAll(".select-btn")
         .forEach((btn) => btn.classList.remove("selected"));
       this.classList.add("selected");
-      document.getElementById("automata-btn").innerHTML = this.innerHTML;
+      // Process innerHTML if required
+      const nameMap = {
+        "Rock, Paper, Scissors": "RPS",
+      };
+      document.getElementById("automata-btn").innerHTML = nameMap[
+        this.innerHTML
+      ]
+        ? nameMap[this.innerHTML]
+        : this.innerHTML;
 
       // Reassign the content shown
       const infoMap = {

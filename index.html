@@ -220,7 +220,8 @@
                 <div class="rule-div">
                     <label for="life-rule-input">Rulestring</label>
                     <p class="desc">B/S rulestring. See "Select Automata" window for details.</p>
-                    <input type="text" id="life-rule-input" name="life-rule-input" placeholder="B/S" />
+                    <input type="text" id="life-rule-input" name="life-rule-input" placeholder="B/S Rulestring"
+                        value="B3/S23" />
                 </div>
             </div>
             <!--Settings for Brian's Brain-->
@@ -228,16 +229,20 @@
                 <div class="rule-div">
                     <label for="rule-input">Rulestring</label>
                     <p class="desc">Number of neighbors for survival, separated by slash (/). Example: 2/3</p>
-                    <input type="text" id="brain-rule-input" name="rule-input" placeholder="2/3" />
+                    <input type="text" id="brain-rule-input" name="rule-input" placeholder="2/3/etc." value="'2/3" />
                 </div>
             </div>
             <!--Settings for Wireworld-->
             <div id="wire-settings" class="automata-settings">
-                <p>No settings available</p>
+                <p>No settings available for Wireworld</p>
             </div>
             <!--Settings for Rock Paper Scissors-->
             <div id="rps-settings" class="automata-settings">
-                <p>No settings available</p>
+                <div class="rule-div">
+                    <label for="rule-input">Rulestring</label>
+                    <p class="desc">A cell will be converted if it has more than these many neighbors which beat it</p>
+                    <input type="text" id="rps-rule-input" name="rule-input" placeholder="3" value="3" min="1" />
+                </div>
             </div>
         </div>
     </div>

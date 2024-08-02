@@ -1,6 +1,7 @@
 import {
   backgroundColor,
   cellSize,
+  changePaused,
   fillRadius,
   paused,
   waitTime,
@@ -111,10 +112,8 @@ export class Automata {
   }
 
   // Calculates the next state for the grid
-  updateGrid(ignorePaused = false, drawGrid = true) {
-    if (!drawGrid) {
-      this.grid = this.getNextState();
-    } else if (!paused && !ignorePaused) {
+  updateGrid(ignorePaused = false) {
+    if (!paused && !ignorePaused) {
       //// console.time("Update");
       let newGrid = this.getNextState();
       //// console.timeEnd("Update");
@@ -643,16 +642,13 @@ export class RPSGame extends Automata {
             }
 
             // Update cell value
-            if (
-              paperNeighbors >= winCondition &&
-              spockNeighbors >= winCondition
-            ) {
+            if (paperNeighbors + spockNeighbors >= winCondition) {
               if (paperNeighbors > spockNeighbors) {
                 return 1;
               } else return 4;
             } else if (paperNeighbors >= winCondition) {
               return 1;
-            } else if (spockNeighbors >= winCondition) {
+            } else if (spockNeighbors >= winCondition && stateCount == 5) {
               return 4;
             } else return current;
           } else if (current == 1) {
@@ -676,16 +672,13 @@ export class RPSGame extends Automata {
             }
 
             // Update cell value
-            if (
-              scissorNeighbors >= winCondition &&
-              lizardNeighbors >= winCondition
-            ) {
+            if (scissorNeighbors + lizardNeighbors >= winCondition) {
               if (scissorNeighbors > lizardNeighbors) {
                 return 2;
               } else return 3;
             } else if (scissorNeighbors >= winCondition) {
               return 2;
-            } else if (lizardNeighbors >= winCondition) {
+            } else if (lizardNeighbors >= winCondition && stateCount >= 4) {
               return 3;
             } else return current;
           } else if (current == 2) {
@@ -729,16 +722,13 @@ export class RPSGame extends Automata {
             }
 
             // Update cell value
-            if (
-              rockNeighbors >= winCondition &&
-              spockNeighbors >= winCondition
-            ) {
+            if (rockNeighbors + spockNeighbors >= winCondition) {
               if (rockNeighbors > spockNeighbors) {
                 return 0;
               } else return 4;
             } else if (rockNeighbors >= winCondition) {
               return 0;
-            } else if (spockNeighbors >= winCondition) {
+            } else if (spockNeighbors >= winCondition && stateCount == 5) {
               return 4;
             } else return current;
           } else if (current == 3) {
@@ -770,10 +760,7 @@ export class RPSGame extends Automata {
             }
 
             // Update cell value
-            if (
-              rockNeighbors >= winCondition &&
-              scissorNeighbors >= winCondition
-            ) {
+            if (rockNeighbors + scissorNeighbors >= winCondition) {
               if (rockNeighbors > scissorNeighbors) {
                 return 0;
               } else return 2;
@@ -803,10 +790,7 @@ export class RPSGame extends Automata {
             }
 
             // Update cell value
-            if (
-              paperNeighbors >= winCondition &&
-              lizardNeighbors >= winCondition
-            ) {
+            if (paperNeighbors + lizardNeighbors >= winCondition) {
               if (paperNeighbors > lizardNeighbors) {
                 return 1;
               } else return 3;
@@ -891,8 +875,7 @@ export class RPSGame extends Automata {
 }
 
 //! Intialize and trigger automata class
-export let automata = new RPSGame(); // Automata Definition
-automata.stateCount = 4;
+export let automata = new LifeLikeAutomata(); // Automata Definition
 export function setAutomata(newAutomataName) {
   const oldGrid = automata.grid;
   // Change automata class
@@ -928,7 +911,7 @@ export function setAutomata(newAutomataName) {
     default:
       break;
   }
+  automata.drawGrid();
   automata.updateGrid();
-  return null;
 }
 automata.updateGrid();
