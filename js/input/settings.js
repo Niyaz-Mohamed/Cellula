@@ -41,6 +41,7 @@ document
     }
   });
 
+document.getElementById("rps-state-select").selectedIndex = 0;
 document.getElementById("rps-state-select").onchange = (event) => {
   automata.stateCount = Number(event.target.value);
   console.log(automata.stateCount);

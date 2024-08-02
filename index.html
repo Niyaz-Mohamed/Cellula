@@ -203,7 +203,28 @@
             <!--Content for Rock, Paper, Scissors-->
             <div id="rps-info" class="side-content">
                 <h1>Rock, Paper, Scissors</h1>
-                <img src="./images/Life.gif" alt="Life GIF">
+                <img src="./images/RPS.gif" alt="Rock Paper Scissors GIF">
+                <h2>Description</h2>
+                <p>Everyone knows how rock, paper, scissors works. This is just that game in cellular automata form!
+                    It's a 3-state automata where each color beats exactly one other color. It has a tendency to form
+                    spiral patterns after a few generations regardless of initial state.</p>
+                <h2>Rules</h2>
+                <p>Below are the rules of the automata:</p>
+                <ul>
+                    <li>Rock (red) is converted to paper if 3 or more neighbors are paper</li>
+                    <li>Paper (Green) is converted to scissors if 3 or more neighbors are paper</li>
+                    <li>Scissors (Blue) is converted to paper if 3 or more neighbors are paper</li>
+                </ul>
+                <p>The option to change the number of neighbors required for a cell to be beaten is provided in the
+                    settings. This automata can also be extended to 4-state and 5-state neighborhoods by adding in
+                    Lizard
+                    (light-green) and Spock (light-blue). Note that in 4-state games, it is impossible for all states to
+                    be equally powerful and this may lead to extinction of weakest color or complete domination of
+                    strongest color.</p>
+                <h2>Additional Info</h2>
+                <p>This automata was inspired by <a href="https://www.youtube.com/watch?v=TvZI6Xc0J1Y">this video</a>
+                    which shows how proportion of each state varies with
+                    time.</p>
             </div>
         </div>
     </div>
@@ -247,7 +268,7 @@
                     <label for="rps-state-select">Number of States</label>
                     <p class="desc">Number of states in the game. Lizard and Spock can be added as extra states</p>
                     <select name="rps-state-select" id="rps-state-select">
-                        <option value="3" selected="selected">3-State</option>
+                        <option value="3" selected>3-State</option>
                         <option value="4">4-State (Unbalanced)</option>
                         <option value="5">5-State</option>
                     </select>

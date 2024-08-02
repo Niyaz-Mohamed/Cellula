@@ -4,9 +4,9 @@
 }
 
 #settings-window-content {
-  padding: 20px;
+  padding: 10px 20px;
   overflow-y: scroll;
-  font-size: 1em;
+  font-size: 1.1em !important;
   text-align: left;
 }
 

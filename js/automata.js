@@ -657,42 +657,24 @@ export class RPSGame extends Automata {
               return 4;
             } else return current;
           } else if (current == 1) {
-            // Update cell value
-            if (scissorNeighbors + lizardNeighbors >= winCondition) {
-              if (scissorNeighbors > lizardNeighbors) {
-                return 2;
-              } else return 3;
-            } else if (scissorNeighbors >= winCondition) {
+            // Paper (1) beaten by Scissors (2) and Lizard (3)
+            if (scissorNeighbors >= winCondition) {
               return 2;
-            } else if (lizardNeighbors >= winCondition && stateCount >= 4) {
+            } else if (lizardNeighbors >= winCondition) {
               return 3;
             } else return current;
           } else if (current == 2) {
-            // Scissors (2) beaten by Rock (1) and Spock (4)
+            // Scissors (2) beaten by Rock (0) and Spock (4)
             //! SPECIAL CASE: Scissors beaten by Lizard (3) if stateCount is 4 (unbalanced rules)
             if (stateCount == 4) {
-              if (
-                rockNeighbors >= winCondition &&
-                lizardNeighbors >= winCondition
-              ) {
-                if (rockNeighbors > lizardNeighbors) {
-                  return 0;
-                } else return 4;
-              } else if (rockNeighbors >= winCondition) {
+              if (rockNeighbors >= winCondition) {
                 return 0;
               } else if (lizardNeighbors >= winCondition) {
                 return 3;
               } else return current;
-            }
-
-            // Update cell value
-            if (rockNeighbors + spockNeighbors >= winCondition) {
-              if (rockNeighbors > spockNeighbors) {
-                return 0;
-              } else return 4;
             } else if (rockNeighbors >= winCondition) {
               return 0;
-            } else if (spockNeighbors >= winCondition && stateCount == 5) {
+            } else if (spockNeighbors >= winCondition) {
               return 4;
             } else return current;
           } else if (current == 3) {
@@ -702,25 +684,14 @@ export class RPSGame extends Automata {
               if (rockNeighbors >= winCondition) {
                 return 0;
               } else return current;
-            }
-
-            // Update cell value
-            if (rockNeighbors + scissorNeighbors >= winCondition) {
-              if (rockNeighbors > scissorNeighbors) {
-                return 0;
-              } else return 2;
             } else if (rockNeighbors >= winCondition) {
               return 0;
             } else if (scissorNeighbors >= winCondition) {
               return 2;
             } else return current;
-          } else {
+          } else if (current == 4) {
             // Spock beaten by Paper (1) and Lizard (4)
-            if (paperNeighbors + lizardNeighbors >= winCondition) {
-              if (paperNeighbors > lizardNeighbors) {
-                return 1;
-              } else return 3;
-            } else if (paperNeighbors >= winCondition) {
+            if (paperNeighbors >= winCondition) {
               return 1;
             } else if (lizardNeighbors >= winCondition) {
               return 3;
@@ -780,7 +751,7 @@ export class RPSGame extends Automata {
       4: "Spock",
     };
     // Change pen state
-    this.penState = (this.penState + 1) % 5;
+    this.penState = (this.penState + 1) % this.stateCount;
     setConsoleText(
       `Updated pen to draw ${stateNames[this.penState]} [${this.penState}]`
     );
@@ -839,5 +810,8 @@ export function setAutomata(newAutomataName) {
   }
   automata.drawGrid();
   automata.updateGrid();
+  if (!paused) {
+    changePaused();
+  }
 }
 automata.updateGrid();

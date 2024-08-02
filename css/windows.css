@@ -3,7 +3,8 @@
   position: absolute;
   text-align: center;
   top: 5vh;
-  min-width: 300px;
+  min-width: 200px;
+  font-size: 0.8em;
   color: var(--theme-color);
   background-color: var(--bg-color);
   border: 3px solid var(--theme-color);
@@ -38,7 +39,7 @@
   display: flex;
   width: 100%;
   min-width: fit-content;
-  max-width: 40vw;
+  max-width: 30vw;
   max-height: 30vh;
   background-color: transparent;
   overflow: hidden;
