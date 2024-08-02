@@ -41,9 +41,7 @@ document
     }
   });
 
-// Trigger a window to open
-document.querySelectorAll(".selectbtn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.getElementById(btn.id.slice(0, -4)).style.display = "block";
-  });
-});
+document.getElementById("rps-state-select").onchange = (event) => {
+  automata.stateCount = Number(event.target.value);
+  console.log(automata.stateCount);
+};

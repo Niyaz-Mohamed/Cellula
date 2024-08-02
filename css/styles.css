@@ -127,6 +127,10 @@ select > option {
   font-family: "Pixelify Sans", sans-serif;
 }
 
+option:hover {
+  color: var(--highlight-color);
+}
+
 /*! Layout Styling */
 html,
 body {

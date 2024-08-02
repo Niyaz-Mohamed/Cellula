@@ -48,14 +48,3 @@
 #life-settings {
   display: block;
 }
-
-/* Custom settings */
-.selectbtn {
-  height: 5vh;
-}
-
-.selectbtn .dropdown-content {
-  position: fixed;
-  min-height: 30px;
-  width: 100%;
-}

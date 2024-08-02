@@ -246,21 +246,11 @@
                 <div class="rule-div">
                     <label for="rps-state-select">Number of States</label>
                     <p class="desc">Number of states in the game. Lizard and Spock can be added as extra states</p>
-                    <div class="dropdown select-dropdown" name="rps-state-select" id="rps-state-select">
-                        <button class="dropbtn selectbtn">State Select</button>
-                        <div class="dropdown-content">
-                            <!--TODO: Replace these with proper shortcuts-->
-                            <button class="dropdown-option">
-                                <span class="option-name">Save</span>
-                                <span class="option-shortcut">S</span>
-                            </button>
-                            <!--TODO: This should open a window-->
-                            <button class="dropdown-option">
-                                <span class="option-name">Load</span>
-                                <span class="option-shortcut">V</span>
-                            </button>
-                        </div>
-                    </div>
+                    <select name="rps-state-select" id="rps-state-select">
+                        <option value="3" selected="selected">3-State</option>
+                        <option value="4">4-State (Unbalanced)</option>
+                        <option value="5">5-State</option>
+                    </select>
                 </div>
             </div>
         </div>

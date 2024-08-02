@@ -63,11 +63,11 @@ document.querySelectorAll(".window").forEach((element) => {
   // Shift positions of windows randomly
   element.style.top =
     element.offsetTop +
-    Math.floor(Math.random() * window.innerHeight * 0.85) +
+    Math.floor(Math.random() * window.innerHeight * 0.6) +
     "px";
   element.style.left =
     element.offsetLeft +
-    Math.floor(Math.random() * window.innerWidth * 0.85) +
+    Math.floor(Math.random() * window.innerWidth * 0.6) +
     "px";
 });
 

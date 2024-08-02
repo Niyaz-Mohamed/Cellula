@@ -620,57 +620,43 @@ export class RPSGame extends Automata {
           const y = this.thread.y;
           const current = grid[y][x];
 
+          // Count up all neighbors just once
+          let rockNeighbors = 0;
+          let paperNeighbors = 0;
+          let scissorNeighbors = 0;
+          let lizardNeighbors = 0;
+          let spockNeighbors = 0;
+
+          // Itearte through neighborhood
+          for (let i = 0; i < this.constants.neighbourhoodSize; i++) {
+            const dx = neighbourhood[i * 2];
+            const dy = neighbourhood[i * 2 + 1];
+            const neighborValue =
+              grid[(y + dy + this.constants.rows) % this.constants.rows][
+                (x + dx + this.constants.cols) % this.constants.cols
+              ];
+            if (neighborValue == 0) {
+              rockNeighbors += 1;
+            } else if (neighborValue == 1) {
+              paperNeighbors += 1;
+            } else if (neighborValue == 2) {
+              scissorNeighbors += 1;
+            } else if (neighborValue == 3) {
+              lizardNeighbors += 1;
+            } else if (neighborValue == 4) {
+              spockNeighbors += 1;
+            }
+          }
+
           // Cell transitions
           if (current == 0) {
             // Rock (0) beaten by Paper (1) or Spock (4)
-            let paperNeighbors = 0;
-            let spockNeighbors = 0;
-
-            // Count neighbors
-            for (let i = 0; i < this.constants.neighbourhoodSize; i++) {
-              const dx = neighbourhood[i * 2];
-              const dy = neighbourhood[i * 2 + 1];
-              const neighborValue =
-                grid[(y + dy + this.constants.rows) % this.constants.rows][
-                  (x + dx + this.constants.cols) % this.constants.cols
-                ];
-              if (neighborValue == 1) {
-                paperNeighbors++;
-              } else if (neighborValue == 4) {
-                spockNeighbors++;
-              }
-            }
-
-            // Update cell value
-            if (paperNeighbors + spockNeighbors >= winCondition) {
-              if (paperNeighbors > spockNeighbors) {
-                return 1;
-              } else return 4;
-            } else if (paperNeighbors >= winCondition) {
+            if (paperNeighbors >= winCondition) {
               return 1;
-            } else if (spockNeighbors >= winCondition && stateCount == 5) {
+            } else if (spockNeighbors >= winCondition) {
               return 4;
             } else return current;
           } else if (current == 1) {
-            // Paper (1) beaten by Scissors (2) and Lizard (3)
-            let scissorNeighbors = 0;
-            let lizardNeighbors = 0;
-
-            // Count neighbors
-            for (let i = 0; i < this.constants.neighbourhoodSize; i++) {
-              const dx = neighbourhood[i * 2];
-              const dy = neighbourhood[i * 2 + 1];
-              const neighborValue =
-                grid[(y + dy + this.constants.rows) % this.constants.rows][
-                  (x + dx + this.constants.cols) % this.constants.cols
-                ];
-              if (neighborValue == 2) {
-                scissorNeighbors++;
-              } else if (neighborValue == 3) {
-                lizardNeighbors++;
-              }
-            }
-
             // Update cell value
             if (scissorNeighbors + lizardNeighbors >= winCondition) {
               if (scissorNeighbors > lizardNeighbors) {
@@ -684,28 +670,6 @@ export class RPSGame extends Automata {
           } else if (current == 2) {
             // Scissors (2) beaten by Rock (1) and Spock (4)
             //! SPECIAL CASE: Scissors beaten by Lizard (3) if stateCount is 4 (unbalanced rules)
-            let rockNeighbors = 0;
-            let spockNeighbors = 0;
-            let lizardNeighbors = 0;
-
-            // Count neighbors
-            for (let i = 0; i < this.constants.neighbourhoodSize; i++) {
-              const dx = neighbourhood[i * 2];
-              const dy = neighbourhood[i * 2 + 1];
-              const neighborValue =
-                grid[(y + dy + this.constants.rows) % this.constants.rows][
-                  (x + dx + this.constants.cols) % this.constants.cols
-                ];
-              if (neighborValue == 0) {
-                rockNeighbors++;
-              } else if (neighborValue == 4) {
-                spockNeighbors++;
-              } else if (neighborValue == 3) {
-                lizardNeighbors++;
-              }
-            }
-
-            //! SPECIAL CASE: Update for stateCount 4
             if (stateCount == 4) {
               if (
                 rockNeighbors >= winCondition &&
@@ -734,25 +698,6 @@ export class RPSGame extends Automata {
           } else if (current == 3) {
             // Lizard beaten by Rock (0) and Scissors (2)
             //! SPECIAL CASE: Lizard not defeated by Scissors when stateCount = 4
-            let rockNeighbors = 0;
-            let scissorNeighbors = 0;
-
-            // Count neighbors
-            for (let i = 0; i < this.constants.neighbourhoodSize; i++) {
-              const dx = neighbourhood[i * 2];
-              const dy = neighbourhood[i * 2 + 1];
-              const neighborValue =
-                grid[(y + dy + this.constants.rows) % this.constants.rows][
-                  (x + dx + this.constants.cols) % this.constants.cols
-                ];
-              if (neighborValue == 0) {
-                rockNeighbors++;
-              } else if (neighborValue == 2) {
-                scissorNeighbors++;
-              }
-            }
-
-            //! SPECIAL CASE
             if (stateCount == 4) {
               if (rockNeighbors >= winCondition) {
                 return 0;
@@ -771,25 +716,6 @@ export class RPSGame extends Automata {
             } else return current;
           } else {
             // Spock beaten by Paper (1) and Lizard (4)
-            let paperNeighbors = 0;
-            let lizardNeighbors = 0;
-
-            // Count neighbors
-            for (let i = 0; i < this.constants.neighbourhoodSize; i++) {
-              const dx = neighbourhood[i * 2];
-              const dy = neighbourhood[i * 2 + 1];
-              const neighborValue =
-                grid[(y + dy + this.constants.rows) % this.constants.rows][
-                  (x + dx + this.constants.cols) % this.constants.cols
-                ];
-              if (neighborValue == 1) {
-                paperNeighbors++;
-              } else if (neighborValue == 3) {
-                lizardNeighbors++;
-              }
-            }
-
-            // Update cell value
             if (paperNeighbors + lizardNeighbors >= winCondition) {
               if (paperNeighbors > lizardNeighbors) {
                 return 1;
