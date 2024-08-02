@@ -168,8 +168,8 @@ function handleAction(action) {
       break;
 
     // Controls for pausing
-    case "p":
     case " ":
+    case "p":
     case "Pause/Unpause":
       changePaused();
       break;

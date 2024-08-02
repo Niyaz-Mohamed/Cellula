@@ -199,42 +199,44 @@ export class LifeLikeAutomata extends Automata {
       try {
         return new window.GPU.GPU();
       } catch (e) {
-        return new GPU();
+        return new GPU({ mode: "dev" });
       }
     }
     const gpu = initGPU();
     // Implement GPU kernel to update grid
     this.gridUpdateKernel = gpu
-      .createKernel(function (grid, neighbourhood, birthRules, surviveRules) {
-        const x = this.thread.x;
-        const y = this.thread.y;
-        const current = grid[y][x];
-        let neighbors = 0;
+      .createKernel(
+        function (grid, neighbourhood, birthRules, surviveRules) {
+          const x = this.thread.x;
+          const y = this.thread.y;
+          const current = grid[y][x];
+          let neighbors = 0;
 
-        for (let i = 0; i < this.constants.neighbourhoodSize; i++) {
-          const dx = neighbourhood[i * 2];
-          const dy = neighbourhood[i * 2 + 1];
-          neighbors +=
-            grid[(y + dy + this.constants.rows) % this.constants.rows][
-              (x + dx + this.constants.cols) % this.constants.cols
-            ];
-        }
+          for (let i = 0; i < this.constants.neighbourhoodSize; i++) {
+            const dx = neighbourhood[i * 2];
+            const dy = neighbourhood[i * 2 + 1];
+            neighbors +=
+              grid[(y + dy + this.constants.rows) % this.constants.rows][
+                (x + dx + this.constants.cols) % this.constants.cols
+              ];
+          }
 
-        let isBirth = 0;
-        for (let i = 0; i < this.constants.rulesSize; i++) {
-          if (birthRules[i] === neighbors) isBirth = 1;
-        }
+          let isBirth = 0;
+          for (let i = 0; i < this.constants.rulesSize; i++) {
+            if (birthRules[i] === neighbors) isBirth = 1;
+          }
 
-        let isSurvival = 0;
-        for (let i = 0; i < this.constants.rulesSize; i++) {
-          if (surviveRules[i] === neighbors) isSurvival = 1;
-        }
+          let isSurvival = 0;
+          for (let i = 0; i < this.constants.rulesSize; i++) {
+            if (surviveRules[i] === neighbors) isSurvival = 1;
+          }
 
-        if (current === 0 && isBirth === 1) return 1;
-        if (current === 1 && isSurvival === 1) return 1;
-        return 0;
-      })
-      .setOutput([this.cols, this.rows])
+          if (current === 0 && isBirth === 1) return 1;
+          if (current === 1 && isSurvival === 1) return 1;
+          return 0;
+        },
+        { output: [this.cols, this.rows] }
+      )
       .setConstants({
         rows: this.rows,
         cols: this.cols,
@@ -293,6 +295,7 @@ export class LifeLikeAutomata extends Automata {
         neighbourhoodSize: this.neighbourhood.length,
         rulesSize: Math.max(this.birthRules.length, this.surviveRules.length),
       });
+      this.updateGrid();
     }
   }
 
@@ -325,38 +328,40 @@ export class BriansBrain extends Automata {
     const gpu = initGPU();
     // Implement GPU kernel to update grid
     this.gridUpdateKernel = gpu
-      .createKernel(function (grid, neighbourhood, birthRules) {
-        const x = this.thread.x;
-        const y = this.thread.y;
-        const current = grid[y][x];
+      .createKernel(
+        function (grid, neighbourhood, birthRules) {
+          const x = this.thread.x;
+          const y = this.thread.y;
+          const current = grid[y][x];
 
-        // Cell transitions
-        if (current == 0) {
-          let liveNeighbors = 0;
+          // Cell transitions
+          if (current == 0) {
+            let liveNeighbors = 0;
 
-          // Count live neighbors
-          for (let i = 0; i < this.constants.neighbourhoodSize; i++) {
-            const dx = neighbourhood[i * 2];
-            const dy = neighbourhood[i * 2 + 1];
-            const neighborValue =
-              grid[(y + dy + this.constants.rows) % this.constants.rows][
-                (x + dx + this.constants.cols) % this.constants.cols
-              ];
-            if (neighborValue == 1) {
-              liveNeighbors++;
+            // Count live neighbors
+            for (let i = 0; i < this.constants.neighbourhoodSize; i++) {
+              const dx = neighbourhood[i * 2];
+              const dy = neighbourhood[i * 2 + 1];
+              const neighborValue =
+                grid[(y + dy + this.constants.rows) % this.constants.rows][
+                  (x + dx + this.constants.cols) % this.constants.cols
+                ];
+              if (neighborValue == 1) {
+                liveNeighbors++;
+              }
             }
-          }
 
-          // Update cell value
-          for (let i = 0; i < this.constants.ruleSize; i++) {
-            if (birthRules[i] === liveNeighbors) return 1;
-          }
-          return 0;
-        } else if (current == 1) {
-          return 2;
-        } else return 0;
-      })
-      .setOutput([this.cols, this.rows])
+            // Update cell value
+            for (let i = 0; i < this.constants.ruleSize; i++) {
+              if (birthRules[i] === liveNeighbors) return 1;
+            }
+            return 0;
+          } else if (current == 1) {
+            return 2;
+          } else return 0;
+        },
+        { output: [this.cols, this.rows] }
+      )
       .setConstants({
         rows: this.rows,
         cols: this.cols,
@@ -458,42 +463,44 @@ export class WireWorld extends Automata {
     const gpu = initGPU();
     // Implement GPU kernel to update grid
     this.gridUpdateKernel = gpu
-      .createKernel(function (grid, neighbourhood) {
-        const x = this.thread.x;
-        const y = this.thread.y;
-        const current = grid[y][x];
+      .createKernel(
+        function (grid, neighbourhood) {
+          const x = this.thread.x;
+          const y = this.thread.y;
+          const current = grid[y][x];
 
-        // Cell transitions
-        if (current == 0) {
-          return 0;
-        } else if (current == 1) {
-          return 2;
-        } else if (current == 2) {
-          return 3;
-        } else {
-          // Handle conductor becoming electron on 1 or 2 electron head neighbors
-          let headNeighbors = 0;
+          // Cell transitions
+          if (current == 0) {
+            return 0;
+          } else if (current == 1) {
+            return 2;
+          } else if (current == 2) {
+            return 3;
+          } else {
+            // Handle conductor becoming electron on 1 or 2 electron head neighbors
+            let headNeighbors = 0;
 
-          // Count electron head neighbors
-          for (let i = 0; i < this.constants.neighbourhoodSize; i++) {
-            const dx = neighbourhood[i * 2];
-            const dy = neighbourhood[i * 2 + 1];
-            const neighborValue =
-              grid[(y + dy + this.constants.rows) % this.constants.rows][
-                (x + dx + this.constants.cols) % this.constants.cols
-              ];
-            if (neighborValue == 1) {
-              headNeighbors++;
+            // Count electron head neighbors
+            for (let i = 0; i < this.constants.neighbourhoodSize; i++) {
+              const dx = neighbourhood[i * 2];
+              const dy = neighbourhood[i * 2 + 1];
+              const neighborValue =
+                grid[(y + dy + this.constants.rows) % this.constants.rows][
+                  (x + dx + this.constants.cols) % this.constants.cols
+                ];
+              if (neighborValue == 1) {
+                headNeighbors++;
+              }
             }
-          }
 
-          // Update cell value
-          if (headNeighbors === 1 || headNeighbors === 2) {
-            return 1;
-          } else return 3;
-        }
-      })
-      .setOutput([this.cols, this.rows])
+            // Update cell value
+            if (headNeighbors === 1 || headNeighbors === 2) {
+              return 1;
+            } else return 3;
+          }
+        },
+        { output: [this.cols, this.rows] }
+      )
       .setConstants({
         rows: this.rows,
         cols: this.cols,
@@ -547,7 +554,7 @@ export class WireWorld extends Automata {
       if (x >= 0 && x < this.grid[0].length && y >= 0 && y < this.grid.length) {
         // Fill only conductors when penstate is electrons
         if (this.penState == 1 || this.penState == 2) {
-          if (this.grid[y][x] == 3) this.grid[y][x] = this.penState;
+          if (this.grid[y][x] != 0) this.grid[y][x] = this.penState;
         } else this.grid[y][x] = this.penState;
       }
     }
@@ -587,8 +594,6 @@ export class WireWorld extends Automata {
 export let automata = new LifeLikeAutomata(); // Automata Definition
 export function setAutomata(newAutomataName) {
   const oldGrid = automata.grid;
-  console.log(newAutomataName);
-
   // Change automata class
   switch (newAutomataName) {
     case "Life":
