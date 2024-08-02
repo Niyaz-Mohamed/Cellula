@@ -40,3 +40,10 @@ document
       }
     }
   });
+
+// Trigger a window to open
+document.querySelectorAll(".selectbtn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.getElementById(btn.id.slice(0, -4)).style.display = "block";
+  });
+});

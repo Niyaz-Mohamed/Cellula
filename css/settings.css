@@ -15,9 +15,18 @@
 }
 
 /* Text input element */
+.automata-settings .rule-div:first-of-type {
+  margin-top: 0px;
+}
+
+.rule-div {
+  margin-top: 20px;
+  position: relative;
+}
+
 .rule-div > * {
   margin: 0px;
-  margin-top: 10px;
+  margin-top: 5px;
   width: 100%;
 }
 
@@ -38,4 +47,15 @@
 
 #life-settings {
   display: block;
+}
+
+/* Custom settings */
+.selectbtn {
+  height: 5vh;
+}
+
+.selectbtn .dropdown-content {
+  position: fixed;
+  min-height: 30px;
+  width: 100%;
 }
