@@ -172,7 +172,7 @@ export class Automata {
     // Change pen state
     this.penState = (this.penState + 1) % 2;
     setConsoleText(
-      `Updated pen to draw ${this.penState} [${stateNames[this.penState]}]`
+      `Updated pen to draw ${stateNames[this.penState]} [${this.penState}]`
     );
     this.drawGrid();
   }
@@ -430,7 +430,7 @@ export class BriansBrain extends Automata {
     // Change pen state
     this.penState = (this.penState + 1) % 3;
     setConsoleText(
-      `Updated pen to draw ${this.penState} [${stateNames[this.penState]}]`
+      `Updated pen to draw ${stateNames[this.penState]} [${this.penState}]`
     );
     this.drawGrid();
   }
@@ -573,7 +573,7 @@ export class WireWorld extends Automata {
     // Change pen state
     this.penState = (this.penState + 1) % 4;
     setConsoleText(
-      `Updated pen to draw ${this.penState} [${stateNames[this.penState]}]`
+      `Updated pen to draw ${stateNames[this.penState]} [${this.penState}]`
     );
     this.drawGrid();
   }
@@ -585,6 +585,176 @@ export class WireWorld extends Automata {
       1: "rgba(0, 0, 255, 0.6)",
       2: "rgba(255, 0, 0, 0.6)",
       3: "rgba(255, 255, 0, 0.6)",
+    };
+    return stateColors[this.penState];
+  }
+}
+
+// Rock Paper Scissors Game
+export class RPSGame extends Automata {
+  constructor(
+    winCondition = 3,
+    stateCount = 3,
+    neighbourhood = mooreNeighborhod()
+  ) {
+    super();
+    this.neighbourhood = neighbourhood;
+    // Minimum number of cells that beat current cells in the neighborhood for conversion to occur
+    this.winCondition = winCondition;
+    // Number of states played with, ranges between 3 and 5
+    this.stateCount = [3, 4, 5].includes(stateCount) ? 3 : stateCount;
+
+    // Create GPU, account for issues in chrome
+    function initGPU() {
+      try {
+        return new window.GPU.GPU();
+      } catch (e) {
+        return new GPU();
+      }
+    }
+    const gpu = initGPU();
+    // Implement GPU kernel to update grid
+    this.gridUpdateKernel = gpu
+      .createKernel(
+        function (grid, neighbourhood, winCondition, stateCount) {
+          const x = this.thread.x;
+          const y = this.thread.y;
+          const current = grid[y][x];
+
+          // Cell transitions
+          if (current == 0) {
+            // Rock (0) beaten by Paper (1)
+            let paperNeighbors = 0;
+
+            // Count electron head neighbors
+            for (let i = 0; i < this.constants.neighbourhoodSize; i++) {
+              const dx = neighbourhood[i * 2];
+              const dy = neighbourhood[i * 2 + 1];
+              const neighborValue =
+                grid[(y + dy + this.constants.rows) % this.constants.rows][
+                  (x + dx + this.constants.cols) % this.constants.cols
+                ];
+              if (neighborValue == 1) {
+                paperNeighbors++;
+              }
+            }
+
+            // Update cell value
+            if (paperNeighbors >= winCondition) {
+              return 1;
+            } else return 0;
+          } else if (current == 1) {
+            // Paper (1) beaten by Scissors (2)
+            let scissorNeighbors = 0;
+
+            // Count electron head neighbors
+            for (let i = 0; i < this.constants.neighbourhoodSize; i++) {
+              const dx = neighbourhood[i * 2];
+              const dy = neighbourhood[i * 2 + 1];
+              const neighborValue =
+                grid[(y + dy + this.constants.rows) % this.constants.rows][
+                  (x + dx + this.constants.cols) % this.constants.cols
+                ];
+              if (neighborValue == 2) {
+                scissorNeighbors++;
+              }
+            }
+
+            // Update cell value
+            if (scissorNeighbors >= winCondition) {
+              return 2;
+            } else return 1;
+          } else {
+            // Scissors (2) beaten by Rock (1)
+            let rockNeighbors = 0;
+
+            // Count electron head neighbors
+            for (let i = 0; i < this.constants.neighbourhoodSize; i++) {
+              const dx = neighbourhood[i * 2];
+              const dy = neighbourhood[i * 2 + 1];
+              const neighborValue =
+                grid[(y + dy + this.constants.rows) % this.constants.rows][
+                  (x + dx + this.constants.cols) % this.constants.cols
+                ];
+              if (neighborValue == 0) {
+                rockNeighbors++;
+              }
+            }
+
+            // Update cell value
+            if (rockNeighbors >= winCondition) {
+              return 0;
+            } else return 2;
+          }
+        },
+        { output: [this.cols, this.rows] }
+      )
+      .setConstants({
+        rows: this.rows,
+        cols: this.cols,
+        neighbourhoodSize: this.neighbourhood.length,
+      });
+  }
+
+  // Override calculation of color required by a specific state as rgb value
+  stateColor(state) {
+    const stateSpace = {
+      0: [127, 0, 0], // Rock
+      1: [0, 127, 0], // Paper
+      2: [0, 0, 127], // Scissors
+      3: [0, 255, 127], // Lizard
+      4: [0, 127, 255], // Spock
+    };
+    return stateSpace[state];
+  }
+
+  // Override calculating the next grid state
+  getNextState() {
+    return this.gridUpdateKernel(
+      this.grid,
+      this.neighbourhood,
+      this.winCondition
+    );
+  }
+
+  // Override randomizing the grid
+  randomize() {
+    this.grid = new Array(this.rows)
+      .fill(null)
+      .map(() =>
+        new Array(this.cols)
+          .fill(null)
+          .map(() => (Math.random() < 0.33 ? 0 : Math.random() < 0.5 ? 1 : 2))
+      );
+    this.drawGrid();
+  }
+
+  // Override cycle between draw state
+  cycleDraw() {
+    // Define state names
+    let stateNames = {
+      0: "Rock",
+      1: "Paper",
+      2: "Scissors",
+      3: "Lizard",
+      4: "Spock",
+    };
+    // Change pen state
+    this.penState = (this.penState + 1) % 5;
+    setConsoleText(
+      `Updated pen to draw ${stateNames[this.penState]} [${this.penState}]`
+    );
+    this.drawGrid();
+  }
+
+  // Override get pen color
+  getPenColor() {
+    let stateColors = {
+      0: "rgba(255, 0, 0, 0.6)", // Rock
+      1: "rgba(0, 255, 0, 0.6)", // Paper
+      2: "rgba(0, 0, 255, 0.6)", // Scissors
+      3: "rgba(0, 255, 127, 0.6)", // Lizard
+      4: "rgba(0, 127, 255, 0.6)", // Spock
     };
     return stateColors[this.penState];
   }
@@ -615,6 +785,15 @@ export function setAutomata(newAutomataName) {
     case "Wireworld":
       automata = new WireWorld();
       setConsoleText("Changed automata to Wireworld");
+      break;
+    case "Rock, Paper, Scissors":
+      automata = new RPSGame();
+      // Convert cells to 2 or below
+      automata.grid = oldGrid.map((row) =>
+        row.map((state) => ([0, 1, 2].includes(state) ? state : 0))
+      );
+      setConsoleText("Changed automata to Rock, Paper, Scissors");
+      break;
     default:
       break;
   }
