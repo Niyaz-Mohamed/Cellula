@@ -1,5 +1,7 @@
 import { automata, setAutomata } from "../automata.js";
-import { getConsoleText, setConsoleText } from "../utils.js";
+import { getConsoleText, reshape2DArray, setConsoleText } from "../utils.js";
+import { changePaused } from "./controls.js";
+import { updateAutomataSelect } from "./selector.js";
 
 //! Change in file load
 document.getElementById("file-input").addEventListener(
@@ -12,6 +14,14 @@ document.getElementById("file-input").addEventListener(
       reader.onload = function (e) {
         try {
           const data = JSON.parse(e.target.result);
+          // Reshape the grid
+          data["grid"] = reshape2DArray(
+            data["grid"],
+            automata.grid.length,
+            automata.grid[0].length
+          );
+          // Update required info
+          updateAutomataSelect(data["name"]);
           setAutomata(data["name"], data["args"], data["grid"]);
         } catch (error) {
           console.log(error);

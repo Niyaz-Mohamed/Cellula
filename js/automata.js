@@ -1,6 +1,7 @@
 import {
   backgroundColor,
   cellSize,
+  changePaused,
   fillRadius,
   paused,
 } from "./input/controls.js";
@@ -11,7 +12,6 @@ import {
   midpointCircle,
   mooreNeighborhood,
   padArray,
-  sleep,
   downloadObjectAsJSON,
 } from "./utils.js";
 import {
@@ -26,15 +26,6 @@ const canvas = document.getElementById("cellGrid");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 export const ctx = canvas.getContext("2d");
-
-// Handle any instance of window becoming smaller
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-window.addEventListener("resize", resizeCanvas);
-window.addEventListener("orientationchange", resizeCanvas);
-resizeCanvas();
 registerCanvasCallbacks();
 
 //! Define types of automata
@@ -855,6 +846,7 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
       break;
     case "Wireworld":
       automata = new WireWorld(...args);
+      if (grid) automata.grid = grid;
       setConsoleText("Changed automata to Wireworld");
       break;
     case "Rock, Paper, Scissors":
@@ -868,6 +860,7 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
     default:
       break;
   }
+  if (!paused) changePaused();
   automata.drawGrid();
   automata.updateGrid();
 }

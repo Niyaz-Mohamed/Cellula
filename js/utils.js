@@ -135,11 +135,6 @@ export function getConsoleText() {
   return document.getElementById("console").innerText;
 }
 
-// Sleep time in milliseconds
-export function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 // Trigger download of a file
 export function downloadObjectAsJSON(obj, filename) {
   // Convert to JSON string and then blob
@@ -156,4 +151,19 @@ export function downloadObjectAsJSON(obj, filename) {
     link.click();
     document.body.removeChild(link);
   }
+}
+
+// Reshape a grid to a specific dimension, filling up with 0
+export function reshape2DArray(array, targetRows, targetCols) {
+  const newArray = Array.from({ length: targetRows }, () =>
+    Array(targetCols).fill(0)
+  );
+
+  // Copy values from the old array to the new array (within bounds)
+  for (let r = 0; r < Math.min(array.length, targetRows); r++) {
+    for (let c = 0; c < Math.min(array[r].length, targetCols); c++) {
+      newArray[r][c] = array[r][c];
+    }
+  }
+  return newArray;
 }

@@ -61,7 +61,9 @@ document.querySelectorAll(".window").forEach((element) => {
   // Shift positions of windows randomly
   element.style.top =
     element.offsetTop +
-    Math.floor(Math.random() * window.innerHeight * 0.6) +
+    Math.floor(
+      Math.random() * window.innerHeight * 0.5 + 0.1 * window.innerHeight
+    ) +
     "px";
   element.style.left =
     element.offsetLeft +
@@ -146,6 +148,7 @@ function handleAction(action) {
 
     // Controls for fillRadius changes
     case "+":
+    case "=":
     case "ArrowUp":
     case "Higher Fill Amt":
       setFillRadius(fillRadius + 1);
