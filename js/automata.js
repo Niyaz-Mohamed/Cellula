@@ -4,7 +4,7 @@ import {
   changePaused,
   fillRadius,
   paused,
-} from "./input/controls.js";
+} from "./inputs/controls.js";
 import {
   fillCircle,
   getConsoleText,
@@ -19,7 +19,7 @@ import {
   mouseY,
   outlinePoints,
   registerCanvasCallbacks,
-} from "./input/userInput.js";
+} from "./inputs/userInput.js";
 
 //! Intialize Canvas
 const canvas = document.getElementById("cellGrid");
