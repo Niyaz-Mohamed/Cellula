@@ -3,8 +3,7 @@ import { automata } from "../automata.js";
 import { setConsoleText } from "../utils.js";
 
 // Main settings to control behavior of automata
-export let cellSize = 2;
-export let waitTime = 0;
+export let cellSize = 3;
 export let fillRadius = 3;
 export let paused = false;
 export let backgroundColor = [21, 25, 31]; // #15191f (rich black)
@@ -12,12 +11,6 @@ export let backgroundColor = [21, 25, 31]; // #15191f (rich black)
 // Setter functions
 export function setCellSize(size) {
   cellSize = size;
-}
-
-export function setWaitTime(time) {
-  waitTime = time;
-  setConsoleText(`Minimum time between frames set to: ${waitTime}ms`);
-  automata.updateGrid();
 }
 
 export function setFillRadius(radius) {

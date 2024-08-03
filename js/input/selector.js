@@ -11,6 +11,7 @@ document.querySelectorAll(".select-btn").forEach((button) => {
       this.classList.add("selected");
       // Process innerHTML if required
       const nameMap = {
+        "Brian's Brain": "BB",
         "Rock, Paper, Scissors": "RPS",
       };
       document.getElementById("automata-btn").innerHTML = nameMap[

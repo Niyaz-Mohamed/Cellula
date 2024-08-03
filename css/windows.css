@@ -46,3 +46,24 @@
   clear: both;
   box-sizing: border-box;
 }
+
+/* Stylings for load */
+#load-settings {
+  width: 100%;
+}
+
+#load-settings {
+  margin: 0px;
+  padding: 10px 10px;
+  text-align: left;
+}
+
+.custom-file-upload {
+  margin-top: 1em !important;
+  height: 5vh;
+  line-height: 5vh;
+  padding: 0px 5px;
+  background-color: var(--theme-color);
+  color: var(--bg-color);
+  text-decoration: none;
+}

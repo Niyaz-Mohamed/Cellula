@@ -90,6 +90,17 @@ a:visited {
   color: var(--theme-color);
 }
 
+input[type="file"] {
+  display: none;
+}
+
+.custom-file-upload {
+  display: block;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
 /*! Boilerplate for selects */
 .custom-select select {
   display: none; /*hide original SELECT element:*/

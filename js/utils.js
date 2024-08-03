@@ -134,3 +134,26 @@ export function setConsoleText(text) {
 export function getConsoleText() {
   return document.getElementById("console").innerText;
 }
+
+// Sleep time in milliseconds
+export function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Trigger download of a file
+export function downloadObjectAsJSON(obj, filename) {
+  // Convert to JSON string and then blob
+  const jsonString = JSON.stringify(obj, null, 2);
+  const blob = new Blob([jsonString], { type: "application/json" });
+
+  if (window.navigator.msSaveOrOpenBlob) {
+    window.navigator.msSaveBlob(blob, filename);
+  } else {
+    const link = window.document.createElement("a");
+    link.href = window.URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+}

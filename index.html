@@ -43,12 +43,10 @@
                 <!--TODO: Replace these with proper shortcuts-->
                 <button class="dropdown-option">
                     <span class="option-name">Save</span>
-                    <span class="option-shortcut">S</span>
                 </button>
                 <!--TODO: This should open a window-->
                 <button class="dropdown-option">
                     <span class="option-name">Load</span>
-                    <span class="option-shortcut">V</span>
                 </button>
             </div>
         </div>
@@ -73,22 +71,14 @@
                     <span class="option-name">Randomize Grid</span>
                     <span class="option-shortcut">Tab/R</span>
                 </button>
-                <button class="dropdown-option">
-                    <span class="option-name">Higher Delay</span>
-                    <span class="option-shortcut">+</span>
-                </button>
-                <button class="dropdown-option">
-                    <span class="option-name">Lower Delay</span>
-                    <span class="option-shortcut">-</span>
-                </button>
                 <p>Pen</p>
                 <button class="dropdown-option">
                     <span class="option-name">Higher Fill Amt</span>
-                    <span class="option-shortcut">ArrowUp</span>
+                    <span class="option-shortcut">+/ArrowUp</span>
                 </button>
                 <button class="dropdown-option">
                     <span class="option-name">Lower Fill Amt</span>
-                    <span class="option-shortcut">ArrowDown</span>
+                    <span class="option-shortcut">-/ArrowDown</span>
                 </button>
                 <button class="dropdown-option">
                     <span class="option-name">Change Pen Fill</span>
@@ -250,7 +240,7 @@
                 <div class="rule-div">
                     <label for="rule-input">Rulestring</label>
                     <p class="desc">Number of neighbors for survival, separated by slash (/). Example: 2/3</p>
-                    <input type="text" id="brain-rule-input" name="rule-input" placeholder="2/3/etc." value="'2/3" />
+                    <input type="text" id="brain-rule-input" name="rule-input" placeholder="2/3/etc." value="2/3" />
                 </div>
             </div>
             <!--Settings for Wireworld-->
@@ -282,7 +272,17 @@
             <span class="window-title">Load File</span>
             <span class="window-delete">X</span>
         </div>
-        <p>Content</p>
+        <!--Content for File Load-->
+        <div id="load-window-content" class='window-content'>
+            <div id="load-settings" class="rule-div">
+                <!--Actual Content goes here-->
+                <label>File to Load</label>
+                <p class="desc">Input a file you have downloaded previously</p>
+                <label for="file-input" class="custom-file-upload">Select file</label>
+                <input type="file" id="file-input" name='file-input' accept="application/json">
+                <p id="invalid-file-notice">Invalid File!</p>
+            </div>
+        </div>
     </div>
     <canvas id="cellGrid"></canvas>
     <script type="module" src="./js/automata.js"></script>

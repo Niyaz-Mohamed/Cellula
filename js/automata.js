@@ -1,10 +1,8 @@
 import {
   backgroundColor,
   cellSize,
-  changePaused,
   fillRadius,
   paused,
-  waitTime,
 } from "./input/controls.js";
 import {
   fillCircle,
@@ -13,6 +11,8 @@ import {
   midpointCircle,
   mooreNeighborhod,
   padArray,
+  sleep,
+  downloadObjectAsJSON,
 } from "./utils.js";
 import {
   mouseX,
@@ -112,18 +112,16 @@ export class Automata {
   }
 
   // Calculates the next state for the grid
-  updateGrid(ignorePaused = false) {
-    if (!paused && !ignorePaused) {
+  updateGrid(ignorePaused = false, drawGrid = true) {
+    if (!drawGrid) {
+      this.grid = this.getNextState();
+    } else if (!paused && !ignorePaused) {
       //// console.time("Update");
       let newGrid = this.getNextState();
       //// console.timeEnd("Update");
       // Update grid state and draw, only if enough time has passed
-      const currentTime = Date.now();
-      if (currentTime - this.lastUpdateTime >= waitTime) {
-        this.lastUpdateTime = currentTime;
-        this.grid = newGrid;
-        this.drawGrid();
-      }
+      this.grid = newGrid;
+      this.drawGrid();
       // Automatically loop animation
       window.requestAnimationFrame(() => this.updateGrid());
     } else {
@@ -184,6 +182,13 @@ export class Automata {
       1: "rgba(255, 0, 0, 0.6)",
     };
     return stateColors[this.penState];
+  }
+
+  //TODO: Override for automata that accept arguments
+  // Create a JSON containing the data and download
+  saveData() {
+    const automataData = { class: "Automata", args: [], grid: this.grid };
+    downloadObjectAsJSON(automataData, "automata.json");
   }
 }
 
@@ -294,7 +299,6 @@ export class LifeLikeAutomata extends Automata {
         neighbourhoodSize: this.neighbourhood.length,
         rulesSize: Math.max(this.birthRules.length, this.surviveRules.length),
       });
-      this.updateGrid();
     }
   }
 
@@ -526,7 +530,7 @@ export class WireWorld extends Automata {
   // Override randomizing the grid
   randomize() {
     // Construct a wirelike pattern using life-like rule B1/S12345678
-    let randEngine = new LifeLikeAutomata("B1/S1234568");
+    let randEngine = new LifeLikeAutomata("B1/S123456");
     randEngine.grid = new Array(this.rows).fill(null).map(
       () =>
         new Array(this.cols)
@@ -810,8 +814,5 @@ export function setAutomata(newAutomataName) {
   }
   automata.drawGrid();
   automata.updateGrid();
-  if (!paused) {
-    changePaused();
-  }
 }
 automata.updateGrid();

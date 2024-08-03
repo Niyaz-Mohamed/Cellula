@@ -6,8 +6,6 @@ import {
   changePaused,
   fillRadius,
   setFillRadius,
-  waitTime,
-  setWaitTime,
 } from "./controls.js";
 
 export let mouseX = 0;
@@ -147,24 +145,15 @@ function handleAction(action) {
       break;
 
     // Controls for fillRadius changes
+    case "+":
     case "ArrowUp":
     case "Higher Fill Amt":
       setFillRadius(fillRadius + 1);
       break;
+    case "-":
     case "ArrowDown":
     case "Lower Fill Amt":
       setFillRadius(fillRadius - 1 < 0 ? 0 : fillRadius - 1);
-      break;
-
-    // Controls for FPS throttling
-    case "=":
-    case "+":
-    case "Higher Delay":
-      setWaitTime(waitTime + 50);
-      break;
-    case "-":
-    case "Lower Delay":
-      setWaitTime(waitTime - 50 < 0 ? 0 : waitTime - 50);
       break;
 
     // Controls for pausing
@@ -195,6 +184,14 @@ function handleAction(action) {
       if (toolbar.style.display == "block" || !toolbar.style.display)
         toolbar.style.display = "none";
       else toolbar.style.display = "block";
+
+    // Controls for savinf
+    case "Save":
+      automata.saveData();
+      setConsoleText("Saved automata data");
+
+    case "Load":
+      document.getElementById("load").style.display = "block";
 
     default:
       break;
