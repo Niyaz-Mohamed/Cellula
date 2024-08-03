@@ -1,5 +1,32 @@
-import { automata } from "../automata.js";
+import { automata, setAutomata } from "../automata.js";
 import { getConsoleText, setConsoleText } from "../utils.js";
+
+//! Change in file load
+document.getElementById("file-input").addEventListener(
+  "change",
+  (event) => {
+    const file = event.target.files[0];
+    // Read the file if it exists
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          setAutomata(data["name"], data["args"], data["grid"]);
+        } catch (error) {
+          console.log(error);
+          // Handle errors
+          document.getElementById("invalid-file-notice").style.display =
+            "block";
+        }
+      };
+      reader.readAsText(file);
+    } else {
+      document.getElementById("invalid-file-notice").style.display = "block";
+    }
+  },
+  false
+);
 
 //! Life-like rules
 document

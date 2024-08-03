@@ -185,13 +185,14 @@ function handleAction(action) {
         toolbar.style.display = "none";
       else toolbar.style.display = "block";
 
-    // Controls for savinf
+    // Controls for saving & loading grids
     case "Save":
       automata.saveData();
       setConsoleText("Saved automata data");
-
+      break;
     case "Load":
       document.getElementById("load").style.display = "block";
+      break;
 
     default:
       break;
