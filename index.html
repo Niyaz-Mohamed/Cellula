@@ -234,6 +234,21 @@
                     <input type="text" id="life-rule-input" name="life-rule-input" placeholder="B/S Rulestring"
                         value="B3/S23" />
                 </div>
+                <div class="rule-div">
+                    <label>Neighborhood</label>
+                    <p class="desc">Select the neighborhood of each cell.</p>
+                    <div class="grid-size-selector">
+                        <div>
+                            <label for="life-rows">Rows:</label>
+                            <input type="number" id="life-rows" value="3" min="3">
+                        </div>
+                        <div>
+                            <label for="life-columns">Columns:</label>
+                            <input type="number" id="life-columns" value="3" min="3">
+                        </div>
+                    </div>
+                </div>
+                <div id="life-grid" class="neighbor-grid"></div>
             </div>
             <!--Settings for Brian's Brain-->
             <div id="brain-settings" class="automata-settings">

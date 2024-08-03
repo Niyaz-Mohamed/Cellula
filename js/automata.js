@@ -28,6 +28,16 @@ canvas.height = window.innerHeight;
 export const ctx = canvas.getContext("2d");
 registerCanvasCallbacks();
 
+// TODO: Remove this before pushing to main branch
+//! Register canvas resizing
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resizeCanvas);
+window.addEventListener("orientationchange", resizeCanvas);
+resizeCanvas();
+
 //! Define types of automata
 export class Automata {
   // Create an automata for a grid of dim [rows, cols]

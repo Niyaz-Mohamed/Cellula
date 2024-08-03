@@ -1,6 +1,7 @@
 /* Window sizing */
 #settings {
   max-width: 25vw;
+  min-width: 250px;
 }
 
 #settings-window-content {
@@ -47,4 +48,52 @@
 
 #life-settings {
   display: block;
+}
+
+/* Neighborhood Selectors */
+.grid-size-selector {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.grid-size-selector div {
+  width: 50%;
+  padding: 5px;
+}
+
+.grid-size-selector label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.grid-size-selector input[type="number"] {
+  width: 100%;
+  padding: 5px;
+  border: 3px solid var(--theme-color);
+}
+
+.neighbor-grid {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+}
+
+.neighbor-grid input[type="checkbox"] {
+  appearance: auto;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: blue;
+  accent-color: var(--theme-color);
+  border: 1px solid var(--theme-color);
+}
+
+input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+}
+
+.grid input[type="checkbox"]:checked {
+  background-color: white;
+  border: none;
 }
