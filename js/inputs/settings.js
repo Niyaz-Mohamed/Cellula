@@ -1,11 +1,17 @@
 import { automata, setAutomata } from "../automata.js";
 import { getConsoleText, reshape2DArray, setConsoleText } from "../utils.js";
+import { settingsMap } from "./controls.js";
 import { updateAutomataSelect } from "./selector.js";
 
-//! Load up neighborhood selectors
-function createGrid(rowSelectorId, columnSelectorId) {
-  const rowElement = document.getElementById(rowSelectorId);
-  const columnElement = document.getElementById(columnSelectorId);
+//! Neighborhood selectors
+function createGrid(automataSettingsId) {
+  // Get required row elements based on automata settings element
+  const rowElement = document
+    .getElementById(automataSettingsId)
+    .querySelector(".row-select");
+  const columnElement = document
+    .getElementById(automataSettingsId)
+    .querySelector(".column-select");
   const rows = parseInt(rowElement.value);
   const columns = parseInt(columnElement.value);
   const grid = rowElement
@@ -16,10 +22,13 @@ function createGrid(rowSelectorId, columnSelectorId) {
   // Calculate the size of each checkbox
   grid.closest(".automata-settings").style.display = "block";
   const containerWidth = grid.clientWidth;
-  const checkboxSize = (containerWidth - (columns - 1) * 2) / columns; // Account for 2px gap
+  let maxCheckboxWidth = (containerWidth - (columns - 1) * 2) / columns; // Account for 2px gap
+  const checkboxSize = maxCheckboxWidth <= 30 ? maxCheckboxWidth : 30; // Change the number based on max width allowed in px
+  const gridWidth = checkboxSize * columns + 2 * (columns - 1);
   // Generate grid with dimensions
   grid.style.gridTemplateColumns = `repeat(${columns}, ${checkboxSize}px)`;
   grid.style.gridTemplateRows = `repeat(${rows}, ${checkboxSize}px)`;
+  grid.style.width = gridWidth + "px";
 
   // Create checkboxes
   for (let i = 0; i < rows; i++) {
@@ -51,14 +60,17 @@ function updateNeighborhood(event) {
   // Handle the update logic here
 }
 
-// Example usage on page load
+// Generate the grids
 document.getElementById("settings-btn").addEventListener("click", () => {
-  createGrid("life-rows", "life-columns");
-
-  // Update the grid size when the window is resized
-  window.addEventListener("resize", () =>
-    createGrid("life-rows", "life-columns")
-  );
+  if (typeof settingsMap === "object" && settingsMap !== null) {
+    for (let automataSettings of Object.values(settingsMap)) {
+      try {
+        createGrid(automataSettings);
+        // Update the grid size when the window is resized
+        window.addEventListener("resize", () => createGrid(automataSettings));
+      } catch (e) {}
+    }
+  }
 });
 
 //! Change in file load

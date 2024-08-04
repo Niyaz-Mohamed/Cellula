@@ -848,7 +848,6 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
     case "Brian's Brain":
       automata = new BriansBrain(...args);
       // Convert non 0/1/2 cells to 1
-      console.log(oldGrid);
       automata.grid = oldGrid.map((row) =>
         row.map((state) => ([0, 1, 2].includes(state) ? state : 1))
       );

@@ -76,24 +76,42 @@
   display: grid;
   gap: 2px;
   width: 100%;
+  margin: 0px auto;
+  margin-top: 10px !important;
+  justify-items: center;
+  align-items: center;
+  text-align: center;
 }
 
 .neighbor-grid input[type="checkbox"] {
-  appearance: auto;
+  width: 100%;
   height: 100%;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  background-color: blue;
+  max-width: 30px;
+  max-height: 30px;
   accent-color: var(--theme-color);
-  border: 1px solid var(--theme-color);
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--theme-color);
+  border-radius: 5px;
+}
+
+input[type="checkbox"]:checked {
+  background-color: var(--theme-color);
+}
+
+input[type="checkbox"]:hover {
+  background-color: var(--highlight-color);
+}
+
+input[type="checkbox"]:checked:hover {
+  background-color: var(--theme-color);
 }
 
 input[type="checkbox"]:disabled {
-  cursor: not-allowed;
-}
-
-.grid input[type="checkbox"]:checked {
-  background-color: white;
+  background-color: rgb(255, 129, 129);
   border: none;
+  cursor: not-allowed;
 }

@@ -8,6 +8,26 @@ export let fillRadius = 3;
 export let paused = false;
 export let backgroundColor = [21, 25, 31]; // #15191f (rich black)
 
+// Maps to be used for html modifications
+export const nameMap = {
+  "Brian's Brain": "BB",
+  "Rock, Paper, Scissors": "RPS",
+}; //! Used for setting automata name in top left
+
+export const infoMap = {
+  Life: "life-info",
+  "Brian's Brain": "brain-info",
+  Wireworld: "wire-info",
+  "Rock, Paper, Scissors": "rps-info",
+}; //! Maps each automata name to the id of its info content
+
+export const settingsMap = {
+  Life: "life-settings",
+  "Brian's Brain": "brain-settings",
+  Wireworld: "wire-settings",
+  "Rock, Paper, Scissors": "rps-settings",
+}; //! This maps each automata name to the id of its info content
+
 // Setter functions
 export function setCellSize(size) {
   cellSize = size;
