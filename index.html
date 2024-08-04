@@ -227,7 +227,7 @@
         <!--Content for Settings-->
         <div id="settings-window-content" class='window-content'>
             <!--Settings for GoL-->
-            <div id="life-settings" class="automata-settings">
+            <div id="life-settings" class="automata-settings" style="display: block;">
                 <div class="rule-div">
                     <label for="life-rule-input">Rulestring</label>
                     <p class="desc">B/S rulestring. See "Select Automata" window for details.</p>
@@ -240,15 +240,15 @@
                     <div class="grid-size-selector">
                         <div>
                             <label for="life-rows">Rows:</label>
-                            <input type="number" id="life-rows" class="row-select" value="3" min="3">
+                            <input type="number" id="life-rows" class="row-select" value="3">
                         </div>
                         <div>
                             <label for="life-columns">Columns:</label>
-                            <input type="number" id="life-columns" class="column-select" value="3" min="3">
+                            <input type="number" id="life-columns" class="column-select" value="3">
                         </div>
                     </div>
                 </div>
-                <div id="life-grid" class="neighbor-grid"></div>
+                <div class="neighbor-grid"></div>
             </div>
             <!--Settings for Brian's Brain-->
             <div id="brain-settings" class="automata-settings">
@@ -257,6 +257,21 @@
                     <p class="desc">Number of neighbors for survival, separated by slash (/). Example: 2/3</p>
                     <input type="text" id="brain-rule-input" name="rule-input" placeholder="2/3/etc." value="2/3" />
                 </div>
+                <div class="rule-div">
+                    <label>Neighborhood</label>
+                    <p class="desc">Select the neighborhood of each cell.</p>
+                    <div class="grid-size-selector">
+                        <div>
+                            <label for="brain-rows">Rows:</label>
+                            <input type="number" id="brain-rows" class="row-select" value="3">
+                        </div>
+                        <div>
+                            <label for="brain-columns">Columns:</label>
+                            <input type="number" id="brain-columns" class="column-select" value="3">
+                        </div>
+                    </div>
+                </div>
+                <div class="neighbor-grid"></div>
             </div>
             <!--Settings for Wireworld-->
             <div id="wire-settings" class="automata-settings">
@@ -278,6 +293,21 @@
                         <option value="5">5-State</option>
                     </select>
                 </div>
+                <div class="rule-div">
+                    <label>Neighborhood</label>
+                    <p class="desc">Select the neighborhood of each cell.</p>
+                    <div class="grid-size-selector">
+                        <div>
+                            <label for="brain-rows">Rows:</label>
+                            <input type="number" id="brain-rows" class="row-select" value="3">
+                        </div>
+                        <div>
+                            <label for="brain-columns">Columns:</label>
+                            <input type="number" id="brain-columns" class="column-select" value="3">
+                        </div>
+                    </div>
+                </div>
+                <div class="neighbor-grid"></div>
             </div>
         </div>
     </div>

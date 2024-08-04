@@ -7,25 +7,29 @@ import { updateAutomataSelect } from "./selector.js";
 // Generate the grid dynamically
 function createGrid(automataSettingsId) {
   // Get required row elements based on automata settings element
-  const rowElement = document
-    .getElementById(automataSettingsId)
-    .querySelector(".row-select");
-  const columnElement = document
-    .getElementById(automataSettingsId)
-    .querySelector(".column-select");
-  const rows = parseInt(rowElement.value);
-  const columns = parseInt(columnElement.value);
-  const grid = rowElement
-    .closest(".automata-settings")
-    .querySelector(".neighbor-grid");
-  grid.innerHTML = "";
+  const settingsContainer = document.getElementById(automataSettingsId);
+  const rows = parseInt(settingsContainer.querySelector(".row-select").value);
+  const columns = parseInt(
+    settingsContainer.querySelector(".column-select").value
+  );
+  const grid = settingsContainer.querySelector(".neighbor-grid");
+  const automataCurrentlySelected =
+    settingsContainer.style.display == "block" ? true : false;
+  grid.innerHTML = ""; // Reset the grid
 
   // Calculate the size of each checkbox
-  grid.closest(".automata-settings").style.display = "block";
+  settingsContainer.style.display = "block";
   const containerWidth = grid.closest(".automata-settings").clientWidth;
   let maxCheckboxWidth = (containerWidth - (columns - 1) * 2) / columns; // Account for 2px gap
   let checkboxSize = maxCheckboxWidth <= 30 ? maxCheckboxWidth : 30; // Change the number based on max width allowed in px
   const gridWidth = checkboxSize * columns + 2 * (columns - 1);
+
+  // Rehide settings if it isn't current settings
+  if (automataCurrentlySelected) {
+    settingsContainer.style.display = "block";
+  } else {
+    settingsContainer.style.display = "none";
+  }
 
   // Generate grid with dimensions
   grid.style.gridTemplateColumns = `repeat(${columns}, ${checkboxSize}px)`;
@@ -193,5 +197,4 @@ document
 document.getElementById("rps-state-select").selectedIndex = 0;
 document.getElementById("rps-state-select").onchange = (event) => {
   automata.stateCount = Number(event.target.value);
-  console.log(automata.stateCount);
 };

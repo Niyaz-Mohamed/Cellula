@@ -34,6 +34,6 @@ export function updateAutomataSelect(automataName) {
   // Reassign the settings shown
   document
     .querySelectorAll(".automata-settings")
-    .forEach((content) => (content.style.display = "none"));
+    .forEach((setting) => (setting.style.display = "none"));
   document.getElementById(settingsMap[automataName]).style.display = "block";
 }

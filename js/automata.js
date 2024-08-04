@@ -28,16 +28,6 @@ canvas.height = window.innerHeight;
 export const ctx = canvas.getContext("2d");
 registerCanvasCallbacks();
 
-// TODO: Remove this before pushing to main branch
-//! Register canvas resizing
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-window.addEventListener("resize", resizeCanvas);
-window.addEventListener("orientationchange", resizeCanvas);
-resizeCanvas();
-
 //! Define types of automata
 export class Automata {
   // Create an automata for a grid of dim [rows, cols]
@@ -261,7 +251,8 @@ export class LifeLikeAutomata extends Automata {
         cols: this.cols,
         neighborhoodSize: this.neighborhood.length,
         rulesSize: Math.max(this.birthRules.length, this.surviveRules.length),
-      });
+      })
+      .setDynamicArguments(true);
   }
 
   // Parse Birth/Survival notation rule string, extended for a neighborhood of size n
@@ -408,7 +399,8 @@ export class BriansBrain extends Automata {
         cols: this.cols,
         neighborhoodSize: this.neighborhood.length,
         ruleSize: this.birthRules.length,
-      });
+      })
+      .setDynamicArguments(true);
   }
 
   // Parse the rule required for Brian's Brain to come alive
@@ -494,6 +486,18 @@ export class BriansBrain extends Automata {
       grid: this.grid.map((arr) => Array.from(arr)),
     };
     downloadObjectAsJSON(automataData, "brianbrain.json");
+  }
+
+  // Override update neighborhood size
+  updateNeighborhood(neighborhood) {
+    this.neighborhood = neighborhood;
+    // Update constants
+    this.gridUpdateKernel.setConstants({
+      rows: this.rows,
+      cols: this.cols,
+      neighborhoodSize: this.neighborhood.length,
+      ruleSize: this.birthRules.length,
+    });
   }
 }
 
@@ -766,7 +770,8 @@ export class RPSGame extends Automata {
         rows: this.rows,
         cols: this.cols,
         neighborhoodSize: this.neighborhood.length,
-      });
+      })
+      .setDynamicArguments(true);
   }
 
   // Override calculation of color required by a specific state as rgb value
@@ -840,6 +845,17 @@ export class RPSGame extends Automata {
       grid: this.grid.map((arr) => Array.from(arr)),
     };
     downloadObjectAsJSON(automataData, "rock-paper-scissor.json");
+  }
+
+  // Override update neighborhood size
+  updateNeighborhood(neighborhood) {
+    this.neighborhood = neighborhood;
+    // Update constants
+    this.gridUpdateKernel.setConstants({
+      rows: this.rows,
+      cols: this.cols,
+      neighborhoodSize: this.neighborhood.length,
+    });
   }
 }
 

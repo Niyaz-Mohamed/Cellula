@@ -46,10 +46,6 @@
   display: none;
 }
 
-#life-settings {
-  display: block;
-}
-
 /* Neighborhood Selectors */
 .grid-size-selector {
   display: flex;
