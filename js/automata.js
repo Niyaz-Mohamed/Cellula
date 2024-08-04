@@ -198,6 +198,12 @@ export class Automata {
     const automataData = { name: "Automata", args: [], grid: this.grid };
     downloadObjectAsJSON(automataData, "automata.json");
   }
+
+  // TODO: Override this for automata with customizeable neighborhoods and kernels
+  // Update neighborhood size
+  updateNeighborhood(neighborhood) {
+    this.neighborhood = neighborhood;
+  }
 }
 
 export class LifeLikeAutomata extends Automata {
@@ -330,6 +336,18 @@ export class LifeLikeAutomata extends Automata {
       grid: this.grid.map((arr) => Array.from(arr)),
     };
     downloadObjectAsJSON(automataData, "life.json");
+  }
+
+  // Update neighborhood size
+  updateNeighborhood(neighborhood) {
+    this.neighborhood = neighborhood;
+    // Update constants
+    this.gridUpdateKernel.setConstants({
+      rows: this.rows,
+      cols: this.cols,
+      neighborhoodSize: this.neighborhood.length,
+      rulesSize: Math.max(this.birthRules.length, this.surviveRules.length),
+    });
   }
 }
 

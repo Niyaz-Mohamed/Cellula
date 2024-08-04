@@ -76,8 +76,8 @@
   display: grid;
   gap: 2px;
   width: 100%;
-  margin: 0px auto;
-  margin-top: 10px !important;
+  margin: 10px auto;
+  margin-bottom: 20px;
   justify-items: center;
   align-items: center;
   text-align: center;

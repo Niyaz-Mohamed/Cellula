@@ -4,6 +4,7 @@ import { settingsMap } from "./controls.js";
 import { updateAutomataSelect } from "./selector.js";
 
 //! Neighborhood selectors
+// Generate the grid dynamically
 function createGrid(automataSettingsId) {
   // Get required row elements based on automata settings element
   const rowElement = document
@@ -21,26 +22,39 @@ function createGrid(automataSettingsId) {
 
   // Calculate the size of each checkbox
   grid.closest(".automata-settings").style.display = "block";
-  const containerWidth = grid.clientWidth;
+  const containerWidth = grid.closest(".automata-settings").clientWidth;
   let maxCheckboxWidth = (containerWidth - (columns - 1) * 2) / columns; // Account for 2px gap
-  const checkboxSize = maxCheckboxWidth <= 30 ? maxCheckboxWidth : 30; // Change the number based on max width allowed in px
+  let checkboxSize = maxCheckboxWidth <= 30 ? maxCheckboxWidth : 30; // Change the number based on max width allowed in px
   const gridWidth = checkboxSize * columns + 2 * (columns - 1);
+
   // Generate grid with dimensions
   grid.style.gridTemplateColumns = `repeat(${columns}, ${checkboxSize}px)`;
   grid.style.gridTemplateRows = `repeat(${rows}, ${checkboxSize}px)`;
   grid.style.width = gridWidth + "px";
 
   // Create checkboxes
+  const centerRow = Math.floor(rows / 2);
+  const centerColumn = Math.floor(columns / 2);
+  const currentNeighborhood = automata.neighborhood;
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < columns; j++) {
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
-      checkbox.dataset.row = i;
-      checkbox.dataset.column = j;
+      checkbox.dataset.row = i - centerRow;
+      checkbox.dataset.column = j - centerColumn;
       checkbox.addEventListener("change", updateNeighborhood);
 
+      // Check cells already in neighborhood (using JSON strings)
+      if (
+        JSON.stringify(currentNeighborhood).indexOf(
+          JSON.stringify([j - centerColumn, i - centerRow])
+        ) != -1
+      ) {
+        checkbox.checked = true;
+      }
+
       // Set the middle cell as the center reference cell
-      if (i === Math.floor(rows / 2) && j === Math.floor(columns / 2)) {
+      if (i === centerRow && j === centerColumn) {
         checkbox.checked = false;
         checkbox.disabled = true; // Apply css to this disabled box
       }
@@ -50,28 +64,57 @@ function createGrid(automataSettingsId) {
   }
 }
 
+// Update the neighborhood when it's values change
 function updateNeighborhood(event) {
-  const checkbox = event.target;
-  const row = checkbox.dataset.row;
-  const column = checkbox.dataset.column;
-  const value = checkbox.checked ? 1 : 0;
+  let neighborhood = [];
+  event.target
+    .closest(".neighbor-grid")
+    .querySelectorAll("input")
+    .forEach((checkbox) => {
+      if (checkbox.checked)
+        neighborhood.push([
+          Number(checkbox.dataset.column),
+          Number(checkbox.dataset.row),
+        ]);
+    });
 
-  console.log(`Cell (${row}, ${column}) updated to: ${value}`);
-  // Handle the update logic here
+  automata.updateNeighborhood(neighborhood);
 }
 
-// Generate the grids
+// Generate the grids only when settings are opened
 document.getElementById("settings-btn").addEventListener("click", () => {
   if (typeof settingsMap === "object" && settingsMap !== null) {
     for (let automataSettings of Object.values(settingsMap)) {
       try {
-        createGrid(automataSettings);
+        createGrid(automataSettings, automata.neighborhood);
         // Update the grid size when the window is resized
         window.addEventListener("resize", () => createGrid(automataSettings));
       } catch (e) {}
     }
   }
 });
+
+// React to changes in row and column number
+document.querySelectorAll(".row-select").forEach((element) =>
+  element.addEventListener("input", (event) => {
+    // Sanitise input
+    if (/^\d+$/.test(event.target.value)) {
+      createGrid(event.target.closest(".automata-settings").id);
+    } else {
+      event.target.value = event.target.value.replace(/\D/g, "");
+    }
+  })
+);
+document.querySelectorAll(".column-select").forEach((element) =>
+  element.addEventListener("input", (event) => {
+    // Sanitise input
+    if (/^\d+$/.test(event.target.value)) {
+      createGrid(event.target.closest(".automata-settings").id);
+    } else {
+      event.target.value = event.target.value.replace(/\D/g, "");
+    }
+  })
+);
 
 //! Change in file load
 document.getElementById("file-input").addEventListener(
@@ -139,7 +182,6 @@ document
       }
     } else {
       winCondition = winCondition.replace(/\D/g, "");
-      console.log(winCondition);
       if (winCondition) {
         event.target.value = winCondition;
       } else {
