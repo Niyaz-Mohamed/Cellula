@@ -104,9 +104,11 @@
             <div class="sidenav">
                 <p>Discrete Automata</p>
                 <button class="select-btn selected">Life</button>
+                <button class="select-btn">Langton's Ant</button>
                 <button class="select-btn">Brian's Brain</button>
                 <button class="select-btn">Wireworld</button>
                 <button class="select-btn">Rock, Paper, Scissors</button>
+                <p>Continuous Automata</p>
             </div>
             <!--Content for Life-->
             <div id="life-info" class="side-content">
@@ -139,6 +141,28 @@
                 <p>Click here for more info on <a href="https://conwaylife.com/wiki/Rulestring">rulestrings</a> and
                     <a href="https://conwaylife.com/wiki/List_of_Life-like_rules">life-like automata</a>.
                 </p>
+            </div>
+            <!--Content for Langton's Ant-->
+            <div id="ant-info" class="side-content">
+                <h1>Langton's Ant</h1>
+                <img src="./images/LangtonAnt.gif" alt="Langton's Ant GIF">
+                <h2>Description</h2>
+                <p>Another very simple Turing-complete automata is Langton's Ant. While the grid has only 2 states,
+                    alive and dead, there are also ants walking along the grid. While the ant staying on a cell does not
+                    affect the cell's state, the ants define the rule for the automaton. Another interesting thing to
+                    note is that after a period of chaos, the ant converges on a recurrent "highway" pattern regardless
+                    of the initial configuration, displaying emergent order.</p>
+                <h2>Rules</h2>
+                <p>Below are the rules of Langton's Ant, defined for each ant:</p>
+                <ul>
+                    <li>An ant at a white square flips the color of the square and turns 90 degrees clockwise</li>
+                    <li>An ant at a black square flips the color of the square and turns 90 degrees anticlockwise</li>
+                    <li>All ants take a step forward after turning</li>
+                </ul>
+                <h2>Additional Info</h2>
+                <p>For more info on Langton's Ant and generalisations to more states or more complex rules (Langton's
+                    Ants can be generalised to automata known as Turmites), check out the <a
+                        href="https://en.wikipedia.org/wiki/Langton%27s_ant">Wikipedia Article</a></p>
             </div>
             <!--Content for Brian's Brain-->
             <div id="brain-info" class="side-content">
@@ -250,6 +274,10 @@
                 </div>
                 <div class="neighbor-grid"></div>
             </div>
+            <!--Settings for Langton's Ant-->
+            <div id="ant-settings" class="automata-settings">
+                <p>No settings available for Langton's Ant</p>
+            </div>
             <!--Settings for Brian's Brain-->
             <div id="brain-settings" class="automata-settings">
                 <div class="rule-div">
@@ -309,9 +337,10 @@
                 </div>
                 <div class="neighbor-grid"></div>
             </div>
+
         </div>
     </div>
-    <!--!Draggeable File Load-->
+    <!--! Draggeable File Load -->
     <div id="load" class="window">
         <div id="load-header" class="window-header">
             <span class="window-title">Load File</span>

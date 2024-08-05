@@ -10,12 +10,14 @@ export let backgroundColor = [21, 25, 31]; // #15191f (rich black)
 
 // Maps to be used for html modifications
 export const nameMap = {
+  "Langton's Ant": "Ants",
   "Brian's Brain": "BB",
   "Rock, Paper, Scissors": "RPS",
 }; //! Used for setting automata name in top left
 
 export const infoMap = {
   Life: "life-info",
+  "Langton's Ant": "ant-info",
   "Brian's Brain": "brain-info",
   Wireworld: "wire-info",
   "Rock, Paper, Scissors": "rps-info",
@@ -23,6 +25,7 @@ export const infoMap = {
 
 export const settingsMap = {
   Life: "life-settings",
+  "Langton's Ant": "ant-settings",
   "Brian's Brain": "brain-settings",
   Wireworld: "wire-settings",
   "Rock, Paper, Scissors": "rps-settings",

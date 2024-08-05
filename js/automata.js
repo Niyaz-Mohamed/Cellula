@@ -866,11 +866,15 @@ export class RPSGame extends Automata {
   }
 }
 
-export class LangtonsAnts extends Automata {
-  constructor() {
+export class LangtonsAnt extends Automata {
+  constructor(initialAnts = null) {
     super();
     this.penState = 2;
-    this.ants = []; // Ant directions are 0,1,2,3 (N,E,S,W)
+    if (!initialAnts)
+      this.ants = [[Math.floor(this.cols / 2), Math.floor(this.rows / 2), 0]];
+    else {
+      this.ants = initialAnts;
+    } // Ant directions are 0,1,2,3 (N,E,S,W)
   }
 
   // Override drawing of grid
@@ -949,28 +953,24 @@ export class LangtonsAnts extends Automata {
     let points = fillCircle(x, y, fillRadius);
 
     for (const [x, y] of points) {
-      // Non-ant drawing case
-      if (
-        x >= 0 &&
-        x < this.grid[0].length &&
-        y >= 0 &&
-        y < this.grid.length &&
-        (this.penState == 0 || this.penState == 1)
-      ) {
-        this.grid[y][x] = this.penState;
-      } else if (this.penState == 2) {
-        this.ants.push(new Float32Array([x, y, 0]));
+      // Check for valid points
+      if (x >= 0 && x < this.grid[0].length && y >= 0 && y < this.grid.length) {
+        if (this.penState == 0 || this.penState == 1) {
+          this.grid[y][x] = this.penState;
+        } else if (this.penState == 2) {
+          this.ants.push(new Float32Array([x, y, 0]));
+        }
       }
     }
 
-    // Also erase ants if needed
+    // Also erase ants if pen is an eraser
     if (this.penState == 0) {
       this.ants = this.ants.filter(
         (ant) =>
           !points.some((point) => point[0] === ant[0] && point[1] === ant[1])
       );
     }
-    // Ensure ants are unique and update kernel
+    // Ensure ants are unique (different coord and direction) and update kernel
     this.ants = unique2DArr(this.ants);
     window.requestAnimationFrame(() => this.drawGrid());
   }
@@ -1004,8 +1004,8 @@ export class LangtonsAnts extends Automata {
   // Override downloading the data
   saveData() {
     const automataData = {
-      name: "LangtonsAnts",
-      args: [],
+      name: "Langton's Ant",
+      args: [this.ants.map((arr) => Array.from(arr))],
       grid: this.grid.map((arr) => Array.from(arr)),
     };
     downloadObjectAsJSON(automataData, "langton_ants.json");
@@ -1031,6 +1031,14 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
         row.map((state) => ([0, 1].includes(state) ? state : 1))
       );
       setConsoleText("Changed automata to life-like");
+      break;
+    case "Langton's Ant":
+      automata = new LangtonsAnt(...args);
+      // Convert non 0/1 cells to 1
+      automata.grid = oldGrid.map((row) =>
+        row.map((state) => ([0, 1].includes(state) ? state : 1))
+      );
+      setConsoleText("Changed automata to Langton's Ant");
       break;
     case "Brian's Brain":
       automata = new BriansBrain(...args);
