@@ -13,6 +13,7 @@ import {
   mooreNeighborhood,
   padArray,
   downloadObjectAsJSON,
+  unique2DArr,
 } from "./utils.js";
 import {
   mouseX,
@@ -46,36 +47,42 @@ export class Automata {
   }
 
   // Draw a grid on the canvas
-  drawGrid() {
+  drawGrid(cursorOnly = false) {
     //// console.time("Draw");
-    // Create an ImageData object to batch update the canvas
-    const imageData = ctx.createImageData(ctx.canvas.width, ctx.canvas.height);
-    const data = imageData.data;
-    // Calculate cell colors and draw
-    for (let row = 0; row < this.rows; row++) {
-      for (let col = 0; col < this.cols; col++) {
-        const x = col * cellSize;
-        const y = row * cellSize;
-        const color = this.stateColor(this.grid[row][col]);
-        const index = (y * ctx.canvas.width + x) * 4;
-        // Fill the cell color
-        for (let dy = 0; dy < cellSize; dy++) {
-          for (let dx = 0; dx < cellSize; dx++) {
-            const cellIndex = index + (dy * ctx.canvas.width + dx) * 4;
-            data[cellIndex] = color[0]; // Red
-            data[cellIndex + 1] = color[1]; // Green
-            data[cellIndex + 2] = color[2]; // Blue
-            data[cellIndex + 3] = 255; // Alpha (Opaque)
+    if (!cursorOnly) {
+      // Create an ImageData object to batch update the canvas
+      const imageData = ctx.createImageData(
+        ctx.canvas.width,
+        ctx.canvas.height
+      );
+      const data = imageData.data;
+      // Calculate cell colors and draw
+      for (let row = 0; row < this.rows; row++) {
+        for (let col = 0; col < this.cols; col++) {
+          const x = col * cellSize;
+          const y = row * cellSize;
+          const color = this.stateColor(this.grid[row][col]);
+          const index = (y * ctx.canvas.width + x) * 4;
+          // Fill the cell color
+          for (let dy = 0; dy < cellSize; dy++) {
+            for (let dx = 0; dx < cellSize; dx++) {
+              const cellIndex = index + (dy * ctx.canvas.width + dx) * 4;
+              data[cellIndex] = color[0]; // Red
+              data[cellIndex + 1] = color[1]; // Green
+              data[cellIndex + 2] = color[2]; // Blue
+              data[cellIndex + 3] = 255; // Alpha (Opaque)
+            }
           }
         }
       }
+      // Apply the imageData to the canvas (done in drawCursor)
+      this.gridImageData = imageData;
     }
-    // Apply the imageData to the canvas (done in drawCursor)
-    this.gridImageData = imageData;
     this.drawCursor();
     //// console.timeEnd("Draw");
   }
 
+  // Draw the cursor only when requried
   drawCursor() {
     ctx.putImageData(this.gridImageData, 0, 0);
 
@@ -99,7 +106,7 @@ export class Automata {
   // TODO: Override for custom automata with >2 states
   // Calculate color required by a specific state as rgb value
   stateColor(state) {
-    return state ? [256, 256, 256] : backgroundColor;
+    return state ? [255, 255, 255] : backgroundColor;
   }
 
   // Calculates the next state for the grid
@@ -429,8 +436,8 @@ export class BriansBrain extends Automata {
   stateColor(state) {
     const stateSpace = {
       0: backgroundColor,
-      1: [256, 256, 256],
-      2: [0, 0, 256],
+      1: [255, 255, 255],
+      2: [0, 0, 255],
     };
     return stateSpace[state];
   }
@@ -567,7 +574,7 @@ export class WireWorld extends Automata {
   stateColor(state) {
     const stateSpace = {
       0: backgroundColor,
-      1: [0, 0, 256],
+      1: [0, 0, 255],
       2: [255, 0, 0],
       3: [255, 255, 0],
     };
@@ -655,7 +662,6 @@ export class WireWorld extends Automata {
   }
 }
 
-// Rock Paper Scissors Game
 export class RPSGame extends Automata {
   constructor(
     winCondition = 3,
@@ -859,8 +865,161 @@ export class RPSGame extends Automata {
   }
 }
 
+export class LangtonsAnts extends Automata {
+  constructor() {
+    super();
+    this.penState = 2;
+    this.ants = []; // Ant directions are 0,1,2,3 (N,E,S,W)
+
+    // Create GPU, account for issues in chrome
+    function initGPU() {
+      try {
+        return new window.GPU.GPU();
+      } catch (e) {
+        return new GPU({ mode: "dev" });
+      }
+    }
+    const gpu = initGPU();
+    //TODO: Implement logic for Langton's Ant
+    // Implement GPU kernel to update grid
+    this.gridUpdateKernel = gpu
+      .createKernel(
+        function (grid, ants) {
+          const x = this.thread.x;
+          const y = this.thread.y;
+          const current = grid[y][x];
+
+          return 0;
+        },
+        { output: [this.cols, this.rows] }
+      )
+      .setConstants({
+        rows: this.rows,
+        cols: this.cols,
+        antNumber: this.ants.length,
+      });
+
+    // TODO: Implement ant update kernel
+    this.antUpdateKernel = gpu
+      .createKernel(
+        function () {
+          return 0;
+        },
+        { output: [this.ants[0].length, this.ants.length] }
+      )
+      .setConstants({});
+  }
+
+  // Override drawing of grid
+  drawGrid() {
+    super.drawGrid();
+
+    // Draw the ants
+    for (const [col, row] of this.ants) {
+      ctx.fillStyle = this.getPenColor(2);
+      ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+    }
+  }
+
+  // Override calculation of color required by a specific state as rgb value
+  stateColor(state) {
+    const stateSpace = {
+      0: backgroundColor,
+      1: [255, 255, 255],
+    };
+    return stateSpace[state];
+  }
+
+  // Override calculating the next grid state
+  getNextState() {
+    // TODO: Update the ants list here
+    return this.gridUpdateKernel(this.grid, this.ants);
+  }
+
+  // Override randomizing the grid
+  randomize() {
+    this.grid = new Array(this.rows)
+      .fill(null)
+      .map(() =>
+        new Array(this.cols)
+          .fill(null)
+          .map(() => (Math.random() < 0.2 ? (Math.random() < 0.5 ? 1 : 2) : 0))
+      );
+    this.drawGrid();
+  }
+
+  // Override drawing the grid
+  draw() {
+    let x = Math.floor(mouseX / cellSize);
+    let y = Math.floor(mouseY / cellSize);
+    let points = fillCircle(x, y, fillRadius);
+
+    for (const [x, y] of points) {
+      // Non-ant drawing case
+      if (
+        x >= 0 &&
+        x < this.grid[0].length &&
+        y >= 0 &&
+        y < this.grid.length &&
+        (this.penState == 0 || this.penState == 1)
+      ) {
+        this.grid[y][x] = this.penState;
+      } else if (this.penState == 2) {
+        this.ants.push([x, y, 0]);
+      }
+    }
+
+    // Also erase ants if needed
+    if (this.penState == 0) {
+      this.ants = this.ants.filter(
+        (ant) =>
+          !points.some((point) => point[0] === ant[0] && point[1] === ant[1])
+      );
+    }
+    // Ensure ants are unique
+    this.ants = unique2DArr(this.ants);
+    window.requestAnimationFrame(() => this.drawGrid());
+  }
+
+  // Override cycle between draw state
+  cycleDraw() {
+    // Define state names
+    let stateNames = {
+      0: "Empty",
+      1: "Filled",
+      2: "Ant",
+    };
+    // Change pen state
+    this.penState = (this.penState + 1) % 3;
+    setConsoleText(
+      `Updated pen to draw ${stateNames[this.penState]} [${this.penState}]`
+    );
+    this.drawGrid();
+  }
+
+  // Override get pen color
+  getPenColor(state = null) {
+    let stateColors = {
+      0: "rgba(255, 255, 255, 0.6)",
+      1: "rgba(255, 0, 0, 0.6)",
+      2: "rgba(0, 255, 0, 0.6)",
+    };
+    return state ? stateColors[state] : stateColors[this.penState];
+  }
+
+  // Override downloading the data
+  saveData() {
+    const automataData = {
+      name: "LangtonsAnts",
+      args: [],
+      grid: this.grid.map((arr) => Array.from(arr)),
+    };
+    downloadObjectAsJSON(automataData, "langton_ants.json");
+  }
+}
+
 //! Intialize and trigger automata class
-export let automata = new LifeLikeAutomata(); // Automata Definition
+export let automata = new LangtonsAnts(); // Automata Definition
 export function setAutomata(newAutomataName, args = [], grid = null) {
   let oldGrid;
   if (!grid) {
