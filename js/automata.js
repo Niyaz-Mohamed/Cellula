@@ -870,84 +870,7 @@ export class LangtonsAnts extends Automata {
   constructor() {
     super();
     this.penState = 2;
-    this.ants = [[Math.floor(this.rows / 2), Math.floor(this.cols / 2), 0]]; // Ant directions are 0,1,2,3 (N,E,S,W)
-
-    // Create GPU, account for issues in chrome
-    function initGPU() {
-      try {
-        return new window.GPU.GPU();
-      } catch (e) {
-        return new GPU({ mode: "dev" });
-      }
-    }
-    const gpu = initGPU();
-
-    // GPU kernel to update grid
-    this.gridUpdateKernel = gpu
-      .createKernel(
-        function (grid, ants) {
-          const x = this.thread.x;
-          const y = this.thread.y;
-          let current = grid[y][x];
-
-          // Flip the grid elements the ants are on
-          for (let i = 0; i < this.constants.numAnts; i++) {
-            if (ants[i][0] === x && ants[i][1] === y) {
-              current = (current + 1) % 2;
-            }
-          }
-          return current;
-        },
-        { output: [this.cols, this.rows] }
-      )
-      .setConstants({
-        rows: this.rows,
-        cols: this.cols,
-        numAnts: this.ants.length,
-      });
-
-    // TODO: Implement ant update kernel
-    // GPU Kernel to update ants
-    this.antUpdateKernel = gpu
-      .createKernel(
-        function (grid, ants) {
-          const ant = ants[this.thread.y];
-          let x = ant[0];
-          let y = ant[1];
-          let direction = ant[2];
-
-          // Update direction based on grid state
-          const gridState = grid[y][x];
-          if (gridState === 1) {
-            direction = (direction + 1) % 4; // Turn right if white (1)
-          } else {
-            direction = (direction + 3) % 4; // Turn left if black (0)
-          }
-
-          // Move ant forward in the current direction
-          if (this.thread.x == 0) {
-            // East and West (c-direction)
-            if (direction == 1) {
-              x = (x + 1) % this.constants.cols;
-            } else if (direction == 3) {
-              x = (x - 1 + this.constants.cols) % this.constants.cols;
-            }
-            return x;
-          } else if (this.thread.x == 1) {
-            // North and South (y-direction)
-            if (direction == 0) {
-              y = (y - 1 + this.constants.rows) % this.constants.rows;
-            } else if (direction == 2) {
-              y = (y + 1) % this.constants.rows;
-            }
-            return y;
-          } else {
-            return direction;
-          }
-        },
-        { output: [3, this.ants.length] }
-      )
-      .setConstants({ rows: this.rows, cols: this.cols });
+    this.ants = []; // Ant directions are 0,1,2,3 (N,E,S,W)
   }
 
   // Override drawing of grid
@@ -972,25 +895,41 @@ export class LangtonsAnts extends Automata {
 
   // Override calculating the next grid state
   getNextState() {
-    // Save copy of old
-    let oldGrid = this.grid;
-    let oldAnts = this.ants;
-    console.log(oldAnts);
-    // Update the ants and grid
-    this.ants = this.antUpdateKernel(oldGrid, oldAnts);
-    return this.gridUpdateKernel(oldGrid, oldAnts);
+    let newAnts = this.ants.map((ant) => ant.slice());
+    let newGrid = this.grid.map((row) => row.slice());
 
-    // Update the grid
-    // for (let ant of ants) {
-    //   const gridState = grid[ant[1]][ant[0]];
-    //   grid[ant[1]][ant[0]] = (gridState + 1) % 2;
-    //   // Update ant direction
-    //   if (gridState == 0) {
-    //     ; // Turn left
-    //   }
-    // }
+    for (let i = 0; i < this.ants.length; i++) {
+      let ant = this.ants[i];
+      let gridState = newGrid[ant[1]][ant[0]];
+      newGrid[ant[1]][ant[0]] = (gridState + 1) % 2; // Update the grid
 
-    return 0;
+      // Update Ant Directions (Based on old grid!)
+      if (gridState == 0) {
+        newAnts[i][2] = (ant[2] + 3) % 4; // Turn left if black
+      } else {
+        newAnts[i][2] = (ant[2] + 1) % 4; // Turn right if white
+      }
+
+      // Update ant positions
+      switch (newAnts[i][2]) {
+        case 0:
+          newAnts[i][1] = (newAnts[i][1] - 1 + this.rows) % this.rows; // North
+          break;
+        case 1:
+          newAnts[i][0] = (newAnts[i][0] + 1) % this.cols; // East
+          break;
+        case 2:
+          newAnts[i][1] = (newAnts[i][1] + 1) % this.cols; // South
+          break;
+        case 3:
+          newAnts[i][0] = (newAnts[i][0] - 1 + this.cols) % this.cols; // West
+          break;
+      }
+    }
+
+    // Reassign ants
+    this.ants = newAnts;
+    return newGrid;
   }
 
   // Override randomizing the grid
@@ -1020,7 +959,7 @@ export class LangtonsAnts extends Automata {
       ) {
         this.grid[y][x] = this.penState;
       } else if (this.penState == 2) {
-        this.ants.push([x, y, 0]);
+        this.ants.push(new Float32Array([x, y, 0]));
       }
     }
 
@@ -1033,7 +972,6 @@ export class LangtonsAnts extends Automata {
     }
     // Ensure ants are unique and update kernel
     this.ants = unique2DArr(this.ants);
-    this.antUpdateKernel.setOutput([3, this.ants.length]);
     window.requestAnimationFrame(() => this.drawGrid());
   }
 
@@ -1075,7 +1013,7 @@ export class LangtonsAnts extends Automata {
 }
 
 //! Intialize and trigger automata class
-export let automata = new LangtonsAnts(); // Automata Definition
+export let automata = new LifeLikeAutomata(); // Automata Definition
 export function setAutomata(newAutomataName, args = [], grid = null) {
   let oldGrid;
   if (!grid) {
