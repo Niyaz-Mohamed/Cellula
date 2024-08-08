@@ -14,6 +14,7 @@ import {
   padArray,
   downloadObjectAsJSON,
   unique2DArr,
+  reshape2DArray,
 } from "./utils.js";
 import {
   mouseX,
@@ -40,8 +41,19 @@ registerCanvasCallbacks(overlayCtx);
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
+  overlayCanvas.width = window.innerWidth;
+  overlayCanvas.height = window.innerHeight;
+  // Update automata
+  let newRows = Math.floor(window.innerHeight / cellSize);
+  let newCols = Math.floor(window.innerWidth / cellSize);
+  automata.grid = reshape2DArray(automata.grid, newRows, newCols);
+  automata.rows = newRows;
+  automata.cols = newCols;
   automata.drawGrid();
 }
+
+// Add event listener for window resize
+window.addEventListener("resize", resizeCanvas);
 
 //! Define types of automata
 export class Automata {
@@ -59,7 +71,7 @@ export class Automata {
     // Create GPU, account for issues in chrome
     function initGPU() {
       try {
-        return new window.GPU.GPU();
+        return new window.GPU.GPU({ mode: "dev" });
       } catch (e) {
         return new GPU({ mode: "dev" });
       }
@@ -72,6 +84,7 @@ export class Automata {
     // Create an ImageData object to batch update the canvas
     const imageData = ctx.createImageData(ctx.canvas.width, ctx.canvas.height);
     const data = imageData.data;
+
     // Calculate cell colors and draw
     for (let row = 0; row < this.rows; row++) {
       for (let col = 0; col < this.cols; col++) {
@@ -92,6 +105,7 @@ export class Automata {
         }
       }
     }
+
     // Apply the imageData to the canvas
     this.gridImageData = imageData;
     ctx.putImageData(this.gridImageData, 0, 0);
@@ -128,11 +142,11 @@ export class Automata {
     if (!drawGrid) {
       this.grid = this.getNextState();
     } else if (!paused && !ignorePaused) {
-      console.time("Update");
+      //// console.time("Update");
       let newGrid = this.getNextState();
       this.grid = newGrid;
       window.requestAnimationFrame(() => this.drawGrid());
-      console.timeEnd("Update");
+      //// console.timeEnd("Update");
       // Automatically loop animation
       window.requestAnimationFrame(() => this.updateGrid());
     } else {
@@ -242,7 +256,7 @@ export class LifeLikeAutomata extends Automata {
           if (current === 1 && isSurvival === 1) return 1;
           return 0;
         },
-        { output: [this.cols, this.rows] }
+        { output: [this.cols, this.rows], dynamicOutput: true }
       )
       .setConstants({
         rows: this.rows,
@@ -314,6 +328,7 @@ export class LifeLikeAutomata extends Automata {
       neighborhoodSize: this.neighborhood.length,
       rulesSize: Math.max(this.birthRules.length, this.surviveRules.length),
     });
+    this.gridUpdateKernel.setOutput([this.cols, this.rows]);
 
     // Call the kernel
     const maxRules = Math.max(this.birthRules.length, this.surviveRules.length);

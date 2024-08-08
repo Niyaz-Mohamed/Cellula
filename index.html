@@ -255,8 +255,7 @@
                 <div class="rule-div">
                     <label for="life-rule-input">Rulestring</label>
                     <p class="desc">B/S rulestring. See "Select Automata" window for details.</p>
-                    <input type="text" id="life-rule-input" name="life-rule-input" placeholder="B/S Rulestring"
-                        value="B3/S23" />
+                    <input type="text" id="life-rule-input" placeholder="B/S Rulestring" value="B3/S23" />
                 </div>
                 <div class="rule-div">
                     <label>Neighborhood</label>
@@ -281,9 +280,9 @@
             <!--Settings for Brian's Brain-->
             <div id="brain-settings" class="automata-settings">
                 <div class="rule-div">
-                    <label for="rule-input">Rulestring</label>
+                    <label for="brain-rule-input">Rulestring</label>
                     <p class="desc">Number of neighbors for birth, separated by slash (/). Example: 2/3</p>
-                    <input type="text" id="brain-rule-input" name="rule-input" placeholder="2/3/etc." value="2/3" />
+                    <input type="text" id="brain-rule-input" placeholder="2/3/etc." value="2/3" />
                 </div>
                 <div class="rule-div">
                     <label>Neighborhood</label>
@@ -308,14 +307,14 @@
             <!--Settings for Rock Paper Scissors-->
             <div id="rps-settings" class="automata-settings">
                 <div class="rule-div">
-                    <label for="rule-input">Rulestring</label>
+                    <label for="rps-rule-input">Rulestring</label>
                     <p class="desc">A cell will be converted if it has more than these many neighbors which beat it</p>
-                    <input type="text" id="rps-rule-input" name="rule-input" placeholder="3" value="3" min="1" />
+                    <input type="text" id="rps-rule-input" placeholder="3" value="3" min="1" />
                 </div>
                 <div class="rule-div">
                     <label for="rps-state-select">Number of States</label>
                     <p class="desc">Number of states in the game. Lizard and Spock can be added as extra states</p>
-                    <select name="rps-state-select" id="rps-state-select">
+                    <select id="rps-state-select">
                         <option value="3" selected>3-State</option>
                         <option value="4">4-State (Unbalanced)</option>
                         <option value="5">5-State</option>
@@ -326,12 +325,12 @@
                     <p class="desc">Select the neighborhood of each cell.</p>
                     <div class="grid-size-selector">
                         <div>
-                            <label for="brain-rows">Rows:</label>
-                            <input type="number" id="brain-rows" class="row-select" value="3">
+                            <label for="rps-rows">Rows:</label>
+                            <input type="number" id="rps-rows" class="row-select" value="3">
                         </div>
                         <div>
-                            <label for="brain-columns">Columns:</label>
-                            <input type="number" id="brain-columns" class="column-select" value="3">
+                            <label for="rps-columns">Columns:</label>
+                            <input type="number" id="rps-columns" class="column-select" value="3">
                         </div>
                     </div>
                 </div>
@@ -353,7 +352,7 @@
                 <label>File to Load</label>
                 <p class="desc">Input a file you have downloaded previously</p>
                 <label for="file-input" class="custom-file-upload">Select file</label>
-                <input type="file" id="file-input" name='file-input' accept="application/json">
+                <input type="file" id="file-input" accept="application/json">
                 <p id="invalid-file-notice">Invalid File!</p>
             </div>
         </div>
