@@ -42,8 +42,15 @@ export class Automata {
     this.neighborhood = mooreNeighborhood();
     // Cell state that pen draws
     this.penState = 1;
-    // Prepare for FPS throttling
-    this.lastUpdateTime = Date.now();
+    // Create GPU, account for issues in chrome
+    function initGPU() {
+      try {
+        return new window.GPU.GPU();
+      } catch (e) {
+        return new GPU({ mode: "dev" });
+      }
+    }
+    this.gpu = initGPU();
   }
 
   // Draw a grid on the canvas
@@ -115,9 +122,9 @@ export class Automata {
     if (!drawGrid) {
       this.grid = this.getNextState();
     } else if (!paused && !ignorePaused) {
-      //// console.time("Update");
+      console.time("Update");
       let newGrid = this.getNextState();
-      //// console.timeEnd("Update");
+      console.timeEnd("Update");
       // Update grid state and draw, only if enough time has passed
       this.grid = newGrid;
       this.drawGrid();
@@ -127,13 +134,6 @@ export class Automata {
       // Handles mouse drawings
       window.requestAnimationFrame(() => this.drawGrid());
     }
-  }
-
-  // TODO: Override for multi-neighborhood automata
-  // Set the neighborhood for the automata
-  setNeighborhood(neighborhood) {
-    // Additional verification can be done here
-    this.neighborhood = neighborhood;
   }
 
   // TODO: Override for custom automata
@@ -196,12 +196,6 @@ export class Automata {
     const automataData = { name: "Automata", args: [], grid: this.grid };
     downloadObjectAsJSON(automataData, "automata.json");
   }
-
-  // TODO: Override this for automata with customizeable neighborhoods and kernels
-  // Update neighborhood size
-  updateNeighborhood(neighborhood) {
-    this.neighborhood = neighborhood;
-  }
 }
 
 export class LifeLikeAutomata extends Automata {
@@ -211,17 +205,8 @@ export class LifeLikeAutomata extends Automata {
     this.setRules(ruleString);
     this.neighborhood = neighborhood;
 
-    // Create GPU, account for issues in chrome
-    function initGPU() {
-      try {
-        return new window.GPU.GPU();
-      } catch (e) {
-        return new GPU({ mode: "dev" });
-      }
-    }
-    const gpu = initGPU();
     // Implement GPU kernel to update grid
-    this.gridUpdateKernel = gpu
+    this.gridUpdateKernel = this.gpu
       .createKernel(
         function (grid, neighborhood, birthRules, surviveRules) {
           const x = this.thread.x;
@@ -230,8 +215,8 @@ export class LifeLikeAutomata extends Automata {
           let neighbors = 0;
 
           for (let i = 0; i < this.constants.neighborhoodSize; i++) {
-            const dx = neighborhood[i * 2];
-            const dy = neighborhood[i * 2 + 1];
+            const dx = neighborhood[i][0];
+            const dy = neighborhood[i][1];
             neighbors +=
               grid[(y + dy + this.constants.rows) % this.constants.rows][
                 (x + dx + this.constants.cols) % this.constants.cols
@@ -259,8 +244,7 @@ export class LifeLikeAutomata extends Automata {
         cols: this.cols,
         neighborhoodSize: this.neighborhood.length,
         rulesSize: Math.max(this.birthRules.length, this.surviveRules.length),
-      })
-      .setDynamicArguments(true);
+      });
   }
 
   // Parse Birth/Survival notation rule string, extended for a neighborhood of size n
@@ -318,10 +302,19 @@ export class LifeLikeAutomata extends Automata {
 
   // Override getting next state
   getNextState() {
+    // Reset constants
+    this.gridUpdateKernel.setConstants({
+      rows: this.rows,
+      cols: this.cols,
+      neighborhoodSize: this.neighborhood.length,
+      rulesSize: Math.max(this.birthRules.length, this.surviveRules.length),
+    });
+
+    // Call the kernel
     const maxRules = Math.max(this.birthRules.length, this.surviveRules.length);
     return this.gridUpdateKernel(
       this.grid,
-      this.neighborhood.flat(),
+      this.neighborhood,
       padArray(this.birthRules, maxRules, -1),
       padArray(this.surviveRules, maxRules, -1)
     );
@@ -336,18 +329,6 @@ export class LifeLikeAutomata extends Automata {
     };
     downloadObjectAsJSON(automataData, "life.json");
   }
-
-  // Update neighborhood size
-  updateNeighborhood(neighborhood) {
-    this.neighborhood = neighborhood;
-    // Update constants
-    this.gridUpdateKernel.setConstants({
-      rows: this.rows,
-      cols: this.cols,
-      neighborhoodSize: this.neighborhood.length,
-      rulesSize: Math.max(this.birthRules.length, this.surviveRules.length),
-    });
-  }
 }
 
 export class BriansBrain extends Automata {
@@ -357,17 +338,8 @@ export class BriansBrain extends Automata {
     this.setRules(ruleString);
     this.neighborhood = neighborhood;
 
-    // Create GPU, account for issues in chrome
-    function initGPU() {
-      try {
-        return new window.GPU.GPU();
-      } catch (e) {
-        return new GPU();
-      }
-    }
-    const gpu = initGPU();
     // Implement GPU kernel to update grid
-    this.gridUpdateKernel = gpu
+    this.gridUpdateKernel = this.gpu
       .createKernel(
         function (grid, neighborhood, birthRules) {
           const x = this.thread.x;
@@ -380,8 +352,8 @@ export class BriansBrain extends Automata {
 
             // Count live neighbors
             for (let i = 0; i < this.constants.neighborhoodSize; i++) {
-              const dx = neighborhood[i * 2];
-              const dy = neighborhood[i * 2 + 1];
+              const dx = neighborhood[i][0];
+              const dy = neighborhood[i][1];
               const neighborValue =
                 grid[(y + dy + this.constants.rows) % this.constants.rows][
                   (x + dx + this.constants.cols) % this.constants.cols
@@ -407,8 +379,7 @@ export class BriansBrain extends Automata {
         cols: this.cols,
         neighborhoodSize: this.neighborhood.length,
         ruleSize: this.birthRules.length,
-      })
-      .setDynamicArguments(true);
+      });
   }
 
   // Parse the rule required for Brian's Brain to come alive
@@ -433,6 +404,19 @@ export class BriansBrain extends Automata {
     }
   }
 
+  // Override calculating the next grid state
+  getNextState() {
+    // Reset constants
+    this.gridUpdateKernel.setConstants({
+      rows: this.rows,
+      cols: this.cols,
+      neighborhoodSize: this.neighborhood.length,
+      ruleSize: this.birthRules.length,
+    });
+    // Call kernel
+    return this.gridUpdateKernel(this.grid, this.neighborhood, this.birthRules);
+  }
+
   // Override calculation of color required by a specific state as rgb value
   stateColor(state) {
     const stateSpace = {
@@ -441,15 +425,6 @@ export class BriansBrain extends Automata {
       2: [0, 0, 255],
     };
     return stateSpace[state];
-  }
-
-  // Override calculating the next grid state
-  getNextState() {
-    return this.gridUpdateKernel(
-      this.grid,
-      this.neighborhood.flat(),
-      this.birthRules
-    );
   }
 
   // Override randomizing the grid
@@ -495,37 +470,15 @@ export class BriansBrain extends Automata {
     };
     downloadObjectAsJSON(automataData, "brianbrain.json");
   }
-
-  // Override update neighborhood size
-  updateNeighborhood(neighborhood) {
-    this.neighborhood = neighborhood;
-    // Update constants
-    this.gridUpdateKernel.setConstants({
-      rows: this.rows,
-      cols: this.cols,
-      neighborhoodSize: this.neighborhood.length,
-      ruleSize: this.birthRules.length,
-    });
-  }
 }
 
 export class WireWorld extends Automata {
   constructor() {
     super();
     this.neighborhood = mooreNeighborhood();
-    this.penState = 3;
 
-    // Create GPU, account for issues in chrome
-    function initGPU() {
-      try {
-        return new window.GPU.GPU();
-      } catch (e) {
-        return new GPU();
-      }
-    }
-    const gpu = initGPU();
     // Implement GPU kernel to update grid
-    this.gridUpdateKernel = gpu
+    this.gridUpdateKernel = this.gpu
       .createKernel(
         function (grid, neighborhood) {
           const x = this.thread.x;
@@ -534,32 +487,30 @@ export class WireWorld extends Automata {
 
           // Cell transitions
           if (current == 0) {
-            return 0;
-          } else if (current == 1) {
-            return 2;
+            return 0; // Empty case
           } else if (current == 2) {
-            return 3;
+            return 3; // Head electron case
+          } else if (current == 3) {
+            return 1; // Tail electron case
           } else {
-            // Handle conductor becoming electron on 1 or 2 electron head neighbors
-            let headNeighbors = 0;
-
             // Count electron head neighbors
+            let headNeighbors = 0;
             for (let i = 0; i < this.constants.neighborhoodSize; i++) {
-              const dx = neighborhood[i * 2];
-              const dy = neighborhood[i * 2 + 1];
+              const dx = neighborhood[i][0];
+              const dy = neighborhood[i][1];
               const neighborValue =
                 grid[(y + dy + this.constants.rows) % this.constants.rows][
                   (x + dx + this.constants.cols) % this.constants.cols
                 ];
-              if (neighborValue == 1) {
+              if (neighborValue == 2) {
                 headNeighbors++;
               }
             }
 
             // Update cell value
             if (headNeighbors === 1 || headNeighbors === 2) {
-              return 1;
-            } else return 3;
+              return 2;
+            } else return 1;
           }
         },
         { output: [this.cols, this.rows] }
@@ -571,20 +522,20 @@ export class WireWorld extends Automata {
       });
   }
 
+  // Override calculating the next grid state
+  getNextState() {
+    return this.gridUpdateKernel(this.grid, this.neighborhood);
+  }
+
   // Override calculation of color required by a specific state as rgb value
   stateColor(state) {
     const stateSpace = {
       0: backgroundColor,
-      1: [0, 0, 255],
-      2: [255, 0, 0],
-      3: [255, 255, 0],
+      1: [255, 255, 0],
+      2: [0, 0, 255],
+      3: [255, 0, 0],
     };
     return stateSpace[state];
-  }
-
-  // Override calculating the next grid state
-  getNextState() {
-    return this.gridUpdateKernel(this.grid, this.neighborhood.flat());
   }
 
   // Override randomizing the grid
@@ -601,9 +552,7 @@ export class WireWorld extends Automata {
       randEngine.updateGrid(false, false);
     }
 
-    this.grid = randEngine.grid.map((row) =>
-      row.map((value) => (value == 1 ? 3 : value))
-    );
+    this.grid = randEngine.grid;
     this.drawGrid();
   }
 
@@ -616,7 +565,7 @@ export class WireWorld extends Automata {
     for (const [x, y] of points) {
       if (x >= 0 && x < this.grid[0].length && y >= 0 && y < this.grid.length) {
         // Fill only conductors when penstate is electrons
-        if (this.penState == 1 || this.penState == 2) {
+        if (this.penState == 2 || this.penState == 3) {
           if (this.grid[y][x] != 0) this.grid[y][x] = this.penState;
         } else this.grid[y][x] = this.penState;
       }
@@ -629,9 +578,9 @@ export class WireWorld extends Automata {
     // Define state names
     let stateNames = {
       0: "Empty",
-      1: "Electron Head",
-      2: "Electron Tail",
-      3: "Conductor",
+      1: "Conductor",
+      2: "Electron Head",
+      3: "Electron Tail",
     };
     // Change pen state
     this.penState = (this.penState + 1) % 4;
@@ -645,9 +594,9 @@ export class WireWorld extends Automata {
   getPenColor() {
     let stateColors = {
       0: "rgba(255, 255, 255, 0.6)",
-      1: "rgba(0, 0, 255, 0.6)",
-      2: "rgba(255, 0, 0, 0.6)",
-      3: "rgba(255, 255, 0, 0.6)",
+      1: "rgba(255, 255, 0, 0.6)",
+      2: "rgba(0, 0, 255, 0.6)",
+      3: "rgba(255, 0, 0, 0.6)",
     };
     return stateColors[this.penState];
   }

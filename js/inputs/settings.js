@@ -68,23 +68,6 @@ function createGrid(automataSettingsId) {
   }
 }
 
-// Update the neighborhood when it's values change
-function updateNeighborhood(event) {
-  let neighborhood = [];
-  event.target
-    .closest(".neighbor-grid")
-    .querySelectorAll("input")
-    .forEach((checkbox) => {
-      if (checkbox.checked)
-        neighborhood.push([
-          Number(checkbox.dataset.column),
-          Number(checkbox.dataset.row),
-        ]);
-    });
-
-  automata.updateNeighborhood(neighborhood);
-}
-
 // Generate the grids only when settings are opened
 document.getElementById("settings-btn").addEventListener("click", () => {
   if (typeof settingsMap === "object" && settingsMap !== null) {
@@ -119,6 +102,23 @@ document.querySelectorAll(".column-select").forEach((element) =>
     }
   })
 );
+
+// Update the neighborhood when its values change
+function updateNeighborhood(event) {
+  let neighborhood = [];
+  event.target
+    .closest(".neighbor-grid")
+    .querySelectorAll("input")
+    .forEach((checkbox) => {
+      if (checkbox.checked)
+        neighborhood.push([
+          Number(checkbox.dataset.column),
+          Number(checkbox.dataset.row),
+        ]);
+    });
+
+  automata.neighborhood = neighborhood;
+}
 
 //! Change in file load
 document.getElementById("file-input").addEventListener(
