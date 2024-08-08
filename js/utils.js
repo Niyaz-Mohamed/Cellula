@@ -22,13 +22,13 @@ export function padArray(arr, size, padValue) {
 
 // Midpoint circle algorithm
 export function midpointCircle(x, y, r) {
-  // Special case r=0
-  if (r <= 1) {
-    return [[x, y]];
+  // Special case r<0
+  if (r < 0) {
+    return [];
   }
 
   let points = [];
-  let dx = r;
+  let dx = r - 1;
   let dy = 0;
   let p = 1 - r;
 
@@ -59,14 +59,14 @@ export function midpointCircle(x, y, r) {
 // Generate full circles (extends midpoint circle algo)
 export function fillCircle(x, y, r) {
   // Special case
-  if (r <= 0) {
-    return [[x, y]];
+  if (r < 0) {
+    return [];
   }
 
   // Draw circle of radius r+1 and calculate inner points
   r++;
   let points = [];
-  let dx = r;
+  let dx = r - 1;
   let dy = 0;
   let p = 1 - r;
 

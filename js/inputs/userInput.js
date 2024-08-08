@@ -22,7 +22,7 @@ export function updateMousePosition(event) {
   outlinePoints = midpointCircle(
     Math.floor(mouseX / cellSize),
     Math.floor(mouseY / cellSize),
-    fillRadius + 1
+    fillRadius
   );
   automata.drawCursor();
 }
@@ -154,7 +154,7 @@ function handleAction(action) {
     case "-":
     case "ArrowDown":
     case "Lower Fill Amt":
-      setFillRadius(fillRadius - 1 < 0 ? 0 : fillRadius - 1);
+      setFillRadius(fillRadius - 1 < -1 ? -1 : fillRadius - 1);
       break;
 
     // Controls for pausing

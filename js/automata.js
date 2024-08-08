@@ -29,6 +29,7 @@ const canvas = document.getElementById("cellGrid");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 export const ctx = canvas.getContext("2d");
+ctx.imageSmoothingEnabled = false;
 
 //! Initialize Overlay Canvas
 const overlayCanvas = document.getElementById("overlayCanvas");
@@ -148,11 +149,11 @@ export class Automata {
     if (!drawGrid) {
       this.grid = this.getNextState();
     } else if (!paused && !ignorePaused) {
-      console.time("Update");
+      //// console.time("Update");
       let newGrid = this.getNextState();
       this.grid = newGrid;
       window.requestAnimationFrame(() => this.drawGrid());
-      console.timeEnd("Update");
+      //// console.timeEnd("Update");
       // Automatically loop animation
       window.requestAnimationFrame(() => this.updateGrid());
     } else {
@@ -569,16 +570,23 @@ export class ElementaryCA extends Automata {
 
   // Override calculation of color required by a specific state as rgb value
   stateColor(state) {
-    const stateSpace = {
+    let stateSpace = {
       0: backgroundColor,
       1: [255, 255, 255],
-      2: [127, 127, 127],
     };
+    stateSpace[this.baseState] = backgroundColor;
     return stateSpace[state];
   }
 
   // Override randomizing the grid
   randomize() {
+    this.grid = new Array(this.rows)
+      .fill(null)
+      .map(() =>
+        new Array(this.cols)
+          .fill(null)
+          .map(() => (Math.random() < 5e-5 ? 1 : this.baseState))
+      );
     window.requestAnimationFrame(() => this.drawGrid());
   }
 
@@ -591,13 +599,14 @@ export class ElementaryCA extends Automata {
     setConsoleText(
       `Updated pen to draw ${stateNames[this.penState]} [${this.penState}]`
     );
+    if (this.penState === 0) this.penState = 2;
     window.requestAnimationFrame(() => this.drawCursor());
   }
 
   // Override get pen color
   getPenColor() {
     let stateColors = {
-      0: "rgba(255, 255, 255, 0.8)",
+      2: "rgba(255, 255, 255, 0.8)",
       1: "rgba(255, 0, 0, 0.8)",
     };
     return stateColors[this.penState];
@@ -1083,7 +1092,7 @@ export class RPSGame extends Automata {
 }
 
 //! Intialize and trigger automata class
-export let automata = new ElementaryCA(); // Automata Definition
+export let automata = new LifeLikeAutomata(); // Automata Definition
 export function setAutomata(newAutomataName, args = [], grid = null) {
   let oldGrid;
   if (!grid) {
@@ -1091,6 +1100,7 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
   } else {
     oldGrid = grid;
   }
+  setFillRadius(3);
 
   // Change automata class
   switch (newAutomataName) {
@@ -1109,6 +1119,15 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
         row.map((state) => ([0, 1].includes(state) ? state : 1))
       );
       setConsoleText("Changed automata to Langton's Ant");
+      break;
+    case "Elementary CA":
+      automata = new ElementaryCA(...args);
+      // Convert non 0/1 cells to 1
+      automata.grid = oldGrid.map((row) =>
+        row.map((state) => (state == 1 ? state : 2))
+      );
+      setFillRadius(0);
+      setConsoleText("Changed automata to Elementary CA");
       break;
     case "Brian's Brain":
       automata = new BriansBrain(...args);
@@ -1134,8 +1153,9 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
     default:
       break;
   }
-  if (!paused) changePaused();
   automata.drawGrid();
+  automata.drawCursor();
+  // if (!paused) changePaused();
   automata.updateGrid();
 }
 automata.updateGrid();

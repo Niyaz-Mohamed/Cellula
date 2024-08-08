@@ -3,8 +3,8 @@ import { automata } from "../automata.js";
 import { setConsoleText } from "../utils.js";
 
 // Main settings to control behavior of automata
-export let cellSize = 2;
-export let fillRadius = 3;
+export let cellSize = 3;
+export let fillRadius = 4;
 export let paused = false;
 export let backgroundColor = [21, 25, 31]; // #15191f (rich black)
 
@@ -13,11 +13,13 @@ export const nameMap = {
   "Langton's Ant": "Ants",
   "Brian's Brain": "BB",
   "Rock, Paper, Scissors": "RPS",
+  "Elementary CA": "Elem",
 }; //! Used for setting automata name in top left
 
 export const infoMap = {
   Life: "life-info",
   "Langton's Ant": "ant-info",
+  "Elementary CA": "elementary-info",
   "Brian's Brain": "brain-info",
   Wireworld: "wire-info",
   "Rock, Paper, Scissors": "rps-info",
@@ -26,6 +28,7 @@ export const infoMap = {
 export const settingsMap = {
   Life: "life-settings",
   "Langton's Ant": "ant-settings",
+  "Elementary CA": "elementary-settings",
   "Brian's Brain": "brain-settings",
   Wireworld: "wire-settings",
   "Rock, Paper, Scissors": "rps-settings",

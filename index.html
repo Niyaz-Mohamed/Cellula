@@ -105,6 +105,7 @@
                 <p>Discrete Automata</p>
                 <button class="select-btn selected">Life</button>
                 <button class="select-btn">Langton's Ant</button>
+                <button class="select-btn">Elementary CA</button>
                 <button class="select-btn">Brian's Brain</button>
                 <button class="select-btn">Wireworld</button>
                 <button class="select-btn">Rock, Paper, Scissors</button>
@@ -163,6 +164,35 @@
                 <p>For more info on Langton's Ant and generalisations to more states or more complex rules (Langton's
                     Ants can be generalised to automata known as Turmites), check out the <a
                         href="https://en.wikipedia.org/wiki/Langton%27s_ant">Wikipedia Article</a></p>
+            </div>
+            <!--Content for Elementary CA-->
+            <div id="elementary-info" class="side-content">
+                <h1>Elementary Automata</h1>
+                <img src="./" alt="Elementary CA GIF">
+                <h2>Description</h2>
+                <p>Contrary to most other cellular automata, Elementary Cellular Automata is actually a 1-dimensional
+                    automata. You can think of the automata as black and white squares on a long piece of tape. The next
+                    state of each square is dependent on both its own state and its 3 neighbors. While you can't exactly
+                    represent a 1D automata on a 2d grid, it is possible to draw each timestep of the automata on a
+                    different row. In such a case, you can think of the state of each cell being determined by the 3
+                    cells above it. </p>
+                <h2>Rules</h2>
+                <p>There a 2^3 possible permutations that the 3 neighbors can take, and each permutation can result in a
+                    black or white square in the next state, resulting in exactly 256 possible rulesets. Each rule can
+                    be represented by a number from 0 to 255: these rules are termed the <a
+                        href="https://en.wikipedia.org/wiki/Wolfram_code">Wolfram Code</a>. Below are some rules with
+                    interesting results.</p>
+                <ul>
+                    <li>Rule 30: Despite its simple rule, it produces highly unpredictable patterns. It has been used as
+                        a Random Number Generator.</li>
+                    <li>Rule 90: Creates a fractal pattern known as the Sierpiński triangle</li>
+                    <li>Rule 110: A turing-complete rule, capable of universal computation</li>
+                    <li>Rule 54: Generates stable structures and moving gliders, similar to the gliders in Conway's GoL
+                    </li>
+                </ul>
+                <h2>Additional Info</h2>
+                <p>For a more detailed list of interesting rulesets and their properties, check out the <a
+                        href="https://en.wikipedia.org/wiki/Elementary_cellular_automaton">Wikipedia Article</a></p>
             </div>
             <!--Content for Brian's Brain-->
             <div id="brain-info" class="side-content">
@@ -276,6 +306,14 @@
             <!--Settings for Langton's Ant-->
             <div id="ant-settings" class="automata-settings">
                 <p>No settings available for Langton's Ant</p>
+            </div>
+            <!--Settings for Elementary CA-->
+            <div id="elementary-settings" class="automata-settings">
+                <div class="rule-div">
+                    <label for="elementary-rule-input">Wolfram Code</label>
+                    <p class="desc">Wolfram Code, between 0 and 255 inclusive.</p>
+                    <input type="text" id="elementary-rule-input" placeholder="Number between 0 and 255" value="90" />
+                </div>
             </div>
             <!--Settings for Brian's Brain-->
             <div id="brain-settings" class="automata-settings">

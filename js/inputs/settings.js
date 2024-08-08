@@ -162,6 +162,23 @@ document
     automata.setRules(event.target.value);
   });
 
+//! Elementary CA rules
+document
+  .getElementById("elementary-rule-input")
+  .addEventListener("input", function (event) {
+    // Strip non-digit characters from the input
+    let ruleNumber = Number(event.target.value.replace(/\D/g, ""), 10);
+    ruleNumber = ruleNumber < 0 ? 0 : ruleNumber > 255 ? 255 : ruleNumber;
+    event.target.value = ruleNumber;
+    // Assign rule
+    automata.ruleNumber = ruleNumber;
+    automata.ruleMap = automata.parseEcaRule(automata.ruleNumber);
+    // Reset cells to prevent strobing
+    automata.grid = automata.grid.map((row) =>
+      row.map((state) => (state == 1 ? state : 2))
+    );
+  });
+
 //! Brian's Brain rules
 document
   .getElementById("brain-rule-input")
