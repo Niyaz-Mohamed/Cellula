@@ -27,7 +27,21 @@ const canvas = document.getElementById("cellGrid");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 export const ctx = canvas.getContext("2d");
-registerCanvasCallbacks();
+
+//! Initialize Overlay Canvas
+const overlayCanvas = document.getElementById("overlayCanvas");
+overlayCanvas.width = window.innerWidth;
+overlayCanvas.height = window.innerHeight;
+const overlayCtx = overlayCanvas.getContext("2d");
+registerCanvasCallbacks(overlayCtx);
+
+//! Handle Canvas Resizing
+// Function to resize the canvas
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  automata.drawGrid();
+}
 
 //! Define types of automata
 export class Automata {
@@ -54,59 +68,51 @@ export class Automata {
   }
 
   // Draw a grid on the canvas
-  drawGrid(cursorOnly = false) {
-    //// console.time("Draw");
-    if (!cursorOnly) {
-      // Create an ImageData object to batch update the canvas
-      const imageData = ctx.createImageData(
-        ctx.canvas.width,
-        ctx.canvas.height
-      );
-      const data = imageData.data;
-      // Calculate cell colors and draw
-      for (let row = 0; row < this.rows; row++) {
-        for (let col = 0; col < this.cols; col++) {
-          const x = col * cellSize;
-          const y = row * cellSize;
-          const color = this.stateColor(this.grid[row][col]);
-          const index = (y * ctx.canvas.width + x) * 4;
+  drawGrid() {
+    // Create an ImageData object to batch update the canvas
+    const imageData = ctx.createImageData(ctx.canvas.width, ctx.canvas.height);
+    const data = imageData.data;
+    // Calculate cell colors and draw
+    for (let row = 0; row < this.rows; row++) {
+      for (let col = 0; col < this.cols; col++) {
+        const x = col * cellSize;
+        const y = row * cellSize;
+        const color = this.stateColor(this.grid[row][col]);
+        const index = (y * ctx.canvas.width + x) * 4;
 
-          // Fill the cell color
-          for (let dy = 0; dy < cellSize; dy++) {
-            for (let dx = 0; dx < cellSize; dx++) {
-              const cellIndex = index + (dy * ctx.canvas.width + dx) * 4;
-              data[cellIndex] = color[0]; // Red
-              data[cellIndex + 1] = color[1]; // Green
-              data[cellIndex + 2] = color[2]; // Blue
-              data[cellIndex + 3] = 255; // Alpha (Opaque)
-            }
+        // Fill the cell color
+        for (let dy = 0; dy < cellSize; dy++) {
+          for (let dx = 0; dx < cellSize; dx++) {
+            const cellIndex = index + (dy * ctx.canvas.width + dx) * 4;
+            data[cellIndex] = color[0]; // Red
+            data[cellIndex + 1] = color[1]; // Green
+            data[cellIndex + 2] = color[2]; // Blue
+            data[cellIndex + 3] = 255; // Alpha (Opaque)
           }
         }
       }
-      // Apply the imageData to the canvas (done in drawCursor)
-      this.gridImageData = imageData;
     }
-    this.drawCursor();
-    //// console.timeEnd("Draw");
+    // Apply the imageData to the canvas
+    this.gridImageData = imageData;
+    ctx.putImageData(this.gridImageData, 0, 0);
   }
 
   // Draw the cursor only when requried
   drawCursor() {
-    ctx.putImageData(this.gridImageData, 0, 0);
-
     // Draw the cursor/pen outline
     let x = Math.floor(mouseX / cellSize);
     let y = Math.floor(mouseY / cellSize);
+    overlayCtx.clearRect(0, 0, canvas.width, canvas.height);
     if (outlinePoints[0] != [x + fillRadius + 1, y]) {
       // Draw outline of pen
       for (const [col, row] of midpointCircle(x, y, fillRadius + 1)) {
-        ctx.fillStyle = this.getPenColor();
-        ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+        overlayCtx.fillStyle = this.getPenColor();
+        overlayCtx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
       }
     } else {
       for (const [col, row] of outlinePoints) {
-        ctx.fillStyle = this.getPenColor();
-        ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+        overlayCtx.fillStyle = this.getPenColor();
+        overlayCtx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
       }
     }
   }
@@ -124,10 +130,9 @@ export class Automata {
     } else if (!paused && !ignorePaused) {
       console.time("Update");
       let newGrid = this.getNextState();
-      console.timeEnd("Update");
-      // Update grid state and draw, only if enough time has passed
       this.grid = newGrid;
-      this.drawGrid();
+      window.requestAnimationFrame(() => this.drawGrid());
+      console.timeEnd("Update");
       // Automatically loop animation
       window.requestAnimationFrame(() => this.updateGrid());
     } else {
@@ -150,7 +155,7 @@ export class Automata {
       .map(() =>
         new Array(this.cols).fill(null).map(() => Math.floor(Math.random() * 2))
       );
-    this.drawGrid();
+    window.requestAnimationFrame(() => this.drawGrid());
   }
 
   // Handles updates of the grid for a single click of the mouse (Call multiple times for press & hold)
@@ -177,15 +182,15 @@ export class Automata {
     setConsoleText(
       `Updated pen to draw ${stateNames[this.penState]} [${this.penState}]`
     );
-    this.drawGrid();
+    window.requestAnimationFrame(() => this.drawCursor());
   }
 
   // TODO: Override for automata with >2 states
   // Calculate color of the fill circle depending on pen state, as rgba string
   getPenColor() {
     let stateColors = {
-      0: "rgba(255, 255, 255, 0.6)",
-      1: "rgba(255, 0, 0, 0.6)",
+      0: "rgba(255, 255, 255, 0.8)",
+      1: "rgba(255, 0, 0, 0.8)",
     };
     return stateColors[this.penState];
   }
@@ -331,6 +336,152 @@ export class LifeLikeAutomata extends Automata {
   }
 }
 
+export class LangtonsAnt extends Automata {
+  constructor(initialAnts = null) {
+    super();
+    this.penState = 2;
+    if (!initialAnts)
+      this.ants = [[Math.floor(this.cols / 2), Math.floor(this.rows / 2), 0]];
+    else {
+      this.ants = initialAnts;
+    } // Ant directions are 0,1,2,3 (N,E,S,W)
+  }
+
+  // Override drawing of grid
+  drawGrid() {
+    super.drawGrid();
+
+    // Draw the ants
+    for (const [col, row] of this.ants) {
+      ctx.fillStyle = this.getPenColor(2);
+      ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+    }
+  }
+
+  // Override calculation of color required by a specific state as rgb value
+  stateColor(state) {
+    const stateSpace = {
+      0: backgroundColor,
+      1: [255, 255, 255],
+    };
+    return stateSpace[state];
+  }
+
+  // Override calculating the next grid state
+  getNextState() {
+    let newAnts = this.ants.map((ant) => ant.slice());
+    let newGrid = this.grid.map((row) => row.slice());
+
+    for (let i = 0; i < this.ants.length; i++) {
+      let ant = this.ants[i];
+      let gridState = newGrid[ant[1]][ant[0]];
+      newGrid[ant[1]][ant[0]] = (gridState + 1) % 2; // Update the grid
+
+      // Update Ant Directions (Based on old grid!)
+      if (gridState == 0) {
+        newAnts[i][2] = (ant[2] + 3) % 4; // Turn left if black
+      } else {
+        newAnts[i][2] = (ant[2] + 1) % 4; // Turn right if white
+      }
+
+      // Update ant positions
+      switch (newAnts[i][2]) {
+        case 0:
+          newAnts[i][1] = (newAnts[i][1] - 1 + this.rows) % this.rows; // North
+          break;
+        case 1:
+          newAnts[i][0] = (newAnts[i][0] + 1) % this.cols; // East
+          break;
+        case 2:
+          newAnts[i][1] = (newAnts[i][1] + 1) % this.cols; // South
+          break;
+        case 3:
+          newAnts[i][0] = (newAnts[i][0] - 1 + this.cols) % this.cols; // West
+          break;
+      }
+    }
+
+    // Reassign ants
+    this.ants = newAnts;
+    return newGrid;
+  }
+
+  // Override randomizing the grid
+  randomize() {
+    this.grid = new Array(this.rows)
+      .fill(null)
+      .map(() =>
+        new Array(this.cols).fill(null).map(() => (Math.random() < 0.1 ? 1 : 0))
+      );
+    window.requestAnimationFrame(() => this.drawGrid());
+  }
+
+  // Override drawing the grid
+  draw() {
+    let x = Math.floor(mouseX / cellSize);
+    let y = Math.floor(mouseY / cellSize);
+    let points = fillCircle(x, y, fillRadius);
+
+    for (const [x, y] of points) {
+      // Check for valid points
+      if (x >= 0 && x < this.grid[0].length && y >= 0 && y < this.grid.length) {
+        if (this.penState == 0 || this.penState == 1) {
+          this.grid[y][x] = this.penState;
+        } else if (this.penState == 2) {
+          this.ants.push(new Float32Array([x, y, 0]));
+        }
+      }
+    }
+
+    // Also erase ants if pen is an eraser
+    if (this.penState == 0) {
+      this.ants = this.ants.filter(
+        (ant) =>
+          !points.some((point) => point[0] === ant[0] && point[1] === ant[1])
+      );
+    }
+    // Ensure ants are unique (different coord and direction) and update kernel
+    this.ants = unique2DArr(this.ants);
+    window.requestAnimationFrame(() => this.drawGrid());
+  }
+
+  // Override cycle between draw state
+  cycleDraw() {
+    // Define state names
+    let stateNames = {
+      0: "Empty",
+      1: "Filled",
+      2: "Ant",
+    };
+    // Change pen state
+    this.penState = (this.penState + 1) % 3;
+    setConsoleText(
+      `Updated pen to draw ${stateNames[this.penState]} [${this.penState}]`
+    );
+    window.requestAnimationFrame(() => this.drawCursor());
+  }
+
+  // Override get pen color
+  getPenColor(state = null) {
+    let stateColors = {
+      0: "rgba(255, 255, 255, 0.8)",
+      1: "rgba(255, 0, 0, 0.8)",
+      2: "rgba(0, 255, 0, 0.8)",
+    };
+    return state ? stateColors[state] : stateColors[this.penState];
+  }
+
+  // Override downloading the data
+  saveData() {
+    const automataData = {
+      name: "Langton's Ant",
+      args: [this.ants.map((arr) => Array.from(arr))],
+      grid: this.grid.map((arr) => Array.from(arr)),
+    };
+    downloadObjectAsJSON(automataData, "langton_ants.json");
+  }
+}
+
 export class BriansBrain extends Automata {
   constructor(ruleString = "2", neighborhood = mooreNeighborhood()) {
     super();
@@ -436,7 +587,7 @@ export class BriansBrain extends Automata {
           .fill(null)
           .map(() => (Math.random() < 0.2 ? (Math.random() < 0.5 ? 1 : 2) : 0))
       );
-    this.drawGrid();
+    window.requestAnimationFrame(() => this.drawGrid());
   }
 
   // Override cycle between draw state
@@ -448,15 +599,15 @@ export class BriansBrain extends Automata {
     setConsoleText(
       `Updated pen to draw ${stateNames[this.penState]} [${this.penState}]`
     );
-    this.drawGrid();
+    window.requestAnimationFrame(() => this.drawCursor());
   }
 
   // Override get pen color
   getPenColor() {
     let stateColors = {
-      0: "rgba(255, 255, 255, 0.6)",
-      1: "rgba(255, 0, 0, 0.6)",
-      2: "rgba(0, 0, 255, 0.6)",
+      0: "rgba(255, 255, 255, 0.8)",
+      1: "rgba(255, 0, 0, 0.8)",
+      2: "rgba(0, 0, 255, 0.8)",
     };
     return stateColors[this.penState];
   }
@@ -553,7 +704,7 @@ export class WireWorld extends Automata {
     }
 
     this.grid = randEngine.grid;
-    this.drawGrid();
+    window.requestAnimationFrame(() => this.drawGrid());
   }
 
   // Override drawing the grid
@@ -587,16 +738,16 @@ export class WireWorld extends Automata {
     setConsoleText(
       `Updated pen to draw ${stateNames[this.penState]} [${this.penState}]`
     );
-    this.drawGrid();
+    window.requestAnimationFrame(() => this.drawCursor());
   }
 
   // Override get pen color
   getPenColor() {
     let stateColors = {
-      0: "rgba(255, 255, 255, 0.6)",
-      1: "rgba(255, 255, 0, 0.6)",
-      2: "rgba(0, 0, 255, 0.6)",
-      3: "rgba(255, 0, 0, 0.6)",
+      0: "rgba(255, 255, 255, 0.8)",
+      1: "rgba(255, 255, 0, 0.8)",
+      2: "rgba(0, 0, 255, 0.8)",
+      3: "rgba(255, 0, 0, 0.8)",
     };
     return stateColors[this.penState];
   }
@@ -625,17 +776,8 @@ export class RPSGame extends Automata {
     // Number of states played with, ranges between 3 and 5
     this.stateCount = [3, 4, 5].includes(stateCount) ? 3 : stateCount;
 
-    // Create GPU, account for issues in chrome
-    function initGPU() {
-      try {
-        return new window.GPU.GPU();
-      } catch (e) {
-        return new GPU();
-      }
-    }
-    const gpu = initGPU();
     // Implement GPU kernel to update grid
-    this.gridUpdateKernel = gpu
+    this.gridUpdateKernel = this.gpu
       .createKernel(
         function (grid, neighborhood, winCondition, stateCount) {
           const x = this.thread.x;
@@ -649,10 +791,10 @@ export class RPSGame extends Automata {
           let lizardNeighbors = 0;
           let spockNeighbors = 0;
 
-          // Itearte through neighborhood
+          // Iterate through neighborhood and count
           for (let i = 0; i < this.constants.neighborhoodSize; i++) {
-            const dx = neighborhood[i * 2];
-            const dy = neighborhood[i * 2 + 1];
+            const dx = neighborhood[i][0];
+            const dy = neighborhood[i][1];
             const neighborValue =
               grid[(y + dy + this.constants.rows) % this.constants.rows][
                 (x + dx + this.constants.cols) % this.constants.cols
@@ -726,8 +868,7 @@ export class RPSGame extends Automata {
         rows: this.rows,
         cols: this.cols,
         neighborhoodSize: this.neighborhood.length,
-      })
-      .setDynamicArguments(true);
+      });
   }
 
   // Override calculation of color required by a specific state as rgb value
@@ -744,6 +885,11 @@ export class RPSGame extends Automata {
 
   // Override calculating the next grid state
   getNextState() {
+    this.gridUpdateKernel.setConstants({
+      rows: this.rows,
+      cols: this.cols,
+      neighborhoodSize: this.neighborhood.length,
+    });
     return this.gridUpdateKernel(
       this.grid,
       this.neighborhood,
@@ -760,7 +906,7 @@ export class RPSGame extends Automata {
           .fill(null)
           .map(() => Math.floor(Math.random() * this.stateCount)) // Randomize from 0 to (stateCount-1)
     );
-    this.drawGrid();
+    window.requestAnimationFrame(() => this.drawGrid());
   }
 
   // Override cycle between draw state
@@ -778,17 +924,17 @@ export class RPSGame extends Automata {
     setConsoleText(
       `Updated pen to draw ${stateNames[this.penState]} [${this.penState}]`
     );
-    this.drawGrid();
+    this.requestAnimationFrame(() => this.drawCursor());
   }
 
   // Override get pen color
   getPenColor() {
     let stateColors = {
-      0: "rgba(255, 0, 0, 0.6)", // Rock
-      1: "rgba(0, 255, 0, 0.6)", // Paper
-      2: "rgba(0, 0, 255, 0.6)", // Scissors
-      3: "rgba(0, 255, 127, 0.6)", // Lizard
-      4: "rgba(0, 127, 255, 0.6)", // Spock
+      0: "rgba(255, 0, 0, 0.8)", // Rock
+      1: "rgba(0, 255, 0, 0.8)", // Paper
+      2: "rgba(0, 0, 255, 0.8)", // Scissors
+      3: "rgba(0, 255, 127, 0.8)", // Lizard
+      4: "rgba(0, 127, 255, 0.8)", // Spock
     };
     return stateColors[this.penState];
   }
@@ -801,163 +947,6 @@ export class RPSGame extends Automata {
       grid: this.grid.map((arr) => Array.from(arr)),
     };
     downloadObjectAsJSON(automataData, "rock-paper-scissor.json");
-  }
-
-  // Override update neighborhood size
-  updateNeighborhood(neighborhood) {
-    this.neighborhood = neighborhood;
-    // Update constants
-    this.gridUpdateKernel.setConstants({
-      rows: this.rows,
-      cols: this.cols,
-      neighborhoodSize: this.neighborhood.length,
-    });
-  }
-}
-
-export class LangtonsAnt extends Automata {
-  constructor(initialAnts = null) {
-    super();
-    this.penState = 2;
-    if (!initialAnts)
-      this.ants = [[Math.floor(this.cols / 2), Math.floor(this.rows / 2), 0]];
-    else {
-      this.ants = initialAnts;
-    } // Ant directions are 0,1,2,3 (N,E,S,W)
-  }
-
-  // Override drawing of grid
-  drawGrid() {
-    super.drawGrid();
-
-    // Draw the ants
-    for (const [col, row] of this.ants) {
-      ctx.fillStyle = this.getPenColor(2);
-      ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
-    }
-  }
-
-  // Override calculation of color required by a specific state as rgb value
-  stateColor(state) {
-    const stateSpace = {
-      0: backgroundColor,
-      1: [255, 255, 255],
-    };
-    return stateSpace[state];
-  }
-
-  // Override calculating the next grid state
-  getNextState() {
-    let newAnts = this.ants.map((ant) => ant.slice());
-    let newGrid = this.grid.map((row) => row.slice());
-
-    for (let i = 0; i < this.ants.length; i++) {
-      let ant = this.ants[i];
-      let gridState = newGrid[ant[1]][ant[0]];
-      newGrid[ant[1]][ant[0]] = (gridState + 1) % 2; // Update the grid
-
-      // Update Ant Directions (Based on old grid!)
-      if (gridState == 0) {
-        newAnts[i][2] = (ant[2] + 3) % 4; // Turn left if black
-      } else {
-        newAnts[i][2] = (ant[2] + 1) % 4; // Turn right if white
-      }
-
-      // Update ant positions
-      switch (newAnts[i][2]) {
-        case 0:
-          newAnts[i][1] = (newAnts[i][1] - 1 + this.rows) % this.rows; // North
-          break;
-        case 1:
-          newAnts[i][0] = (newAnts[i][0] + 1) % this.cols; // East
-          break;
-        case 2:
-          newAnts[i][1] = (newAnts[i][1] + 1) % this.cols; // South
-          break;
-        case 3:
-          newAnts[i][0] = (newAnts[i][0] - 1 + this.cols) % this.cols; // West
-          break;
-      }
-    }
-
-    // Reassign ants
-    this.ants = newAnts;
-    return newGrid;
-  }
-
-  // Override randomizing the grid
-  randomize() {
-    this.grid = new Array(this.rows)
-      .fill(null)
-      .map(() =>
-        new Array(this.cols).fill(null).map(() => (Math.random() < 0.1 ? 1 : 0))
-      );
-    this.drawGrid();
-  }
-
-  // Override drawing the grid
-  draw() {
-    let x = Math.floor(mouseX / cellSize);
-    let y = Math.floor(mouseY / cellSize);
-    let points = fillCircle(x, y, fillRadius);
-
-    for (const [x, y] of points) {
-      // Check for valid points
-      if (x >= 0 && x < this.grid[0].length && y >= 0 && y < this.grid.length) {
-        if (this.penState == 0 || this.penState == 1) {
-          this.grid[y][x] = this.penState;
-        } else if (this.penState == 2) {
-          this.ants.push(new Float32Array([x, y, 0]));
-        }
-      }
-    }
-
-    // Also erase ants if pen is an eraser
-    if (this.penState == 0) {
-      this.ants = this.ants.filter(
-        (ant) =>
-          !points.some((point) => point[0] === ant[0] && point[1] === ant[1])
-      );
-    }
-    // Ensure ants are unique (different coord and direction) and update kernel
-    this.ants = unique2DArr(this.ants);
-    window.requestAnimationFrame(() => this.drawGrid());
-  }
-
-  // Override cycle between draw state
-  cycleDraw() {
-    // Define state names
-    let stateNames = {
-      0: "Empty",
-      1: "Filled",
-      2: "Ant",
-    };
-    // Change pen state
-    this.penState = (this.penState + 1) % 3;
-    setConsoleText(
-      `Updated pen to draw ${stateNames[this.penState]} [${this.penState}]`
-    );
-    this.drawGrid();
-  }
-
-  // Override get pen color
-  getPenColor(state = null) {
-    let stateColors = {
-      0: "rgba(255, 255, 255, 0.6)",
-      1: "rgba(255, 0, 0, 0.6)",
-      2: "rgba(0, 255, 0, 0.6)",
-    };
-    return state ? stateColors[state] : stateColors[this.penState];
-  }
-
-  // Override downloading the data
-  saveData() {
-    const automataData = {
-      name: "Langton's Ant",
-      args: [this.ants.map((arr) => Array.from(arr))],
-      grid: this.grid.map((arr) => Array.from(arr)),
-    };
-    downloadObjectAsJSON(automataData, "langton_ants.json");
   }
 }
 

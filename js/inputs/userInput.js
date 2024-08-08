@@ -15,7 +15,7 @@ export var outlinePoints = [];
 //! MOUSE FUNCTIONS
 
 // Update mouse coordinate whenever mouse moves
-function updateMousePosition(event) {
+export function updateMousePosition(event) {
   const rect = ctx.canvas.getBoundingClientRect();
   mouseX = event.clientX - rect.left;
   mouseY = event.clientY - rect.top;
@@ -24,20 +24,11 @@ function updateMousePosition(event) {
     Math.floor(mouseY / cellSize),
     fillRadius + 1
   );
-  automata.drawGrid(false);
+  automata.drawCursor();
 }
 
 // Draw using requestAnimationFrame
 let isDrawing = false;
-
-function startDrawing() {
-  isDrawing = true;
-  requestAnimationFrame(drawLoop);
-}
-
-function stopDrawing() {
-  isDrawing = false;
-}
 
 function drawLoop() {
   if (isDrawing) {
@@ -46,11 +37,18 @@ function drawLoop() {
   }
 }
 
-export function registerCanvasCallbacks() {
+export function registerCanvasCallbacks(ctx) {
   ctx.canvas.addEventListener("mousemove", updateMousePosition);
-  ctx.canvas.addEventListener("mousedown", startDrawing);
-  ctx.canvas.addEventListener("mouseup", stopDrawing);
-  ctx.canvas.addEventListener("mouseleave", stopDrawing);
+  ctx.canvas.addEventListener("mousedown", () => {
+    isDrawing = true;
+    requestAnimationFrame(drawLoop);
+  });
+  ctx.canvas.addEventListener("mouseup", () => {
+    isDrawing = false;
+  });
+  ctx.canvas.addEventListener("mouseleave", () => {
+    isDrawing = false;
+  });
 }
 
 //! DRAGGEABLE WINDOW FUNCTIONS
