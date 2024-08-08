@@ -4,6 +4,7 @@ import {
   changePaused,
   fillRadius,
   paused,
+  setFillRadius,
 } from "./inputs/controls.js";
 import {
   fillCircle,
@@ -46,7 +47,12 @@ function resizeCanvas() {
   // Update automata
   let newRows = Math.floor(window.innerHeight / cellSize);
   let newCols = Math.floor(window.innerWidth / cellSize);
-  automata.grid = reshape2DArray(automata.grid, newRows, newCols);
+  automata.grid = reshape2DArray(
+    automata.grid,
+    newRows,
+    newCols,
+    automata.baseState ? automata.baseState : 0
+  );
   automata.rows = newRows;
   automata.cols = newCols;
   automata.drawGrid();
@@ -61,7 +67,7 @@ export class Automata {
   constructor() {
     const rows = Math.floor(ctx.canvas.height / cellSize);
     const cols = Math.floor(ctx.canvas.width / cellSize);
-    this.grid = new Array(rows).fill(null).map(() => new Array(cols).fill(0));
+    this.grid = new Array(rows).fill(null).map((_) => new Array(cols).fill(0));
     this.rows = rows;
     this.cols = cols;
     // Moore neighborhood by default
@@ -142,11 +148,11 @@ export class Automata {
     if (!drawGrid) {
       this.grid = this.getNextState();
     } else if (!paused && !ignorePaused) {
-      //// console.time("Update");
+      console.time("Update");
       let newGrid = this.getNextState();
       this.grid = newGrid;
       window.requestAnimationFrame(() => this.drawGrid());
-      //// console.timeEnd("Update");
+      console.timeEnd("Update");
       // Automatically loop animation
       window.requestAnimationFrame(() => this.updateGrid());
     } else {
@@ -494,6 +500,117 @@ export class LangtonsAnt extends Automata {
       grid: this.grid.map((arr) => Array.from(arr)),
     };
     downloadObjectAsJSON(automataData, "langton_ants.json");
+  }
+}
+
+export class ElementaryCA extends Automata {
+  constructor(ruleNumber = 90) {
+    super();
+    // Fill with 2 initially
+    this.baseState = 2;
+    this.grid = new Array(this.rows)
+      .fill(null)
+      .map((_) => new Array(this.cols).fill(this.baseState));
+    // Parse Rule
+    this.ruleNumber = ruleNumber < 0 ? 0 : ruleNumber > 255 ? 255 : ruleNumber;
+    this.ruleMap = this.parseEcaRule(ruleNumber);
+  }
+
+  // Parse rule number into a rule map
+  parseEcaRule(ruleNumber) {
+    // Convert to 8 bit binary string
+    const binaryString = ruleNumber.toString(2).padStart(8, "0");
+    const neighborhoods = [
+      "111",
+      "110",
+      "101",
+      "100",
+      "011",
+      "010",
+      "001",
+      "000",
+    ];
+
+    // Map neighborhood to outputs
+    let ruleMap = {};
+    for (let i = 0; i < neighborhoods.length; i++) {
+      ruleMap[neighborhoods[i]] = parseInt(binaryString[i], 10);
+    }
+    return ruleMap;
+  }
+
+  // Override calculating the next grid state
+  getNextState() {
+    let newGrid = this.grid.map((row) => row.slice());
+    const calcColOffset = (x) => (x + this.cols) % this.cols;
+
+    // Iterate through the grid
+    for (let y = 0; y < this.rows; y++) {
+      let rowAbove = (y - 1 + this.rows) % this.rows;
+      for (let x = 0; x < this.cols; x++) {
+        const pattern = [
+          this.grid[rowAbove][(x - 1 + this.cols) % this.cols],
+          this.grid[rowAbove][x],
+          this.grid[rowAbove][(x + 1) % this.cols],
+        ];
+
+        if (pattern.every((value) => value === this.baseState)) {
+          null; // Non-Update Case
+        } else {
+          const stringPattern = pattern
+            .map((n) => (n === this.baseState ? 0 : n))
+            .join("");
+          newGrid[y][x] = this.ruleMap[stringPattern];
+        }
+      }
+    }
+    return newGrid;
+  }
+
+  // Override calculation of color required by a specific state as rgb value
+  stateColor(state) {
+    const stateSpace = {
+      0: backgroundColor,
+      1: [255, 255, 255],
+      2: [127, 127, 127],
+    };
+    return stateSpace[state];
+  }
+
+  // Override randomizing the grid
+  randomize() {
+    window.requestAnimationFrame(() => this.drawGrid());
+  }
+
+  // Override cycle between draw state
+  cycleDraw() {
+    // Define state names
+    let stateNames = { 0: "Black", 1: "White" };
+    // Change pen state
+    this.penState = (this.penState + 1) % 2;
+    setConsoleText(
+      `Updated pen to draw ${stateNames[this.penState]} [${this.penState}]`
+    );
+    window.requestAnimationFrame(() => this.drawCursor());
+  }
+
+  // Override get pen color
+  getPenColor() {
+    let stateColors = {
+      0: "rgba(255, 255, 255, 0.8)",
+      1: "rgba(255, 0, 0, 0.8)",
+    };
+    return stateColors[this.penState];
+  }
+
+  // Override downloading the data
+  saveData() {
+    const automataData = {
+      name: "Elementary",
+      args: [this.ruleNumber],
+      grid: this.grid.map((arr) => Array.from(arr)),
+    };
+    downloadObjectAsJSON(automataData, "elementaryCA.json");
   }
 }
 
@@ -966,7 +1083,7 @@ export class RPSGame extends Automata {
 }
 
 //! Intialize and trigger automata class
-export let automata = new LifeLikeAutomata(); // Automata Definition
+export let automata = new ElementaryCA(); // Automata Definition
 export function setAutomata(newAutomataName, args = [], grid = null) {
   let oldGrid;
   if (!grid) {
