@@ -16,6 +16,7 @@ import {
   downloadObjectAsJSON,
   unique2DArr,
   reshape2DArray,
+  gaussianRandom,
 } from "./utils.js";
 import {
   mouseX,
@@ -60,7 +61,7 @@ function resizeCanvas() {
 }
 window.addEventListener("resize", resizeCanvas);
 
-//! Define types of automata
+//! General Automata Class
 export class Automata {
   // Create an automata for a grid of dim [rows, cols]
   constructor() {
@@ -223,6 +224,7 @@ export class Automata {
   }
 }
 
+//! Discrete Automata
 export class LifeLikeAutomata extends Automata {
   constructor(ruleString = "B3/S23", neighborhood = mooreNeighborhood()) {
     super();
@@ -262,7 +264,7 @@ export class LifeLikeAutomata extends Automata {
           if (current === 1 && isSurvival === 1) return 1;
           return 0;
         },
-        { output: [this.cols, this.rows], dynamicOutput: true }
+        { output: [this.cols, this.rows] }
       )
       .setConstants({
         rows: this.rows,
@@ -1094,6 +1096,106 @@ export class RPSGame extends Automata {
   }
 }
 
+//! Continuous Automata
+export class NeuralCA extends Automata {
+  // Source for this automata: https://www.youtube.com/watch?v=3H79ZcBuw4M&t=12s
+  constructor(weights = []) {
+    super();
+    this.neighborhood = mooreNeighborhood().push([0, 0]);
+    this.weights =
+      weights.length == 9
+        ? weights
+        : new Array(3)
+            .fill(null)
+            .map((_) => new Array(3).map((_) => Math.random()));
+
+    // TODO: Remove this once testing is done
+    this.weights = [
+      [0.68, -0.9, 0.68],
+      [-0.9, -0.66, -0.9],
+      [0.68, -0.9, 0.68],
+    ];
+
+    // Implement GPU kernel to update grid
+    this.gridUpdateKernel = this.gpu
+      .createKernel(
+        function (grid, weights, activation) {
+          const x = this.thread.x;
+          const y = this.thread.y;
+          let convResult = 0;
+
+          // Perform convolution
+          for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) {
+              let neighborValue =
+                grid[(y + dy + this.constants.rows) % this.constants.rows][
+                  (x + dx + this.constants.cols) % this.constants.cols
+                ];
+              convResult += neighborValue * weights[dy + 1][dx + 1];
+            }
+          }
+
+          // Apply activation
+          convResult = activation(convResult);
+          // Clamp results
+          if (convResult > 1) convResult = 1;
+          else if (convResult < 0) convResult = 0;
+          return convResult;
+        },
+        { output: [this.cols, this.rows] }
+      )
+      .setConstants({
+        rows: this.rows,
+        cols: this.cols,
+      });
+  }
+
+  // Override getting next state
+  getNextState() {
+    // Reset constants
+    this.gridUpdateKernel
+      .setConstants({
+        rows: this.rows,
+        cols: this.cols,
+      })
+      .setOutput([this.cols, this.rows]);
+
+    // Call the kernel
+    return this.gridUpdateKernel(
+      this.grid,
+      this.weights,
+      (x) => -(1 / Math.pow(2, 0.6 * Math.pow(x, 2))) + 1
+    );
+  }
+
+  // Calculate color required by a specific state as rgb value
+  stateColor(state) {
+    return [Math.floor(state * 255), 0, 0];
+  }
+
+  // Override randomizing the grid
+  randomize() {
+    this.grid = new Array(this.rows)
+      .fill(null)
+      .map(() =>
+        new Array(this.cols)
+          .fill(null)
+          .map((_) => Math.max(0, Math.min(1, gaussianRandom(0.3, 0.1))))
+      );
+    window.requestAnimationFrame(() => this.drawGrid());
+  }
+
+  //TODO: Override downloading the data
+  saveData() {
+    const automataData = {
+      name: "Neural",
+      args: [this.ruleString, this.neighborhood],
+      grid: this.grid.map((arr) => Array.from(arr)),
+    };
+    downloadObjectAsJSON(automataData, "neural.json");
+  }
+}
+
 //! Intialize and trigger automata class
 export let automata = new LifeLikeAutomata(); // Automata Definition
 export function setAutomata(newAutomataName, args = [], grid = null) {
@@ -1162,6 +1264,14 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
         row.map((state) => ([0, 1, 2].includes(state) ? state : 0))
       );
       setConsoleText("Changed automata to Rock, Paper, Scissors");
+      break;
+    case "Neural CA":
+      automata = new NeuralCA(...args);
+      // Convert non 0/1 cells to 1
+      automata.grid = oldGrid.map((row) =>
+        row.map((state) => ([0, 1].includes(state) ? state : 1))
+      );
+      setConsoleText("Changed automata to neural");
       break;
     default:
       break;

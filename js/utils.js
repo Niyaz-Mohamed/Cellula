@@ -167,3 +167,11 @@ export function reshape2DArray(array, targetRows, targetCols, fillValue = 0) {
   }
   return newArray;
 }
+
+// Generates random number using a normal distribution
+export function gaussianRandom(mean, variance) {
+  let u1 = Math.random();
+  let u2 = Math.random();
+  let z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2); // Standard distribution
+  return mean + Math.sqrt(variance) * z;
+}

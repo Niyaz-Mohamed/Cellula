@@ -14,6 +14,7 @@ export const nameMap = {
   "Brian's Brain": "BB",
   "Rock, Paper, Scissors": "RPS",
   "Elementary CA": "Elem",
+  "Neural CA": "Neural",
 }; //! Used for setting automata name in top left
 
 export const infoMap = {
@@ -23,6 +24,7 @@ export const infoMap = {
   "Brian's Brain": "brain-info",
   Wireworld: "wire-info",
   "Rock, Paper, Scissors": "rps-info",
+  "Neural CA": "neural-info",
 }; //! Maps each automata name to the id of its info content
 
 export const settingsMap = {
@@ -32,6 +34,7 @@ export const settingsMap = {
   "Brian's Brain": "brain-settings",
   Wireworld: "wire-settings",
   "Rock, Paper, Scissors": "rps-settings",
+  "Neural CA": "neural-settings",
 }; //! This maps each automata name to the id of its info content
 
 // Setter functions
@@ -50,6 +53,7 @@ export function setCellSize(size) {
   automata.cols = newCols;
   setConsoleText(`Cell Size set to: ${cellSize}`);
   automata.drawGrid();
+  automata.drawCursor();
 }
 
 export function setFillRadius(radius) {
