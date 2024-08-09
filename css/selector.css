@@ -25,6 +25,7 @@
   display: block;
   height: var(--toolbar-height);
   cursor: pointer;
+  font-size: 0.9em;
 }
 
 .selected {

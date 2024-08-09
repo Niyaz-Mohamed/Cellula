@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, height=device-height" />
     <title>Cellula</title>
     <!--Base for github pages-->
     <base href="./" target="_blank" />
@@ -15,14 +15,16 @@
     <link rel="stylesheet" href="./css/selector.css" />
     <link rel="stylesheet" href="./css/settings.css" />
     <!--GPU.js CDN-->
-    <script src="https://cdn.jsdelivr.net/npm/gpu.js@2.10.1/dist/gpu-browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gpu.js@2.10.1/dist/gpu-browser.min.js" defer></script>
     <!--Pixelify Sans Font-->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet" />
-    <script>
-        let FFOUC_FIX;
-    </script>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap"
+        as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap"
+            rel="stylesheet" />
+    </noscript>
 </head>
 
 <body>
