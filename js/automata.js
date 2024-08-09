@@ -58,8 +58,6 @@ function resizeCanvas() {
   automata.cols = newCols;
   automata.drawGrid();
 }
-
-// Add event listener for window resize
 window.addEventListener("resize", resizeCanvas);
 
 //! Define types of automata
@@ -189,7 +187,8 @@ export class Automata {
       if (x >= 0 && x < this.grid[0].length && y >= 0 && y < this.grid.length)
         this.grid[y][x] = this.penState;
     }
-    window.requestAnimationFrame(() => this.drawGrid());
+
+    if (paused) window.requestAnimationFrame(() => this.drawGrid());
   }
 
   // TODO: Override for automata with >2 states
@@ -329,13 +328,14 @@ export class LifeLikeAutomata extends Automata {
   // Override getting next state
   getNextState() {
     // Reset constants
-    this.gridUpdateKernel.setConstants({
-      rows: this.rows,
-      cols: this.cols,
-      neighborhoodSize: this.neighborhood.length,
-      rulesSize: Math.max(this.birthRules.length, this.surviveRules.length),
-    });
-    this.gridUpdateKernel.setOutput([this.cols, this.rows]);
+    this.gridUpdateKernel
+      .setConstants({
+        rows: this.rows,
+        cols: this.cols,
+        neighborhoodSize: this.neighborhood.length,
+        rulesSize: Math.max(this.birthRules.length, this.surviveRules.length),
+      })
+      .setOutput([this.cols, this.rows]);
 
     // Call the kernel
     const maxRules = Math.max(this.birthRules.length, this.surviveRules.length);
@@ -543,7 +543,6 @@ export class ElementaryCA extends Automata {
   // Override calculating the next grid state
   getNextState() {
     let newGrid = this.grid.map((row) => row.slice());
-    const calcColOffset = (x) => (x + this.cols) % this.cols;
 
     // Iterate through the grid
     for (let y = 0; y < this.rows; y++) {
@@ -699,12 +698,14 @@ export class BriansBrain extends Automata {
   // Override calculating the next grid state
   getNextState() {
     // Reset constants
-    this.gridUpdateKernel.setConstants({
-      rows: this.rows,
-      cols: this.cols,
-      neighborhoodSize: this.neighborhood.length,
-      ruleSize: this.birthRules.length,
-    });
+    this.gridUpdateKernel
+      .setConstants({
+        rows: this.rows,
+        cols: this.cols,
+        neighborhoodSize: this.neighborhood.length,
+        ruleSize: this.birthRules.length,
+      })
+      .setOutput([this.cols, this.rows]);
     // Call kernel
     return this.gridUpdateKernel(this.grid, this.neighborhood, this.birthRules);
   }
@@ -1026,11 +1027,13 @@ export class RPSGame extends Automata {
 
   // Override calculating the next grid state
   getNextState() {
-    this.gridUpdateKernel.setConstants({
-      rows: this.rows,
-      cols: this.cols,
-      neighborhoodSize: this.neighborhood.length,
-    });
+    this.gridUpdateKernel
+      .setConstants({
+        rows: this.rows,
+        cols: this.cols,
+        neighborhoodSize: this.neighborhood.length,
+      })
+      .setOutput([this.cols, this.rows]);
     return this.gridUpdateKernel(
       this.grid,
       this.neighborhood,
