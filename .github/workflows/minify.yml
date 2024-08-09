@@ -1,0 +1,44 @@
+# This workflow is triggered by a push to the `main` branch
+# which it checks out, minimises the appropriate html/css/js
+# in-place, and pushes the changes to the `gh-pages` branch
+
+name: Minify
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  checkout-minify-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Minification Tools
+        run: |
+          npm install -g terser csso-cli html-minifier-terser
+
+      - name: Minify HTML, CSS, and JS
+        run: |
+          # Minify HTML files
+          find . -name "*.html" -exec html-minifier-terser --collapse-whitespace --remove-comments --minify-js true --minify-css true --output {}.min {} \;
+          find . -name "*.html.min" -exec bash -c 'mv "$0" "${0%.min}"' {} \;
+
+          # Minify CSS files
+          find . -name "*.css" -exec csso --output {} {} \;
+
+          # Minify JavaScript files
+          find . -name "*.js" -exec terser --compress --mangle --output {} -- {} \;
+
+      - name: Deploy to gh-pages
+        run: |
+          git checkout --orphan gh-pages
+          git reset
+          git add -f .
+          git commit -m "Deploy minified files to gh-pages"
+          git push -f origin gh-pages
+
+      - name: Return to main
+        run: git checkout main
