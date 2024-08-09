@@ -1,10 +1,10 @@
 // Call drawGrid to update when changes occur, register drawGrid in main
 import { automata } from "../automata.js";
-import { setConsoleText } from "../utils.js";
+import { reshape2DArray, setConsoleText } from "../utils.js";
 
 // Main settings to control behavior of automata
 export let cellSize = 3;
-export let fillRadius = 4;
+export let fillRadius = 3;
 export let paused = false;
 export let backgroundColor = [21, 25, 31]; // #15191f (rich black)
 
@@ -37,6 +37,19 @@ export const settingsMap = {
 // Setter functions
 export function setCellSize(size) {
   cellSize = size;
+  // Reshape the grid
+  const newRows = Math.floor(window.innerHeight / cellSize);
+  const newCols = Math.floor(window.innerWidth / cellSize);
+  automata.grid = reshape2DArray(
+    automata.grid,
+    newRows > 0 ? newRows : 1,
+    newCols > 0 ? newCols : 1,
+    automata.baseState ? automata.baseState : 0
+  );
+  automata.rows = newRows;
+  automata.cols = newCols;
+  setConsoleText(`Cell Size set to: ${cellSize}`);
+  automata.drawGrid();
 }
 
 export function setFillRadius(radius) {

@@ -26,6 +26,7 @@
 </head>
 
 <body>
+    <!--! Toolbar -->
     <div id="toolbar">
         <p id="app-title">Cellula</p>
         <!--Automata window trigger-->
@@ -70,6 +71,18 @@
                 <button class="dropdown-option">
                     <span class="option-name">Randomize Grid</span>
                     <span class="option-shortcut">Tab/R</span>
+                </button>
+                <button class="dropdown-option">
+                    <span class="option-name">Clear Grid</span>
+                    <span class="option-shortcut">Backspace</span>
+                </button>
+                <button class="dropdown-option">
+                    <span class="option-name">Increase Cell Size</span>
+                    <span class="option-shortcut">e</span>
+                </button>
+                <button class="dropdown-option">
+                    <span class="option-name">Decrease Cell Size</span>
+                    <span class="option-shortcut">q</span>
                 </button>
                 <p>Pen</p>
                 <button class="dropdown-option">
@@ -399,7 +412,6 @@
     <canvas id="cellGrid"></canvas>
     <script type="module" src="./js/automata.js"></script>
     <script type="module" src="./js/inputs/userInput.js"></script>
-    <script type="module" src="./js/inputs/selector.js"></script>
     <script type="module" src="./js/inputs/settings.js"></script>
 </body>
 

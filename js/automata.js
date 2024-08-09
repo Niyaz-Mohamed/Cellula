@@ -5,7 +5,7 @@ import {
   fillRadius,
   paused,
   setFillRadius,
-} from "./inputs/controls.js";
+} from "./inputs/config.js";
 import {
   fillCircle,
   getConsoleText,
@@ -1094,13 +1094,20 @@ export class RPSGame extends Automata {
 //! Intialize and trigger automata class
 export let automata = new LifeLikeAutomata(); // Automata Definition
 export function setAutomata(newAutomataName, args = [], grid = null) {
+  // Recast Elementary CA
+  if (automata instanceof ElementaryCA) {
+    automata.grid = automata.grid.map((row) =>
+      row.map((cell) => (cell === 2 ? 0 : cell))
+    );
+    setFillRadius(3);
+  }
+
   let oldGrid;
   if (!grid) {
     oldGrid = automata.grid;
   } else {
     oldGrid = grid;
   }
-  setFillRadius(3);
 
   // Change automata class
   switch (newAutomataName) {
@@ -1139,7 +1146,10 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
       break;
     case "Wireworld":
       automata = new WireWorld(...args);
-      if (grid) automata.grid = grid;
+      // Convert non 0/1 cells to 1
+      automata.grid = oldGrid.map((row) =>
+        row.map((state) => ([0, 1, 2, 3].includes(state) ? state : 0))
+      );
       setConsoleText("Changed automata to Wireworld");
       break;
     case "Rock, Paper, Scissors":
@@ -1155,7 +1165,7 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
   }
   automata.drawGrid();
   automata.drawCursor();
-  // if (!paused) changePaused();
   automata.updateGrid();
+  if (!paused) changePaused();
 }
 automata.updateGrid();

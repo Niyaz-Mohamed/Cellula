@@ -6,7 +6,8 @@ import {
   changePaused,
   fillRadius,
   setFillRadius,
-} from "./controls.js";
+  setCellSize,
+} from "./config.js";
 
 export let mouseX = 0;
 export let mouseY = 0;
@@ -51,8 +52,7 @@ export function registerCanvasCallbacks(ctx) {
   });
 }
 
-//! DRAGGEABLE WINDOW FUNCTIONS
-
+//! DRAGGEABLE WINDOWS
 // Trigger window dragging for all draggable windows
 document.querySelectorAll(".window").forEach((element) => {
   triggerDragElement(element);
@@ -157,6 +157,16 @@ function handleAction(action) {
       setFillRadius(fillRadius - 1 < -1 ? -1 : fillRadius - 1);
       break;
 
+    // Controls for cellsize changes
+    case "e":
+    case "Higher Cell Size":
+      setCellSize(cellSize + 1);
+      break;
+    case "q":
+    case "Lower Cell Size":
+      setCellSize(cellSize - 1 < 1 ? 1 : cellSize - 1);
+      break;
+
     // Controls for pausing
     case " ":
     case "p":
@@ -170,6 +180,20 @@ function handleAction(action) {
     case "Randomize Grid":
       automata.randomize();
       setConsoleText("Randomized Grid");
+      break;
+
+    // Controls for grid clearing
+    case "Backspace":
+    case "Clear Grid":
+      automata.grid = new Array(automata.rows)
+        .fill(null)
+        .map((_) =>
+          new Array(automata.cols).fill(
+            automata.baseState ? automata.baseState : 0
+          )
+        );
+      automata.drawGrid();
+      setConsoleText("Cleared Grid");
       break;
 
     // Controls for swapping pen fill
