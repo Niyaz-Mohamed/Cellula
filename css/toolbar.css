@@ -1,0 +1,8 @@
+/*! Title to left of tabbar */
+#app-title{background-color:var(--theme-color);color:var(--bg-color)}
+/*! Console */
+#console-container{padding:0 10px;float:none;overflow:hidden;font-size:1em;text-align:left}
+/*! Dropdown Boilerplate */
+.dropdown{padding:0!important;width:5%;min-width:100px}.dropbtn{padding:0}.dropdown-content{display:none;position:absolute;min-width:160px;background-color:var(--bg-color);border:3px solid var(--theme-color);border-top:0;z-index:1}.dropdown-content p{padding:0 10px;margin:0}.dropdown-option{display:block;height:var(--toolbar-height);padding:0 10px;cursor:pointer}.option-name,.option-shortcut{line-height:var(--toolbar-height)}.option-name{float:left;margin-right:5px}.option-shortcut{float:right;opacity:.5}.dropdown-content p,.dropdown-option:hover{background-color:var(--highlight-color)}.dropdown:hover .dropdown-content{display:block}.dropdown:hover{background-color:var(--theme-color)}.dropdown:hover .dropbtn{color:var(--bg-color)}
+/*! Trigger Boilerplate */
+.triggerbtn{cursor:pointer}
