@@ -1070,7 +1070,7 @@ export class RPSGame extends Automata {
     setConsoleText(
       `Updated pen to draw ${stateNames[this.penState]} [${this.penState}]`
     );
-    this.requestAnimationFrame(() => this.drawCursor());
+    window.requestAnimationFrame(() => this.drawCursor());
   }
 
   // Override get pen color
@@ -1105,7 +1105,8 @@ export class NeuralCA extends Automata {
       [0.68, -0.9, 0.68],
       [-0.9, -0.66, -0.9],
       [0.68, -0.9, 0.68],
-    ]
+    ],
+    activation = (x) => -(1 / Math.pow(2, 0.6 * Math.pow(x, 2))) + 1 // Inverse Gaussian
   ) {
     super();
     // Set frameskips to true
@@ -1117,6 +1118,19 @@ export class NeuralCA extends Automata {
       weights.flat().length == neighborhood.flat().length / 2
         ? weights
         : reshape2DArray(weights, neighborhood.length, neighborhood[0].length);
+    this.activation = activation;
+    // Switch up colors to make the sim more interesting
+    this.maskOptions = [
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1],
+      [1, 1, 0],
+      [1, 0, 1],
+      [0, 1, 1],
+      [1, 1, 1],
+    ];
+    this.fillMap =
+      this.maskOptions[Math.floor(Math.random() * this.maskOptions.length)]; // Color mask for stateColor
 
     // Implement GPU kernel to update grid
     this.gridUpdateKernel = this.gpu
@@ -1156,9 +1170,6 @@ export class NeuralCA extends Automata {
 
   // Override getting next state
   getNextState() {
-    // TODO: Set proper activation functions
-    let activation = (x) => -(1 / Math.pow(2, 0.6 * Math.pow(x, 2))) + 1; // Inverse Gaussian
-
     // Reset constants
     this.gridUpdateKernel
       .setConstants({
@@ -1174,7 +1185,7 @@ export class NeuralCA extends Automata {
           this.grid,
           this.neighborhood,
           this.weights.flat(),
-          activation
+          this.activation
         )
       : this.grid;
     // Call the kernel
@@ -1182,17 +1193,22 @@ export class NeuralCA extends Automata {
       newGrid,
       this.neighborhood,
       this.weights.flat(),
-      activation
+      this.activation
     );
   }
 
   // Calculate color required by a specific state as rgb value
   stateColor(state) {
-    return [Math.floor(state * 255), 0, 0];
+    let intensity = Math.floor(state * 255);
+    return this.fillMap.map((mask) => (mask == 1 ? intensity : 0));
   }
 
   // Override randomizing the grid
   randomize() {
+    // Randomize color
+    this.fillMap =
+      this.maskOptions[Math.floor(Math.random() * this.maskOptions.length)];
+    // Randomize Grid
     this.grid = new Array(this.rows)
       .fill(null)
       .map(() =>
@@ -1207,7 +1223,7 @@ export class NeuralCA extends Automata {
   saveData() {
     const automataData = {
       name: "Neural",
-      args: [this.ruleString, this.neighborhood],
+      args: [this.neighborhood, this.weights, this.activation],
       grid: this.grid.map((arr) => Array.from(arr)),
     };
     downloadObjectAsJSON(automataData, "neural.json");

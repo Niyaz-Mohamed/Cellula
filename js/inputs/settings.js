@@ -325,12 +325,54 @@ document
     }
   });
 
+// Handle changes in state
 document.getElementById("rps-state-select").selectedIndex = 0;
 document.getElementById("rps-state-select").onchange = (event) => {
   automata.stateCount = Number(event.target.value);
 };
 
 //! Neural CA Rules
+document.getElementById("neural-randomize").onclick = (_) => {
+  const settingsContainer = document.getElementById("neural-settings");
+  const rows = parseInt(settingsContainer.querySelector(".row-select").value);
+  const cols = parseInt(
+    settingsContainer.querySelector(".column-select").value
+  );
+
+  // Get random weights
+  let randomWeights = new Array(rows)
+    .fill(null)
+    .map((_) =>
+      new Array(cols)
+        .fill(null)
+        .map((_) => Number((Math.random() * 2 - 1).toFixed(4)))
+    );
+
+  // Populate the grid
+  automata.weights = randomWeights;
+  createGrid(settingsContainer.id);
+  automata.randomize();
+};
+
+// Handle changes in activation
+const activationSelector = document.getElementById("neural-activation-select");
+activationSelector.selectedIndex = activationSelector.options.length - 1;
+activationSelector.onchange = (event) => {
+  setActivation(event.target.value);
+};
+
+function setActivation(type, args = []) {
+  const funcMap = {
+    identity: (x) => x,
+    power: (x) => Math.pow(x, 2),
+    absolute: (x) => Math.abs(x),
+    tanh: (x) => (Math.exp(2 * x) - 1) / (Math.exp(2 * x) + 1),
+    "inverse-gaussian": (x) => -(1 / Math.pow(2, 0.6 * Math.pow(x, 2))) + 1,
+  };
+  automata.activation = funcMap[type];
+}
+
+// Handle changes in skip frame
 document
   .getElementById("neural-skip-input")
   .addEventListener("input", function (_) {

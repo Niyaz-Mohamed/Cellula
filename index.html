@@ -417,11 +417,6 @@
             </div>
             <!--Settings for Neural CA-->
             <div id="neural-settings" class="automata-settings">
-                <div class="rule-div horizontal-rule">
-                    <label for="neural-skip-input">Skip Frames</label>
-                    <input type="checkbox" id="neural-skip-input">
-                </div>
-                <!--TODO: Add proper grid-->
                 <div class="rule-div">
                     <label>Cell Weights</label>
                     <p class="desc">Select the weight of each cell to be used in convolution.</p>
@@ -437,6 +432,22 @@
                     </div>
                 </div>
                 <div class="neighbor-grid"></div>
+                <button id="neural-randomize">Randomize</button>
+                <div class="rule-div horizontal-rule">
+                    <label for="neural-skip-input">Skip Frames</label>
+                    <input type="checkbox" id="neural-skip-input">
+                </div>
+                <div class="rule-div">
+                    <label for="neural-activation-select">Activation Function</label>
+                    <p class="desc">Activation Function applied after each convolution</p>
+                    <select id="neural-activation-select">
+                        <option value="identity">Identity</option>
+                        <option value="power">Power</option>
+                        <option value="absolute">Absolute</option>
+                        <option value="tanh">tanh</option>
+                        <option value="inverse-gaussian" selected>Inverse Gaussian</option>
+                    </select>
+                </div>
             </div>
         </div>
     </div>

@@ -168,3 +168,14 @@ input[type="checkbox"]:disabled {
   background-color: var(--center-cell-color) !important;
   border: 3px solid var(--center-cell-color);
 }
+
+#neural-randomize {
+  height: var(--toolbar-height);
+  border: 3px solid var(--theme-color);
+}
+
+#neural-randomize:hover {
+  background-color: var(--theme-color);
+  color: var(--bg-color);
+  cursor: pointer;
+}
