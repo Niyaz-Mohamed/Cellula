@@ -1241,11 +1241,11 @@ export class NeuralCA extends Automata {
     return stateColors[this.penState];
   }
 
-  //TODO: Override downloading the data
+  // Override downloading the data
   saveData() {
     const automataData = {
-      name: "Neural",
-      args: [this.neighborhood, this.weights, this.activation],
+      name: "Neural CA",
+      args: [this.neighborhood, this.weights], // Ignore activation as it cannot be saved in JSON
       grid: this.grid.map((arr) => Array.from(arr)),
     };
     downloadObjectAsJSON(automataData, "neural.json");
@@ -1348,3 +1348,7 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
   if (!paused) changePaused();
 }
 automata.updateGrid();
+
+// TODO: Is there a better way to present this?
+//! Track FPS
+setInterval(() => console.log("Current FPS is " + automata.fps), 5000);
