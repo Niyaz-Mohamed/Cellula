@@ -1,4 +1,4 @@
-import { automata, setAutomata } from "../automata.js";
+import { automata, NeuralCA, setAutomata } from "../automata.js";
 import { getConsoleText, reshape2DArray, setConsoleText } from "../utils.js";
 import { infoMap, nameMap, settingsMap } from "./config.js";
 
@@ -6,7 +6,10 @@ import { infoMap, nameMap, settingsMap } from "./config.js";
 document.querySelectorAll(".select-btn").forEach((button) => {
   button.addEventListener("click", function () {
     if (!this.classList.contains("selected")) {
-      // Reassign the selected class
+      // Update automata to new class chosen
+      setAutomata(this.innerHTML);
+
+      // Ensure the select button shows that the automata is selected
       document
         .querySelectorAll(".select-btn")
         .forEach((btn) => btn.classList.remove("selected"));
@@ -14,8 +17,6 @@ document.querySelectorAll(".select-btn").forEach((button) => {
 
       // Update info & settings panels, and also automata select button
       updateAutomataSelect(this.innerHTML);
-      // Update automata to new class chosen
-      setAutomata(this.innerHTML);
     }
   });
 });
@@ -37,6 +38,7 @@ export function updateAutomataSelect(automataName) {
     .querySelectorAll(".automata-settings")
     .forEach((setting) => (setting.style.display = "none"));
   document.getElementById(settingsMap[automataName]).style.display = "block";
+  createGrid(settingsMap[automataName]);
 }
 
 //! Neighborhood selectors
@@ -76,30 +78,46 @@ function createGrid(automataSettingsId) {
   const centerRow = Math.floor(rows / 2);
   const centerColumn = Math.floor(columns / 2);
   const currentNeighborhood = automata.neighborhood;
+  // For neural CA only
+  const isNeural = automata instanceof NeuralCA;
+  const currentWeights = automata.weights ? automata.weights : []; // For Neural CA only
+
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < columns; j++) {
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.dataset.row = i - centerRow;
-      checkbox.dataset.column = j - centerColumn;
-      checkbox.addEventListener("change", updateNeighborhood);
+      if (isNeural) {
+        // Create numerical input for neural automata
+        const numInput = document.createElement("input");
+        numInput.type = "number";
+        numInput.dataset.row = i - centerRow;
+        numInput.dataset.column = j - centerColumn;
+        numInput.addEventListener("change", () => {});
 
-      // Check cells already in neighborhood (using JSON strings)
-      if (
-        JSON.stringify(currentNeighborhood).indexOf(
-          JSON.stringify([j - centerColumn, i - centerRow])
-        ) != -1
-      ) {
-        checkbox.checked = true;
+        //TODO: Do up the rest of this portion
+      } else {
+        // Create checkbox for non-neural automata
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.dataset.row = i - centerRow;
+        checkbox.dataset.column = j - centerColumn;
+        checkbox.addEventListener("change", updateNeighborhood);
+
+        // Check cells already in neighborhood (using JSON strings)
+        if (
+          JSON.stringify(currentNeighborhood).indexOf(
+            JSON.stringify([j - centerColumn, i - centerRow])
+          ) != -1
+        ) {
+          checkbox.checked = true;
+        }
+
+        // Set the middle cell as the center reference cell
+        if (i === centerRow && j === centerColumn) {
+          checkbox.checked = false;
+          checkbox.disabled = true; // Apply css to this disabled box
+        }
+
+        grid.appendChild(checkbox);
       }
-
-      // Set the middle cell as the center reference cell
-      if (i === centerRow && j === centerColumn) {
-        checkbox.checked = false;
-        checkbox.disabled = true; // Apply css to this disabled box
-      }
-
-      grid.appendChild(checkbox);
     }
   }
 }
@@ -251,3 +269,10 @@ document.getElementById("rps-state-select").selectedIndex = 0;
 document.getElementById("rps-state-select").onchange = (event) => {
   automata.stateCount = Number(event.target.value);
 };
+
+//! Neural CA Rules
+document
+  .getElementById("neural-skip-input")
+  .addEventListener("input", function (_) {
+    automata.skipFrames = document.getElementById("neural-skip-input").checked;
+  });

@@ -1108,6 +1108,7 @@ export class NeuralCA extends Automata {
         : new Array(3)
             .fill(null)
             .map((_) => new Array(3).map((_) => Math.random()));
+    this.skipFrames = document.getElementById("neural-skip-input").checked;
 
     // TODO: Remove this once testing is done
     this.weights = [
@@ -1152,6 +1153,9 @@ export class NeuralCA extends Automata {
 
   // Override getting next state
   getNextState() {
+    // TODO: Set proper activation functions
+    let activation = (x) => -(1 / Math.pow(2, 0.6 * Math.pow(x, 2))) + 1; // Inverse Gaussian
+
     // Reset constants
     this.gridUpdateKernel
       .setConstants({
@@ -1160,12 +1164,12 @@ export class NeuralCA extends Automata {
       })
       .setOutput([this.cols, this.rows]);
 
+    // Double call kernel if skipping frames
+    const newGrid = this.skipFrames
+      ? this.gridUpdateKernel(this.grid, this.weights, activation)
+      : this.grid;
     // Call the kernel
-    return this.gridUpdateKernel(
-      this.grid,
-      this.weights,
-      (x) => -(1 / Math.pow(2, 0.6 * Math.pow(x, 2))) + 1
-    );
+    return this.gridUpdateKernel(newGrid, this.weights, activation);
   }
 
   // Calculate color required by a specific state as rgb value

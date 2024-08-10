@@ -79,7 +79,9 @@
                 </button>
                 <button class="dropdown-option">
                     <span class="option-name">Clear Grid</span>
-                    <span class="option-shortcut">Backspace</span>
+                    <span class="option-shortcut">
+                        \
+                    </span>
                 </button>
                 <button class="dropdown-option">
                     <span class="option-name">Increase Cell Size</span>
@@ -415,7 +417,26 @@
             </div>
             <!--Settings for Neural CA-->
             <div id="neural-settings" class="automata-settings">
-                <p>No settings available for Neural CA yet</p>
+                <div class="rule-div horizontal-rule">
+                    <label for="neural-skip-input">Skip Frames</label>
+                    <input type="checkbox" id="neural-skip-input">
+                </div>
+                <!--TODO: Add proper grid-->
+                <div class="rule-div">
+                    <label>Cell Weights</label>
+                    <p class="desc">Select the weight of each cell to be used in convolution.</p>
+                    <div class="grid-size-selector">
+                        <div>
+                            <label for="life-rows">Rows:</label>
+                            <input type="number" id="life-rows" class="row-select" value="3">
+                        </div>
+                        <div>
+                            <label for="life-columns">Columns:</label>
+                            <input type="number" id="life-columns" class="column-select" value="3">
+                        </div>
+                    </div>
+                </div>
+                <div class="neighbor-grid"></div>
             </div>
         </div>
     </div>

@@ -4,6 +4,7 @@
   text-align: center;
   top: 5vh;
   min-width: 200px;
+  max-width: 450px;
   font-size: 0.9em;
   color: var(--theme-color);
   background-color: var(--bg-color);
@@ -40,7 +41,7 @@
   display: flex;
   width: 100%;
   min-width: fit-content;
-  max-width: 30vw;
+  max-width: 450px;
   max-height: 50vh;
   background-color: transparent;
   overflow: hidden;

@@ -183,7 +183,7 @@ function handleAction(action) {
       break;
 
     // Controls for grid clearing
-    case "Backspace":
+    case "\\":
     case "Clear Grid":
       automata.grid = new Array(automata.rows)
         .fill(null)

@@ -3,7 +3,7 @@ import { automata } from "../automata.js";
 import { reshape2DArray, setConsoleText } from "../utils.js";
 
 // Main settings to control behavior of automata
-export let cellSize = 3;
+export let cellSize = 2;
 export let fillRadius = 3;
 export let paused = false;
 export let backgroundColor = [21, 25, 31]; // #15191f (rich black)

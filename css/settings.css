@@ -1,13 +1,13 @@
 /* Window sizing */
 #settings {
-  max-width: 25vw;
+  max-width: 25vw !important;
   min-width: 250px;
 }
 
 #settings-window-content {
   padding: 10px 20px;
   overflow-y: scroll;
-  font-size: 1.1em !important;
+  font-size: 1em;
   text-align: left;
 }
 
@@ -20,9 +20,14 @@
   margin-top: 0px;
 }
 
+.automata-settings p {
+  margin: 5px;
+}
+
 .rule-div {
   margin-top: 20px;
   position: relative;
+  height: fit-content;
 }
 
 .rule-div > * {
@@ -39,11 +44,23 @@
 .rule-div .desc {
   opacity: 0.5;
   margin-top: 5px;
+  margin-left: 0px;
   font-size: 0.8em;
 }
 
 .automata-settings {
   display: none;
+}
+
+.horizontal-rule {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.horizontal-rule label {
+  width: fit-content;
+  margin-right: 15px;
 }
 
 /* Neighborhood Selectors */
@@ -54,12 +71,13 @@
 
 .grid-size-selector div {
   width: 50%;
-  padding: 5px;
+  padding: 1px;
 }
 
 .grid-size-selector label {
   display: block;
   margin-bottom: 5px;
+  text-decoration: none;
 }
 
 .grid-size-selector input[type="number"] {
@@ -79,6 +97,8 @@
   text-align: center;
 }
 
+/* Checkbox Stylings */
+
 .neighbor-grid input[type="checkbox"] {
   width: 100%;
   height: 100%;
@@ -87,10 +107,9 @@
   accent-color: var(--theme-color);
   appearance: none;
   -webkit-appearance: none;
-  display: flex;
   align-items: center;
   justify-content: center;
-  border: 3px solid var(--theme-color);
+  border: 3px solid var(--theme-color) !important;
   border-radius: 5px;
 }
 
@@ -108,6 +127,15 @@ input[type="checkbox"]:checked:hover {
 
 input[type="checkbox"]:disabled {
   background-color: rgb(255, 129, 129);
-  border: none;
+  border: none !important;
   cursor: not-allowed;
+}
+
+.rule-div input[type="checkbox"] {
+  height: 20px;
+  width: 22.75px;
+  text-decoration: none;
+  border: 3px solid var(--theme-color);
+  margin: 0px;
+  border-radius: 5px;
 }
