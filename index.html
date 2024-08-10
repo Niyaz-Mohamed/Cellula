@@ -294,22 +294,30 @@
             <!--Content for Neural CA-->
             <div id="neural-info" class="side-content">
                 <h1>Game of Life</h1>
-                <img src="./images/" alt="Neural GIF">
+                <img src="./images/Neural.webp" alt="Neural GIF">
                 <h2>Description</h2>
                 <p>
-                    Continuous generalised CA
+                    Neural Cellular Automata are based on neural networks, and they involve a convolution (summing up
+                    the values of neighboring cells multiplied by the weight of each cell), and then an activation (a
+                    mathematical function applied to the value of a cell calculated after convolution). Interestingly,
+                    neural CA can be trained to regenerate images even when portions of them are taken away, as seen in
+                    <a href="https://distill.pub/2020/growing-ca/">this Neural CA simulator</a>.
                 </p>
+                <p>While making such neural automata involves training on the image, we will instead use random weights
+                    and activations in an attempt to find interesting patterns. Credit to <a
+                        href="https://www.youtube.com/watch?v=3H79ZcBuw4M">Emergent Garden on Youtube</a>, who provided
+                    the idea for this automata.</p>
                 <h2>Rules</h2>
-                <p>Does the following:</p>
+                <p>For each timestep, each cell undergoes a convolution, and then an activation.</p>
                 <ul>
-                    <li>Performs a convolution</li>
-                    <li>Then an activation</li>
+                    <li>First, the new value of a cell is calculated via a convolution with its neighbors. The value of
+                        each neighbor is multiplied by the neighbor's weight and then summed up to give the new value.
+                    </li>
+                    <li>Then an activation occurs, wherein a mathematical function is applied to the new value to give
+                        rise to more complex behavior. This can be functions like the identity (x maps to x) or power (x
+                        maps to x squared), or other more complex functions.</li>
+                    <li>Values lower than 0 or 1 are clipped back into the range.</li>
                 </ul>
-                <h2>Additional Info</h2>
-                <p>For more detail on this topic, watch this explanation video <a
-                        href="https://conwaylife.com/wiki/Rulestring">on Aeural CA</a>. The author of the video has also
-                    made a more efficient simulation
-                </p>
             </div>
         </div>
     </div>

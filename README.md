@@ -1,6 +1,6 @@
 # Cellula
 
-![Thumbnail](images/README/Thumbnail.gif)
+![Thumbnail](images/README/Thumbnail/Thumbnail.gif)
 
 An online cellular automata playground for lifelike cellular automata. Built with pure HTML, CSS and JS, with hardware acceleration using GPU.js. Visit the website [here](https://niyaz-mohamed.github.io/Cellula/).
 
@@ -18,10 +18,11 @@ Usage of the website is simple and instructions are provided in the console at t
 
 ## Future Development
 
-I intend to develop this project further in the future by implementing [neural cellular automata](https://www.youtube.com/watch?v=3H79ZcBuw4M&list=WL&index=1) (Credit to Emergent Garden) and [multiple neighborhood cellular automata](https://slackermanz.com/understanding-multiple-neighborhood-cellular-automata/) (Credit to Slackermanz), which tend to display more complex behaviors and tend to form stable solitons. Other simple automata like elementary automata and Langton's ant may also be added.
+I intend to develop this project further in the future by implementing [multiple neighborhood cellular automata](https://slackermanz.com/understanding-multiple-neighborhood-cellular-automata/) (Credit to Slackermanz), which tend to display more complex behaviors and tend to form stable solitons.
 
 ## Gallery
 
-| ![Game of Life](images/Life.webp)   | ![Brian's Brain](images/BrianBrain.webp) |
-| ----------------------------------- | ---------------------------------------- |
-| ![Wireworld](images/Wireworld.webp) | ![Rock Paper Scissors](images/RPS.webp)  |
+| ![Game of Life](images/Life.webp)    | ![Brian's Brain](images/BrianBrain.webp)   |
+| ------------------------------------ | ------------------------------------------ |
+| ![Wireworld](images/Wireworld.webp)  | ![Rock Paper Scissors](images/RPS.webp)    |
+| ![Wireworld](images/Elementary.webp) | ![Rock Paper Scissors](images/Neural.webp) |

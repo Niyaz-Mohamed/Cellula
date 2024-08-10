@@ -17,5 +17,12 @@ def create_gif(image_paths, output_path, duration_per_frame):
     )
 
 
-image_files = ["Life.png", "Brain.png", "Wireworld.png", "RPS.png"]
+image_files = [
+    "Life.png",
+    "Brain.png",
+    "Elementary.png",
+    "Wireworld.png",
+    "RPS.png",
+    "Neural.png",
+]
 create_gif(image_files, "Thumbnail.gif", 1)

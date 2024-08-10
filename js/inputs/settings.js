@@ -340,14 +340,17 @@ document.getElementById("neural-randomize").onclick = (_) => {
     settingsContainer.querySelector(".column-select").value
   );
 
+  function randomWeight() {
+    let randWeight = (Math.random() * 2 - 1).toFixed(4);
+    if (randWeight < 0 && Math.random() < 0.1)
+      randWeight = Math.abs(randWeight); // Force more positive weights
+    return randWeight;
+  }
+
   // Get random weights
   let randomWeights = new Array(rows)
     .fill(null)
-    .map((_) =>
-      new Array(cols)
-        .fill(null)
-        .map((_) => Number((Math.random() * 2 - 1).toFixed(4)))
-    );
+    .map((_) => new Array(cols).fill(null).map((_) => Number(randomWeight())));
 
   // Populate the grid
   automata.weights = randomWeights;

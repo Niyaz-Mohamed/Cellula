@@ -74,6 +74,10 @@ export class Automata {
     this.neighborhood = mooreNeighborhood();
     // Cell state that pen draws
     this.penState = 1;
+    // Keeping track of grid draws for timing purposes
+    this.lastDraw = Date.now();
+    this.drawTimes = [];
+    this.fps = 0;
     // Create GPU, account for issues in chrome
     function initGPU() {
       try {
@@ -115,6 +119,14 @@ export class Automata {
     // Apply the imageData to the canvas
     this.gridImageData = imageData;
     ctx.putImageData(this.gridImageData, 0, 0);
+
+    // Update draw times
+    this.drawTimes.push(Date.now() - this.lastDraw);
+    this.lastDraw = Date.now();
+    this.drawTimes = this.drawTimes.slice(0, 10);
+    const aveDrawTime =
+      this.drawTimes.reduce((a, b) => a + b) / this.drawTimes.length;
+    this.fps = Math.round(1000 / aveDrawTime);
   }
 
   // Draw the cursor only when requried
@@ -1213,7 +1225,7 @@ export class NeuralCA extends Automata {
       .map(() =>
         new Array(this.cols)
           .fill(null)
-          .map((_) => Math.max(0, Math.min(1, gaussianRandom(0.3, 0.1))))
+          .map((_) => Math.max(0, Math.min(1, gaussianRandom(0.5, 0.3))))
       );
     this.drawCursor();
     window.requestAnimationFrame(() => this.drawGrid());
@@ -1264,7 +1276,9 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
       automata = new LifeLikeAutomata(...args);
       // Convert non 0/1 cells to 1
       automata.grid = oldGrid.map((row) =>
-        row.map((state) => ([0, 1].includes(state) ? state : 1))
+        row.map((state) =>
+          [0, 1].includes(Math.round(state)) ? Math.round(state) : 1
+        )
       );
       setConsoleText("Changed automata to life-like");
       break;
@@ -1272,7 +1286,9 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
       automata = new LangtonsAnt(...args);
       // Convert non 0/1 cells to 1
       automata.grid = oldGrid.map((row) =>
-        row.map((state) => ([0, 1].includes(state) ? state : 1))
+        row.map((state) =>
+          [0, 1].includes(Math.round(state)) ? Math.round(state) : 1
+        )
       );
       setConsoleText("Changed automata to Langton's Ant");
       break;
@@ -1280,7 +1296,7 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
       automata = new ElementaryCA(...args);
       // Convert non 0/1 cells to 1
       automata.grid = oldGrid.map((row) =>
-        row.map((state) => (state == 1 ? state : 2))
+        row.map((state) => (Math.round(state) == 1 ? Math.round(state) : 2))
       );
       setFillRadius(0);
       setConsoleText("Changed automata to Elementary CA");
@@ -1289,7 +1305,9 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
       automata = new BriansBrain(...args);
       // Convert non 0/1/2 cells to 1
       automata.grid = oldGrid.map((row) =>
-        row.map((state) => ([0, 1, 2].includes(state) ? state : 1))
+        row.map((state) =>
+          [0, 1, 2].includes(Math.round(state)) ? Math.round(state) : 1
+        )
       );
       setConsoleText("Changed automata to Brian's Brain");
       break;
@@ -1297,7 +1315,9 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
       automata = new WireWorld(...args);
       // Convert non 0/1 cells to 1
       automata.grid = oldGrid.map((row) =>
-        row.map((state) => ([0, 1, 2, 3].includes(state) ? state : 0))
+        row.map((state) =>
+          [0, 1, 2, 3].includes(Math.round(state)) ? Math.round(state) : 0
+        )
       );
       setConsoleText("Changed automata to Wireworld");
       break;
@@ -1305,7 +1325,9 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
       automata = new RPSGame(...args);
       // Convert cells to 2 or below
       automata.grid = oldGrid.map((row) =>
-        row.map((state) => ([0, 1, 2].includes(state) ? state : 0))
+        row.map((state) =>
+          [0, 1, 2].includes(Math.round(state)) ? Math.round(state) : 0
+        )
       );
       setConsoleText("Changed automata to Rock, Paper, Scissors");
       break;
