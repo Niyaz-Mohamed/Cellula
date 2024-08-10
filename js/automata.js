@@ -1127,7 +1127,6 @@ export class NeuralCA extends Automata {
       [1, 1, 0],
       [1, 0, 1],
       [0, 1, 1],
-      [1, 1, 1],
     ];
     this.fillMap =
       this.maskOptions[Math.floor(Math.random() * this.maskOptions.length)]; // Color mask for stateColor
@@ -1216,7 +1215,18 @@ export class NeuralCA extends Automata {
           .fill(null)
           .map((_) => Math.max(0, Math.min(1, gaussianRandom(0.3, 0.1))))
       );
+    this.drawCursor();
     window.requestAnimationFrame(() => this.drawGrid());
+  }
+
+  // Override get pen color
+  getPenColor() {
+    let rgbArray = this.fillMap.map((mask) => mask * 255);
+    let stateColors = {
+      0: "rgba(255, 255, 255, 0.8)",
+      1: `rgba(${rgbArray[0]}, ${rgbArray[1]}, ${rgbArray[2]}, 0.8)`,
+    };
+    return stateColors[this.penState];
   }
 
   //TODO: Override downloading the data

@@ -143,6 +143,11 @@ option:hover {
   color: var(--highlight-color);
 }
 
+option:disabled {
+  background-color: var(--center-cell-color);
+  color: var(--bg-color);
+}
+
 /*! Layout Styling */
 html,
 body {

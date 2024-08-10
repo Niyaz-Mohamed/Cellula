@@ -1,6 +1,7 @@
 import { automata, NeuralCA, setAutomata } from "../automata.js";
 import {
   getConsoleText,
+  mooreNeighborhood,
   reshape2DArray,
   setConsoleText,
   stripStringToDecimal,
@@ -356,7 +357,7 @@ document.getElementById("neural-randomize").onclick = (_) => {
 
 // Handle changes in activation
 const activationSelector = document.getElementById("neural-activation-select");
-activationSelector.selectedIndex = activationSelector.options.length - 1;
+activationSelector.selectedIndex = activationSelector.options.length - 2;
 activationSelector.onchange = (event) => {
   setActivation(event.target.value);
 };
@@ -378,3 +379,76 @@ document
   .addEventListener("input", function (_) {
     automata.skipFrames = document.getElementById("neural-skip-input").checked;
   });
+
+// Handle changes in preset
+const presetSelector = document.getElementById("neural-preset-select");
+presetSelector.selectedIndex = 0;
+presetSelector.onchange = (event) => {
+  // Get automata info from map
+  const argMap = {
+    worms: {
+      weights: [
+        [0.68, -0.9, 0.68],
+        [-0.9, -0.66, -0.9],
+        [0.68, -0.9, 0.68],
+      ],
+      activation: (x) => -(1 / Math.pow(2, 0.6 * Math.pow(x, 2))) + 1,
+    },
+    stars: {
+      weights: [
+        [0.565, -0.716, 0.565],
+        [-0.759, 0.627, -0.759],
+        [0.565, -0.716, 0.565],
+      ],
+      activation: (x) => Math.abs(x),
+    },
+    "slime-mold": {
+      weights: [
+        [0.8, -0.85, 0.8],
+        [-0.85, -0.2, -0.85],
+        [0.8, -0.85, 0.8],
+      ],
+      activation: (x) => -1 / (0.89 * Math.pow(x, 2) + 1) + 1,
+    },
+    waves: {
+      weights: [
+        [0.565, -0.716, 0.565],
+        [-0.716, 0.627, -0.716],
+        [0.565, -0.716, 0.565],
+      ],
+      activation: (x) => Math.abs(1.2 * x),
+    },
+    mitosis: {
+      weights: [
+        [-0.939, 0.88, -0.939],
+        [0.88, 0.4, 0.88],
+        [-0.939, 0.88, -0.939],
+      ],
+      activation: (x) => -1 / (0.91 * Math.pow(x, 2) + 1) + 1,
+    },
+    pathways: {
+      weights: [
+        [0.0, 1.0, 0.0],
+        [1.0, 1.0, 1.0],
+        [0.0, 1.0, 0.0],
+      ],
+      activation: (x) => 1 / Math.pow(2, Math.pow(x - 3.5, 2)),
+    },
+  };
+
+  // Set neighborhood to 3 by 3
+  const settingsContainer = document.getElementById("neural-settings");
+  settingsContainer.querySelector(".row-select").value = 3;
+  settingsContainer.querySelector(".column-select").value = 3;
+  automata.neighborhood = mooreNeighborhood(1, true);
+  automata.weights = argMap[event.target.value].weights;
+  createGrid("neural-settings");
+
+  // Update activation
+  const activationSelector = document.getElementById(
+    "neural-activation-select"
+  );
+  activationSelector.selectedIndex = activationSelector.options.length - 1; // Set to custom activation
+  automata.activation = argMap[event.target.value].activation;
+  automata.randomize();
+};

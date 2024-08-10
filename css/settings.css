@@ -18,6 +18,11 @@
 /*! Text input element */
 .automata-settings .rule-div:first-of-type {
   margin-top: 0px;
+  margin-bottom: 0px !important;
+}
+
+.automata-settings .rule-div:last-of-type {
+  margin-bottom: 20px;
 }
 
 .automata-settings p {
