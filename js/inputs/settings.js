@@ -1,5 +1,10 @@
 import { automata, NeuralCA, setAutomata } from "../automata.js";
-import { getConsoleText, reshape2DArray, setConsoleText } from "../utils.js";
+import {
+  getConsoleText,
+  reshape2DArray,
+  setConsoleText,
+  stripStringToDecimal,
+} from "../utils.js";
 import { infoMap, nameMap, settingsMap } from "./config.js";
 
 //! Respond to specific automata being selected
@@ -38,7 +43,11 @@ export function updateAutomataSelect(automataName) {
     .querySelectorAll(".automata-settings")
     .forEach((setting) => (setting.style.display = "none"));
   document.getElementById(settingsMap[automataName]).style.display = "block";
-  createGrid(settingsMap[automataName]);
+
+  // Only update the grid if it exists
+  try {
+    createGrid(settingsMap[automataName]);
+  } catch (e) {}
 }
 
 //! Neighborhood selectors
@@ -77,7 +86,7 @@ function createGrid(automataSettingsId) {
     settingsContainer.style.display = "none";
   }
 
-  // Generate grid with dimensions
+  // Generate grid with required dimensions
   grid.style.gridTemplateColumns = `repeat(${cols}, ${
     checkboxWidth ? checkboxWidth : checkboxSize
   }px)`;
@@ -88,18 +97,30 @@ function createGrid(automataSettingsId) {
   const centerRow = Math.floor(rows / 2);
   const centerColumn = Math.floor(cols / 2);
   const currentNeighborhood = automata.neighborhood;
-
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
       if (isNeural) {
         // Create numerical input for neural automata
         const numInput = document.createElement("input");
-        numInput.type = "number";
+        numInput.type = "text";
         numInput.dataset.row = y - centerRow;
         numInput.dataset.column = x - centerColumn;
-        numInput.addEventListener("change", updateWeights);
+        numInput.addEventListener("input", (event) => {
+          // Sanitise inputs
+          let value = event.target.value;
+          value = value ? value : stripStringToDecimal(event.target.value);
+          value = value == "" || value == "0" ? "0." : value;
+          event.target.value = value;
+          // Update the weights
+          updateWeights(event, rows, cols);
+        });
         numInput.value = currentWeights[y][x];
         if (numInput.value == 0) numInput.classList.add("neural-inactive");
+
+        // Set the middle cell as the center reference cell
+        if (y === centerRow && x === centerColumn) {
+          numInput.classList.add("center");
+        }
 
         // Add the numerical input to DOM
         grid.appendChild(numInput);
@@ -132,7 +153,7 @@ function createGrid(automataSettingsId) {
   }
 }
 
-// Generate the grids only when settings are opened
+// Generate the grids when settings are opened
 document.getElementById("settings-btn").addEventListener("click", () => {
   if (typeof settingsMap === "object" && settingsMap !== null) {
     for (let automataSettings of Object.values(settingsMap)) {
@@ -180,35 +201,37 @@ function updateNeighborhood(event) {
           Number(checkbox.dataset.row),
         ]);
     });
-
   automata.neighborhood = neighborhood;
 }
 
 // Update weights & neighborhood for neural CA
-function updateWeights(event) {
-  // TODO: Fix up this portion
-  // // Define rows and cols
-  // const rows = parseInt(settingsContainer.querySelector(".row-select").value);
-  // const cols = parseInt(
-  //   settingsContainer.querySelector(".column-select").value
-  // );
-  // // Update neighborhood
-  // let neighborhood = [];
-  // let weights = new Array(rows).fill(new Array(cols).fill(0));
-  console.log(weights);
+function updateWeights(event, rows, cols) {
+  // Find offset in rows and columns that makes them negative
+  const rowOffset = Math.floor(rows / 2);
+  const colOffset = Math.floor(cols / 2);
+  // Update neighborhood
+  let neighborhood = [];
+  let weights = new Array(rows).fill(null).map(() => new Array(cols).fill(0));
   event.target
     .closest(".neighbor-grid")
     .querySelectorAll("input")
-    .forEach((checkbox) => {
-      if (checkbox.checked)
-        neighborhood.push([
-          Number(checkbox.dataset.column),
-          Number(checkbox.dataset.row),
-        ]);
+    .forEach((input) => {
+      const inputRow = Number(input.dataset.row); // Changed from column to row
+      const inputColumn = Number(input.dataset.column); // Changed from row to column
+      neighborhood.push([inputRow, inputColumn]);
+      weights[inputRow + rowOffset][inputColumn + colOffset] = Number(
+        input.value
+      );
+      // Update active status of input
+      if (input.value == 0) {
+        input.classList.add("neural-inactive");
+      } else {
+        input.classList.remove("neural-inactive");
+      }
     });
+  // Update the values
   automata.neighborhood = neighborhood;
-
-  // Update weights
+  automata.weights = weights;
 }
 
 //! Change in file load

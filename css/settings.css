@@ -126,7 +126,7 @@ input[type="checkbox"]:checked:hover {
 }
 
 input[type="checkbox"]:disabled {
-  background-color: rgb(255, 129, 129);
+  background-color: var(--center-cell-color);
   border: none !important;
   cursor: not-allowed;
 }
@@ -141,7 +141,7 @@ input[type="checkbox"]:disabled {
 }
 
 /*! Numerical neighborhood inputs */
-.neighbor-grid input[type="number"] {
+.neighbor-grid input[type="text"] {
   width: 100%;
   height: 100%;
   border: 3px solid var(--theme-color);
@@ -151,12 +151,20 @@ input[type="checkbox"]:disabled {
   margin: 10px 0px;
 }
 
-#neural-settings .neighbor-grid > input[type="number"] {
+#neural-settings .neighbor-grid > input[type="text"] {
   background-color: var(--theme-color);
   color: var(--bg-color);
+  caret-color: var(--bg-color);
+  text-align: center;
 }
 
 .neural-inactive {
   background-color: transparent !important;
   color: var(--theme-color) !important;
+  caret-color: var(--theme-color) !important;
+}
+
+#neural-settings .center {
+  background-color: var(--center-cell-color) !important;
+  border: 3px solid var(--center-cell-color);
 }

@@ -176,3 +176,11 @@ export function gaussianRandom(mean, variance) {
   let z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2); // Standard distribution
   return mean + Math.sqrt(variance) * z;
 }
+
+export function stripStringToDecimal(str) {
+  str = str
+    .replace(/[^0-9.-]/g, "") // Remove all non-digits, dots, or minus signs
+    .replace(/(?!^)-/g, "") // Remove all "-" except if it's the first character
+    .replace(/(?<=\..*)\./g, ""); // Remove all dots except the first one
+  return str;
+}

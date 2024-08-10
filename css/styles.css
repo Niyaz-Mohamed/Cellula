@@ -3,6 +3,7 @@
   --bg-color: #323a49;
   --highlight-color: #48546a;
   --theme-color: #95b0dc;
+  --center-cell-color: rgb(255, 129, 129);
   --toolbar-height: 5vh;
   --toolbar-opacity: 0.97;
 }
