@@ -1099,41 +1099,43 @@ export class RPSGame extends Automata {
 //! Continuous Automata
 export class NeuralCA extends Automata {
   // Source for this automata: https://www.youtube.com/watch?v=3H79ZcBuw4M&t=12s
-  constructor(weights = []) {
-    super();
-    this.neighborhood = mooreNeighborhood().push([0, 0]);
-    this.weights =
-      weights.length == 9
-        ? weights
-        : new Array(3)
-            .fill(null)
-            .map((_) => new Array(3).map((_) => Math.random()));
-    this.skipFrames = document.getElementById("neural-skip-input").checked;
-
-    // TODO: Remove this once testing is done
-    this.weights = [
+  constructor(
+    neighborhood = mooreNeighborhood(1, true), // Include centre in mooreNeighborhood,
+    weights = [
       [0.68, -0.9, 0.68],
       [-0.9, -0.66, -0.9],
       [0.68, -0.9, 0.68],
-    ];
+    ]
+  ) {
+    super();
+    // Set frameskips to true
+    this.skipFrames = true;
+    document.getElementById("neural-skip-input").checked = true;
+    // Define neighborhood and weights
+    this.neighborhood = neighborhood; // Priority given to neighborhood over weights
+    this.weights =
+      weights.flat().length == neighborhood.flat().length / 2
+        ? weights
+        : reshape2DArray(weights, neighborhood.length, neighborhood[0].length);
 
     // Implement GPU kernel to update grid
     this.gridUpdateKernel = this.gpu
       .createKernel(
-        function (grid, weights, activation) {
+        function (grid, neighborhood, flatWeights, activation) {
           const x = this.thread.x;
           const y = this.thread.y;
           let convResult = 0;
 
           // Perform convolution
-          for (let dy = -1; dy <= 1; dy++) {
-            for (let dx = -1; dx <= 1; dx++) {
-              let neighborValue =
-                grid[(y + dy + this.constants.rows) % this.constants.rows][
-                  (x + dx + this.constants.cols) % this.constants.cols
-                ];
-              convResult += neighborValue * weights[dy + 1][dx + 1];
-            }
+          for (let i = 0; i < this.constants.neighborhoodSize; i++) {
+            const dx = neighborhood[i][0];
+            const dy = neighborhood[i][1];
+            // Sum up convolution result, use flattened weights
+            let neighborValue =
+              grid[(y + dy + this.constants.rows) % this.constants.rows][
+                (x + dx + this.constants.cols) % this.constants.cols
+              ];
+            convResult += neighborValue * flatWeights[i];
           }
 
           // Apply activation
@@ -1148,6 +1150,7 @@ export class NeuralCA extends Automata {
       .setConstants({
         rows: this.rows,
         cols: this.cols,
+        neighborhoodSize: this.neighborhood.length,
       });
   }
 
@@ -1161,15 +1164,26 @@ export class NeuralCA extends Automata {
       .setConstants({
         rows: this.rows,
         cols: this.cols,
+        neighborhoodSize: this.neighborhood.length,
       })
       .setOutput([this.cols, this.rows]);
 
     // Double call kernel if skipping frames
     const newGrid = this.skipFrames
-      ? this.gridUpdateKernel(this.grid, this.weights, activation)
+      ? this.gridUpdateKernel(
+          this.grid,
+          this.neighborhood,
+          this.weights.flat(),
+          activation
+        )
       : this.grid;
     // Call the kernel
-    return this.gridUpdateKernel(newGrid, this.weights, activation);
+    return this.gridUpdateKernel(
+      newGrid,
+      this.neighborhood,
+      this.weights.flat(),
+      activation
+    );
   }
 
   // Calculate color required by a specific state as rgb value

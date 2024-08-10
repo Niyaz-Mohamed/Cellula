@@ -1,4 +1,4 @@
-/* Window sizing */
+/*! Window sizing */
 #settings {
   max-width: 25vw !important;
   min-width: 250px;
@@ -15,7 +15,7 @@
   width: 100%;
 }
 
-/* Text input element */
+/*! Text input element */
 .automata-settings .rule-div:first-of-type {
   margin-top: 0px;
 }
@@ -63,7 +63,7 @@
   margin-right: 15px;
 }
 
-/* Neighborhood Selectors */
+/*! Neighborhood Selectors */
 .grid-size-selector {
   display: flex;
   flex-wrap: wrap;
@@ -97,7 +97,7 @@
   text-align: center;
 }
 
-/* Checkbox Stylings */
+/*! Checkbox Stylings */
 
 .neighbor-grid input[type="checkbox"] {
   width: 100%;
@@ -138,4 +138,25 @@ input[type="checkbox"]:disabled {
   border: 3px solid var(--theme-color);
   margin: 0px;
   border-radius: 5px;
+}
+
+/*! Numerical neighborhood inputs */
+.neighbor-grid input[type="number"] {
+  width: 100%;
+  height: 100%;
+  border: 3px solid var(--theme-color);
+}
+
+#neural-settings .neighbor-grid {
+  margin: 10px 0px;
+}
+
+#neural-settings .neighbor-grid > input[type="number"] {
+  background-color: var(--theme-color);
+  color: var(--bg-color);
+}
+
+.neural-inactive {
+  background-color: transparent !important;
+  color: var(--theme-color) !important;
 }

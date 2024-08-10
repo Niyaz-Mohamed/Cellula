@@ -47,7 +47,7 @@ function createGrid(automataSettingsId) {
   // Get required row elements based on automata settings element
   const settingsContainer = document.getElementById(automataSettingsId);
   const rows = parseInt(settingsContainer.querySelector(".row-select").value);
-  const columns = parseInt(
+  const cols = parseInt(
     settingsContainer.querySelector(".column-select").value
   );
   const grid = settingsContainer.querySelector(".neighbor-grid");
@@ -55,12 +55,20 @@ function createGrid(automataSettingsId) {
     settingsContainer.style.display == "block" ? true : false;
   grid.innerHTML = ""; // Reset the grid
 
+  // Account for neural CA
+  const isNeural = automata instanceof NeuralCA;
+  let currentWeights = automata.weights ? automata.weights : []; // For Neural CA only
+  currentWeights = reshape2DArray(currentWeights, rows, cols);
+
   // Calculate the size of each checkbox
   settingsContainer.style.display = "block";
   const containerWidth = grid.closest(".automata-settings").clientWidth;
-  let maxCheckboxWidth = (containerWidth - (columns - 1) * 2) / columns; // Account for 2px gap
+  let maxCheckboxWidth = (containerWidth - (cols - 1) * 2) / cols; // Account for 2px gap
   let checkboxSize = maxCheckboxWidth <= 30 ? maxCheckboxWidth : 30; // Change the number based on max width allowed in px
-  const gridWidth = checkboxSize * columns + 2 * (columns - 1);
+  const gridWidth = checkboxSize * cols + 2 * (cols - 1);
+  // Different width only for neural CA
+  let checkboxWidth = null;
+  if (isNeural) checkboxWidth = maxCheckboxWidth;
 
   // Rehide settings if it isn't current settings
   if (automataCurrentlySelected) {
@@ -70,52 +78,54 @@ function createGrid(automataSettingsId) {
   }
 
   // Generate grid with dimensions
-  grid.style.gridTemplateColumns = `repeat(${columns}, ${checkboxSize}px)`;
+  grid.style.gridTemplateColumns = `repeat(${cols}, ${
+    checkboxWidth ? checkboxWidth : checkboxSize
+  }px)`;
   grid.style.gridTemplateRows = `repeat(${rows}, ${checkboxSize}px)`;
   grid.style.width = gridWidth + "px";
 
   // Create checkboxes
   const centerRow = Math.floor(rows / 2);
-  const centerColumn = Math.floor(columns / 2);
+  const centerColumn = Math.floor(cols / 2);
   const currentNeighborhood = automata.neighborhood;
-  // For neural CA only
-  const isNeural = automata instanceof NeuralCA;
-  const currentWeights = automata.weights ? automata.weights : []; // For Neural CA only
 
-  for (let i = 0; i < rows; i++) {
-    for (let j = 0; j < columns; j++) {
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
       if (isNeural) {
         // Create numerical input for neural automata
         const numInput = document.createElement("input");
         numInput.type = "number";
-        numInput.dataset.row = i - centerRow;
-        numInput.dataset.column = j - centerColumn;
-        numInput.addEventListener("change", () => {});
+        numInput.dataset.row = y - centerRow;
+        numInput.dataset.column = x - centerColumn;
+        numInput.addEventListener("change", updateWeights);
+        numInput.value = currentWeights[y][x];
+        if (numInput.value == 0) numInput.classList.add("neural-inactive");
 
-        //TODO: Do up the rest of this portion
+        // Add the numerical input to DOM
+        grid.appendChild(numInput);
       } else {
         // Create checkbox for non-neural automata
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
-        checkbox.dataset.row = i - centerRow;
-        checkbox.dataset.column = j - centerColumn;
+        checkbox.dataset.row = y - centerRow;
+        checkbox.dataset.column = x - centerColumn;
         checkbox.addEventListener("change", updateNeighborhood);
 
         // Check cells already in neighborhood (using JSON strings)
         if (
           JSON.stringify(currentNeighborhood).indexOf(
-            JSON.stringify([j - centerColumn, i - centerRow])
+            JSON.stringify([x - centerColumn, y - centerRow])
           ) != -1
         ) {
           checkbox.checked = true;
         }
 
         // Set the middle cell as the center reference cell
-        if (i === centerRow && j === centerColumn) {
+        if (y === centerRow && x === centerColumn) {
           checkbox.checked = false;
           checkbox.disabled = true; // Apply css to this disabled box
         }
-
+        // Add the checkbox to DOM
         grid.appendChild(checkbox);
       }
     }
@@ -157,7 +167,7 @@ document.querySelectorAll(".column-select").forEach((element) =>
   })
 );
 
-// Update the neighborhood when its values change
+// Update the neighborhood when selected neighborhood changes
 function updateNeighborhood(event) {
   let neighborhood = [];
   event.target
@@ -172,6 +182,33 @@ function updateNeighborhood(event) {
     });
 
   automata.neighborhood = neighborhood;
+}
+
+// Update weights & neighborhood for neural CA
+function updateWeights(event) {
+  // TODO: Fix up this portion
+  // // Define rows and cols
+  // const rows = parseInt(settingsContainer.querySelector(".row-select").value);
+  // const cols = parseInt(
+  //   settingsContainer.querySelector(".column-select").value
+  // );
+  // // Update neighborhood
+  // let neighborhood = [];
+  // let weights = new Array(rows).fill(new Array(cols).fill(0));
+  console.log(weights);
+  event.target
+    .closest(".neighbor-grid")
+    .querySelectorAll("input")
+    .forEach((checkbox) => {
+      if (checkbox.checked)
+        neighborhood.push([
+          Number(checkbox.dataset.column),
+          Number(checkbox.dataset.row),
+        ]);
+    });
+  automata.neighborhood = neighborhood;
+
+  // Update weights
 }
 
 //! Change in file load

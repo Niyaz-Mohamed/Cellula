@@ -102,12 +102,13 @@ export function fillCircle(x, y, r) {
 }
 
 // Generate Moore neighborhood relative to point (0,0)
-export function mooreNeighborhood(n = 1) {
+export function mooreNeighborhood(n = 1, includeCentre = false) {
   let points = [];
   // Draw a square
   for (let dx = -n; dx <= n; dx++) {
     for (let dy = -n; dy <= n; dy++) {
       if (!(dx == 0 && dy == 0)) points.push([dx, dy]);
+      else if (includeCentre) points.push([0, 0]);
     }
   }
   return points;
