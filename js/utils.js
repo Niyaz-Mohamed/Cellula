@@ -184,3 +184,30 @@ export function stripStringToDecimal(str) {
     .replace(/(?<=\..*)\./g, ""); // Remove all dots except the first one
   return str;
 }
+
+function shiftHue(rgbColor, shift = 0) {
+  // Given an rgb color, shift hue by some degree form 0 to 360.
+  // Shift is in degrees, not radians
+  // Source for formula: http://beesbuzz.biz/code/16-hsv-color-transforms
+
+  const U = Math.cos(shift / 180);
+  const W = Math.sin(shift / 180);
+
+  const newR =
+    (0.939892 * U - 0.070685 * W + 0.299) * rgbColor[0] +
+    (-0.432098 * U + 0.175205 * W + 0.587) * rgbColor[1] +
+    (-0.506217 * U - 0.104185 * W + 0.114) * rgbColor[2];
+  const newB =
+    (-0.547724 * U - 0.079125 * W + 0.299) * rgbColor[0] +
+    (0.251806 * U + 0.196125 * W + 0.587) * rgbColor[1] +
+    (0.294999 * U - 0.116625 * W + 0.114) * rgbColor[2];
+  const newG =
+    (0.356408 * U + 0.593332 * W + 0.299) * rgbColor[0] +
+    (-0.163852 * U - 1.47068 * W + 0.587) * rgbColor[1] +
+    (-0.191958 * U + 0.874532 * W + 0.114) * rgbColor[2];
+
+  // Apply transformation
+  return [newR, newB, newG];
+}
+
+console.log(shiftHue([245, 235, 225]));
