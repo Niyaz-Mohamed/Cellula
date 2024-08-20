@@ -1059,7 +1059,7 @@ export class RPSGame extends Automata {
   // Override randomizing the grid
   randomize() {
     this.grid = new Array(this.rows).fill(null).map(
-      () =>
+      (_) =>
         new Array(this.cols)
           .fill(null)
           .map(() => Math.floor(Math.random() * this.stateCount)) // Randomize from 0 to (stateCount-1)
@@ -1252,8 +1252,88 @@ export class NeuralCA extends Automata {
   }
 }
 
+export class Huegene extends Automata {
+  // Source for this automata: https://www.youtube.com/watch?v=3H79ZcBuw4M&t=12s
+  constructor(neighborhood = mooreNeighborhood()) {
+    super();
+
+    // Fill up grid with black
+    this.grid = new Array(this.rows)
+      .fill(null)
+      .map((_) => new Array(this.cols).fill(null).map(() => [0, 0, 0]));
+    // Set pen to draw rgb value
+    this.penState = [0, 0, 0];
+
+    // Implement GPU kernel to update grid
+    this.gridUpdateKernel = this.gpu
+      .createKernel(
+        function (grid, neighborhood) {
+          const x = this.thread.x;
+          const y = this.thread.y;
+
+          return grid[y][x];
+        },
+        { output: [this.cols, this.rows] }
+      )
+      .setConstants({
+        rows: this.rows,
+        cols: this.cols,
+        neighborhoodSize: this.neighborhood.length,
+      });
+  }
+
+  // Override getting next state
+  getNextState() {
+    // Reset constants
+    this.gridUpdateKernel
+      .setConstants({
+        rows: this.rows,
+        cols: this.cols,
+        neighborhoodSize: this.neighborhood.length,
+      })
+      .setOutput([this.cols, this.rows]);
+
+    // Call the kernel
+    return this.gridUpdateKernel(this.grid, this.neighborhood);
+  }
+
+  // Calculate color required by a specific state as rgb value
+  stateColor(state) {
+    return state;
+  }
+
+  // TODO: Override cycling state
+  cycleDraw() {
+    this.penState = [
+      Math.floor(Math.random() * 256),
+      Math.floor(Math.random() * 256),
+      Math.floor(Math.random() * 256),
+    ];
+  }
+
+  // TODO: Override randomizing the grid
+  randomize() {
+    super.randomize();
+  }
+
+  // TODO: Override get pen color
+  getPenColor() {
+    return `rgba(${this.penState[0]}, ${this.penState[1]}, ${this.penState[2]}, 0.8)`;
+  }
+
+  // TODO: Override downloading the data
+  saveData() {
+    const automataData = {
+      name: "Huegene",
+      args: [],
+      grid: this.grid.map((arr) => Array.from(arr)),
+    };
+    downloadObjectAsJSON(automataData, "huegene.json");
+  }
+}
+
 //! Intialize and trigger automata class
-export let automata = new LifeLikeAutomata(); // Automata Definition
+export let automata = new Huegene(); // Automata Definition
 export function setAutomata(newAutomataName, args = [], grid = null) {
   // Recast Elementary CA
   if (automata instanceof ElementaryCA) {

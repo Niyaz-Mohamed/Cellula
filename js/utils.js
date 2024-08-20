@@ -185,29 +185,27 @@ export function stripStringToDecimal(str) {
   return str;
 }
 
-function shiftHue(rgbColor, shift = 0) {
-  // Given an rgb color, shift hue by some degree form 0 to 360.
+export function shiftHSV(rgbColor, h = 0, s = 1, v = 1) {
+  // Given an rgb color, shift hue by some degree (0 to 360), and scale saturation and value by given scalars
   // Shift is in degrees, not radians
   // Source for formula: http://beesbuzz.biz/code/16-hsv-color-transforms
 
-  const U = Math.cos(shift / 180);
-  const W = Math.sin(shift / 180);
+  const VSU = v * s * Math.cos((h * Math.PI) / 180);
+  const VSW = v * s * Math.sin((h * Math.PI) / 180);
 
   const newR =
-    (0.939892 * U - 0.070685 * W + 0.299) * rgbColor[0] +
-    (-0.432098 * U + 0.175205 * W + 0.587) * rgbColor[1] +
-    (-0.506217 * U - 0.104185 * W + 0.114) * rgbColor[2];
-  const newB =
-    (-0.547724 * U - 0.079125 * W + 0.299) * rgbColor[0] +
-    (0.251806 * U + 0.196125 * W + 0.587) * rgbColor[1] +
-    (0.294999 * U - 0.116625 * W + 0.114) * rgbColor[2];
+    (0.299 * v + 0.701 * VSU + 0.168 * VSW) * rgbColor[0] +
+    (0.587 * v - 0.587 * VSU + 0.33 * VSW) * rgbColor[1] +
+    (0.114 * v - 0.114 * VSU - 0.497 * VSW) * rgbColor[2];
   const newG =
-    (0.356408 * U + 0.593332 * W + 0.299) * rgbColor[0] +
-    (-0.163852 * U - 1.47068 * W + 0.587) * rgbColor[1] +
-    (-0.191958 * U + 0.874532 * W + 0.114) * rgbColor[2];
+    (0.299 * v - 0.299 * VSU - 0.328 * VSW) * rgbColor[0] +
+    (0.587 * v + 0.413 * VSU + 0.035 * VSW) * rgbColor[1] +
+    (0.114 * v - 0.114 * VSU + 0.292 * VSW) * rgbColor[2];
+  const newB =
+    (0.299 * v - 0.3 * VSU + 1.25 * VSW) * rgbColor[0] +
+    (0.587 * v - 0.588 * VSU - 1.05 * VSW) * rgbColor[1] +
+    (0.114 * v + 0.886 * VSU - 0.203 * VSW) * rgbColor[2];
 
   // Apply transformation
-  return [newR, newB, newG];
+  return [newR, newG, newB];
 }
-
-console.log(shiftHue([245, 235, 225]));
