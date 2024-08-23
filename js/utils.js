@@ -199,28 +199,97 @@ export function unpackRGB(colorInt) {
   return [r, g, b];
 }
 
-// Shift the hue, saturation or value of an RGB color directly
-export function shiftHSV(rgbColor, h = 0, s = 1, v = 1) {
-  // Given an rgb color, shift hue by some degree (0 to 360), and scale saturation and value by given scalars
-  // Shift is in degrees, not radians
-  // Source for formula: http://beesbuzz.biz/code/16-hsv-color-transforms
+// Function to shift the hue of RGB color directly using matrix mult
+export function shiftHue(rgbColor, hueShift = 0) {
+  // Function translated from https://stackoverflow.com/a/8510751
+  const [r, g, b] = rgbColor;
+  // Calculate all angles with radians (input shift is degrees)
+  const cosA = Math.cos((hueShift * Math.PI) / 180);
+  const sinA = Math.sin((hueShift * Math.PI) / 180);
 
-  const VSU = v * s * Math.cos((h * Math.PI) / 180);
-  const VSW = v * s * Math.sin((h * Math.PI) / 180);
+  // Calculate the rotation matrix to modify hue only
+  const matrix = [
+    [
+      cosA + (1.0 - cosA) / 3.0,
+      (1.0 / 3.0) * (1.0 - cosA) - Math.sqrt(1.0 / 3.0) * sinA,
+      (1.0 / 3.0) * (1.0 - cosA) + Math.sqrt(1.0 / 3.0) * sinA,
+    ],
+    [
+      (1.0 / 3.0) * (1.0 - cosA) + Math.sqrt(1.0 / 3.0) * sinA,
+      cosA + (1.0 / 3.0) * (1.0 - cosA),
+      (1.0 / 3.0) * (1.0 - cosA) - Math.sqrt(1.0 / 3.0) * sinA,
+    ],
+    [
+      (1.0 / 3.0) * (1.0 - cosA) - Math.sqrt(1.0 / 3.0) * sinA,
+      (1.0 / 3.0) * (1.0 - cosA) + Math.sqrt(1.0 / 3.0) * sinA,
+      cosA + (1.0 / 3.0) * (1.0 - cosA),
+    ],
+  ];
 
-  const newR =
-    (0.299 * v + 0.701 * VSU + 0.168 * VSW) * rgbColor[0] +
-    (0.587 * v - 0.587 * VSU + 0.33 * VSW) * rgbColor[1] +
-    (0.114 * v - 0.114 * VSU - 0.497 * VSW) * rgbColor[2];
-  const newG =
-    (0.299 * v - 0.299 * VSU - 0.328 * VSW) * rgbColor[0] +
-    (0.587 * v + 0.413 * VSU + 0.035 * VSW) * rgbColor[1] +
-    (0.114 * v - 0.114 * VSU + 0.292 * VSW) * rgbColor[2];
-  const newB =
-    (0.299 * v - 0.3 * VSU + 1.25 * VSW) * rgbColor[0] +
-    (0.587 * v - 0.588 * VSU - 1.05 * VSW) * rgbColor[1] +
-    (0.114 * v + 0.886 * VSU - 0.203 * VSW) * rgbColor[2];
+  // Use the rotation matrix to convert the RGB directly
+  const newR = r * matrix[0][0] + g * matrix[0][1] + b * matrix[0][2];
+  const newG = r * matrix[1][0] + g * matrix[1][1] + b * matrix[1][2];
+  const newB = r * matrix[2][0] + g * matrix[2][1] + b * matrix[2][2];
+  // Clamp values within range od RGB
+  return [
+    Math.round(Math.max(Math.min(newR, 255), 0)),
+    Math.round(Math.max(Math.min(newG, 255), 0)),
+    Math.round(Math.max(Math.min(newB, 255), 0)),
+  ];
+}
 
-  // Apply transformation
-  return [newR, newG, newB];
+// Functions to shift between HSB and RGB
+// Source: https://www.rapidtables.com/convert/color/rgb-to-hsv.html
+export function rgbToHsv(rgbColor) {
+  const [r, g, b] = rgbColor.map((color) => color / 255);
+
+  let max = Math.max(r, g, b);
+  let min = Math.min(r, g, b);
+  let [h, s, v] = [max, max, max];
+  let d = max - min;
+  // Calculate saturation
+  s = max == 0 ? 0 : d / max;
+
+  // Calculate hue
+  if (d == 0) {
+    h = 0; // Color is greyscale
+  } else {
+    switch (max) {
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0);
+        break;
+      case g:
+        h = (b - r) / d + 2;
+        break;
+      case b:
+        h = (r - g) / d + 4;
+        break;
+    }
+    h = 60 * h;
+  }
+
+  return [h, s, v];
+}
+
+// Source: https://www.rapidtables.com/convert/color/hsv-to-rgb.html
+export function hsvToRgb(hsvColor) {
+  const [h, s, v] = hsvColor;
+
+  // Calculate constants required
+  const c = v * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = v - c;
+
+  // Calculate order of values
+  const colorMap = {
+    0: [c, x, 0],
+    1: [x, c, 0],
+    2: [0, c, x],
+    3: [0, x, c],
+    4: [x, 0, c],
+    5: [c, 0, x],
+  };
+  return colorMap[Math.floor(h / 60) % 6].map((color) =>
+    Math.round(255 * (color + m))
+  ); // Round value to prevent issues with RGB packing
 }

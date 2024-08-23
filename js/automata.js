@@ -19,7 +19,8 @@ import {
   gaussianRandom,
   packRGB,
   unpackRGB,
-  shiftHSV,
+  shiftHue,
+  hsvToRgb,
 } from "./utils.js";
 import {
   mouseX,
@@ -1264,12 +1265,12 @@ export class Huegene extends Automata {
     this.grid = new Array(this.rows)
       .fill(null)
       .map((_) =>
-        new Array(this.cols).fill(null).map((_) => packRGB(backgroundColor))
+        new Array(this.cols).fill(null).map((_) => packRGB([0, 0, 0]))
       );
     this.penState = this.genRandomPenColor();
 
     // Select hue offsets for each cell
-    this.randomFactor = 2; // Sets maximum possible offset/automata randomness
+    this.randomFactor = 10; // Sets maximum possible offset/automata randomness
     this.offsetGrid = new Array(this.rows).fill(null).map((_) =>
       new Array(this.cols).fill(null).map((_) => {
         const offset = Math.floor(Math.random() * (this.randomFactor + 1));
@@ -1277,6 +1278,7 @@ export class Huegene extends Automata {
       })
     );
 
+    // TODO: Implement psychedelic mode where color of grid just cycles through various colors
     // Implement GPU kernel to update grid
     this.gridUpdateKernel = this.gpu
       .createKernel(
@@ -1286,6 +1288,7 @@ export class Huegene extends Automata {
 
           // Check current color
           const cellColor = unpackRGB(grid[y][x]);
+          // return packRGB(shiftHue(cellColor, Math.floor(Math.random() * 10))); //! Psychedelic mode
           if (
             cellColor[0] != backgroundColor[0] &&
             cellColor[1] != backgroundColor[1] &&
@@ -1294,8 +1297,8 @@ export class Huegene extends Automata {
             return grid[y][x];
           }
 
-          // Find average color of neighbors
-          let averageColor = [0, 0, 0];
+          // TODO: Pick randomly from colored neighbors
+          // Find neighbors that are colored in
           let emptyNeighbors = 0;
           for (let i = 0; i < this.constants.neighborhoodSize; i++) {
             const dx = neighborhood[i][0];
@@ -1326,7 +1329,6 @@ export class Huegene extends Automata {
             return grid[y][x];
           }
           // Square root for true average
-
           averageColor[0] = Math.round(
             Math.sqrt(averageColor[0] / filledNeighbors)
           );
@@ -1336,8 +1338,7 @@ export class Huegene extends Automata {
           averageColor[2] = Math.round(
             Math.sqrt(averageColor[2] / filledNeighbors)
           );
-          return packRGB(shiftHSV(averageColor, offsetGrid[y][x]));
-          // return packRGB(averageColor);
+          return packRGB(shiftHue(averageColor, offsetGrid[y][x]));
         },
         { output: [this.cols, this.rows] }
       )
@@ -1347,7 +1348,7 @@ export class Huegene extends Automata {
         neighborhoodSize: this.neighborhood.length,
         backgroundColor: packRGB(backgroundColor),
       })
-      .setFunctions([packRGB, unpackRGB, shiftHSV]);
+      .setFunctions([packRGB, unpackRGB, shiftHue]);
   }
 
   // Override calculating the next grid state
@@ -1413,11 +1414,7 @@ export class Huegene extends Automata {
   // TODO: Restrict brightness/saturation values of generated colors
   // Get random color (in RGB) for pen
   genRandomPenColor() {
-    return packRGB([
-      Math.floor(Math.random() * 256),
-      Math.floor(Math.random() * 256),
-      Math.floor(Math.random() * 256),
-    ]);
+    return packRGB(hsvToRgb([Math.floor(Math.random() * 360), 0.6, 0.8]));
   }
 
   // Override downloading the data
