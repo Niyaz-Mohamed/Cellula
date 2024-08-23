@@ -177,6 +177,7 @@ export function gaussianRandom(mean, variance) {
   return mean + Math.sqrt(variance) * z;
 }
 
+// Removes letters in a string to force it to be a decimal
 export function stripStringToDecimal(str) {
   str = str
     .replace(/[^0-9.-]/g, "") // Remove all non-digits, dots, or minus signs
@@ -185,6 +186,20 @@ export function stripStringToDecimal(str) {
   return str;
 }
 
+// Packing and unpacking RGB color arrays into integers
+export function packRGB(colorArray) {
+  colorArray = colorArray.map((i) => Math.min(Math.max(i, 0), 255));
+  return (colorArray[0] << 16) | (colorArray[1] << 8) | colorArray[2];
+}
+
+export function unpackRGB(colorInt) {
+  const r = (colorInt >> 16) & 0xff;
+  const g = (colorInt >> 8) & 0xff;
+  const b = colorInt & 0xff;
+  return [r, g, b];
+}
+
+// Shift the hue, saturation or value of an RGB color directly
 export function shiftHSV(rgbColor, h = 0, s = 1, v = 1) {
   // Given an rgb color, shift hue by some degree (0 to 360), and scale saturation and value by given scalars
   // Shift is in degrees, not radians

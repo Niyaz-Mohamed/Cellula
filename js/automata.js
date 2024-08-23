@@ -17,6 +17,9 @@ import {
   unique2DArr,
   reshape2DArray,
   gaussianRandom,
+  packRGB,
+  unpackRGB,
+  shiftHSV,
 } from "./utils.js";
 import {
   mouseX,
@@ -1260,17 +1263,19 @@ export class Huegene extends Automata {
     // Select a random fill color
     this.grid = new Array(this.rows)
       .fill(null)
-      .map((_) => new Array(this.cols).fill(null).map((_) => [0, 0, 0]));
+      .map((_) =>
+        new Array(this.cols).fill(null).map((_) => packRGB(backgroundColor))
+      );
     this.penState = this.genRandomPenColor();
 
     // Select hue offsets for each cell
     this.randomFactor = 2; // Sets maximum possible offset/automata randomness
-    this.offsetGrid = new Array(this.rows).fill(null).map((_) => {
+    this.offsetGrid = new Array(this.rows).fill(null).map((_) =>
       new Array(this.cols).fill(null).map((_) => {
         const offset = Math.floor(Math.random() * (this.randomFactor + 1));
         return Math.random() < 0.5 ? offset : -offset; // Offset can be negative or positive, equal probability
-      });
-    });
+      })
+    );
 
     // Implement GPU kernel to update grid
     this.gridUpdateKernel = this.gpu
@@ -1278,8 +1283,61 @@ export class Huegene extends Automata {
         function (grid, neighborhood, offsetGrid) {
           const x = this.thread.x;
           const y = this.thread.y;
-          const newColor = [1, 2];
-          return newColor;
+
+          // Check current color
+          const cellColor = unpackRGB(grid[y][x]);
+          if (
+            cellColor[0] != backgroundColor[0] &&
+            cellColor[1] != backgroundColor[1] &&
+            cellColor[2] != backgroundColor[2]
+          ) {
+            return grid[y][x];
+          }
+
+          // Find average color of neighbors
+          let averageColor = [0, 0, 0];
+          let emptyNeighbors = 0;
+          for (let i = 0; i < this.constants.neighborhoodSize; i++) {
+            const dx = neighborhood[i][0];
+            const dy = neighborhood[i][1];
+            const neighborColor = unpackRGB(
+              grid[(y + dy + this.constants.rows) % this.constants.rows][
+                (x + dx + this.constants.cols) % this.constants.cols
+              ]
+            );
+            // Square when summing neighbor colors
+            averageColor[0] += Math.pow(neighborColor[0], 2);
+            averageColor[1] += Math.pow(neighborColor[1], 2);
+            averageColor[2] += Math.pow(neighborColor[2], 2);
+            // Check if neighbor is empty
+            if (
+              neighborColor[0] == backgroundColor[0] &&
+              neighborColor[1] == backgroundColor[1] &&
+              neighborColor[2] == backgroundColor[2]
+            ) {
+              emptyNeighbors += 1;
+            }
+          }
+
+          // Fallback case
+          const filledNeighbors =
+            this.constants.neighborhoodSize - emptyNeighbors;
+          if (filledNeighbors == 0) {
+            return grid[y][x];
+          }
+          // Square root for true average
+
+          averageColor[0] = Math.round(
+            Math.sqrt(averageColor[0] / filledNeighbors)
+          );
+          averageColor[1] = Math.round(
+            Math.sqrt(averageColor[1] / filledNeighbors)
+          );
+          averageColor[2] = Math.round(
+            Math.sqrt(averageColor[2] / filledNeighbors)
+          );
+          return packRGB(shiftHSV(averageColor, offsetGrid[y][x]));
+          // return packRGB(averageColor);
         },
         { output: [this.cols, this.rows] }
       )
@@ -1287,11 +1345,9 @@ export class Huegene extends Automata {
         rows: this.rows,
         cols: this.cols,
         neighborhoodSize: this.neighborhood.length,
-      });
-
-    console.log(
-      this.gridUpdateKernel(this.grid, this.neighborhood, this.offsetGrid)
-    );
+        backgroundColor: packRGB(backgroundColor),
+      })
+      .setFunctions([packRGB, unpackRGB, shiftHSV]);
   }
 
   // Override calculating the next grid state
@@ -1302,6 +1358,7 @@ export class Huegene extends Automata {
         rows: this.rows,
         cols: this.cols,
         neighborhoodSize: this.neighborhood.length,
+        backgroundColor: packRGB(backgroundColor),
       })
       .setOutput([this.cols, this.rows]);
 
@@ -1317,7 +1374,7 @@ export class Huegene extends Automata {
 
   // Override calculation of color required by a specific state as rgb value
   stateColor(state) {
-    return state;
+    return unpackRGB(state);
   }
 
   // Override randomizing the grid
@@ -1340,25 +1397,27 @@ export class Huegene extends Automata {
   cycleDraw() {
     // Change pen state
     this.penState = this.genRandomPenColor();
+    const penState = unpackRGB(this.penState);
     setConsoleText(
-      `Updated pen to draw RGB(${this.penState[0]},${this.penState[1]},${this.penState[2]})`
+      `Updated pen to draw RGB(${penState[0]},${penState[1]},${penState[2]})`
     );
     window.requestAnimationFrame(() => this.drawCursor());
   }
 
   // Override get pen color
   getPenColor() {
-    return `rgba(${this.penState[0]},${this.penState[1]},${this.penState[2]}, 0.8)`;
+    const penState = unpackRGB(this.penState);
+    return `rgba(${penState[0]},${penState[1]},${penState[2]}, 0.8)`;
   }
 
   // TODO: Restrict brightness/saturation values of generated colors
   // Get random color (in RGB) for pen
   genRandomPenColor() {
-    return [
+    return packRGB([
       Math.floor(Math.random() * 256),
       Math.floor(Math.random() * 256),
       Math.floor(Math.random() * 256),
-    ];
+    ]);
   }
 
   // Override downloading the data
