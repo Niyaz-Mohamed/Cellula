@@ -1253,25 +1253,33 @@ export class NeuralCA extends Automata {
 }
 
 export class Huegene extends Automata {
-  // Source for this automata: https://www.youtube.com/watch?v=3H79ZcBuw4M&t=12s
   constructor(neighborhood = mooreNeighborhood()) {
     super();
+    this.neighborhood = neighborhood;
 
-    // Fill up grid with black
+    // Select a random fill color
     this.grid = new Array(this.rows)
       .fill(null)
-      .map((_) => new Array(this.cols).fill(null).map(() => [0, 0, 0]));
-    // Set pen to draw rgb value
-    this.penState = [0, 0, 0];
+      .map((_) => new Array(this.cols).fill(null).map((_) => [0, 0, 0]));
+    this.penState = this.genRandomPenColor();
+
+    // Select hue offsets for each cell
+    this.randomFactor = 2; // Sets maximum possible offset/automata randomness
+    this.offsetGrid = new Array(this.rows).fill(null).map((_) => {
+      new Array(this.cols).fill(null).map((_) => {
+        const offset = Math.floor(Math.random() * (this.randomFactor + 1));
+        return Math.random() < 0.5 ? offset : -offset; // Offset can be negative or positive, equal probability
+      });
+    });
 
     // Implement GPU kernel to update grid
     this.gridUpdateKernel = this.gpu
       .createKernel(
-        function (grid, neighborhood) {
+        function (grid, neighborhood, offsetGrid) {
           const x = this.thread.x;
           const y = this.thread.y;
-
-          return grid[y][x];
+          const newColor = [1, 2];
+          return newColor;
         },
         { output: [this.cols, this.rows] }
       )
@@ -1280,9 +1288,13 @@ export class Huegene extends Automata {
         cols: this.cols,
         neighborhoodSize: this.neighborhood.length,
       });
+
+    console.log(
+      this.gridUpdateKernel(this.grid, this.neighborhood, this.offsetGrid)
+    );
   }
 
-  // Override getting next state
+  // Override calculating the next grid state
   getNextState() {
     // Reset constants
     this.gridUpdateKernel
@@ -1293,39 +1305,67 @@ export class Huegene extends Automata {
       })
       .setOutput([this.cols, this.rows]);
 
-    // Call the kernel
-    return this.gridUpdateKernel(this.grid, this.neighborhood);
+    // Update grid using the kernel
+    this.grid = this.gridUpdateKernel(
+      this.grid,
+      this.neighborhood,
+      this.offsetGrid
+    );
+    // Call kernel
+    return this.grid;
   }
 
-  // Calculate color required by a specific state as rgb value
+  // Override calculation of color required by a specific state as rgb value
   stateColor(state) {
     return state;
   }
 
-  // TODO: Override cycling state
+  // Override randomizing the grid
+  randomize() {
+    this.grid = new Array(this.rows)
+      .fill(null)
+      .map(() =>
+        new Array(this.cols)
+          .fill(null)
+          .map(() => [
+            Math.floor(Math.random() * 256),
+            Math.floor(Math.random() * 256),
+            Math.floor(Math.random() * 256),
+          ])
+      );
+    window.requestAnimationFrame(() => this.drawGrid());
+  }
+
+  // Override cycle between draw state
   cycleDraw() {
-    this.penState = [
+    // Change pen state
+    this.penState = this.genRandomPenColor();
+    setConsoleText(
+      `Updated pen to draw RGB(${this.penState[0]},${this.penState[1]},${this.penState[2]})`
+    );
+    window.requestAnimationFrame(() => this.drawCursor());
+  }
+
+  // Override get pen color
+  getPenColor() {
+    return `rgba(${this.penState[0]},${this.penState[1]},${this.penState[2]}, 0.8)`;
+  }
+
+  // TODO: Restrict brightness/saturation values of generated colors
+  // Get random color (in RGB) for pen
+  genRandomPenColor() {
+    return [
       Math.floor(Math.random() * 256),
       Math.floor(Math.random() * 256),
       Math.floor(Math.random() * 256),
     ];
   }
 
-  // TODO: Override randomizing the grid
-  randomize() {
-    super.randomize();
-  }
-
-  // TODO: Override get pen color
-  getPenColor() {
-    return `rgba(${this.penState[0]}, ${this.penState[1]}, ${this.penState[2]}, 0.8)`;
-  }
-
-  // TODO: Override downloading the data
+  // Override downloading the data
   saveData() {
     const automataData = {
       name: "Huegene",
-      args: [],
+      args: [this.neighborhood],
       grid: this.grid.map((arr) => Array.from(arr)),
     };
     downloadObjectAsJSON(automataData, "huegene.json");
