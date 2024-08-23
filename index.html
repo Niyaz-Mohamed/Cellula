@@ -131,6 +131,7 @@
                 <button class="select-btn">Rock, Paper, Scissors</button>
                 <p>Continuous Automata</p>
                 <button class="select-btn">Neural CA</button>
+                <button class="select-btn">Huegene</button>
             </div>
             <!--Content for Life-->
             <div id="life-info" class="side-content">
@@ -293,7 +294,7 @@
             </div>
             <!--Content for Neural CA-->
             <div id="neural-info" class="side-content">
-                <h1>Game of Life</h1>
+                <h1>Neural Automata</h1>
                 <img src="./images/Neural.webp" alt="Neural GIF">
                 <h2>Description</h2>
                 <p>
@@ -317,6 +318,24 @@
                         rise to more complex behavior. This can be functions like the identity (x maps to x) or power (x
                         maps to x squared), or other more complex functions.</li>
                     <li>Values lower than 0 or 1 are clipped back into the range.</li>
+                </ul>
+            </div>
+            <!--Content for Huegene-->
+            <div id="huegene-info" class="side-content">
+                <h1>Huegene</h1>
+                <img src="./images/Huegene.webp" alt="Huegene GIF">
+                <h2>Description</h2>
+                <p>
+                    Huegene is an automata I found on reddit.
+                </p>
+                <h2>Rules</h2>
+                <p>Huegene works by keeping the value and saturation of every color constant and changing only hue.
+                    Extent of possible hue shift can be controlled via the random factor.</p>
+                <ul>
+                    <li>For empty cells with empty neighbors, they remain empty.</li>
+                    <li>For empty cells with filled neighbors, they randomly select a neighbor, offset their hue, and
+                        become filled.</li>
+                    <li>Filled cells always keep their hue.</li>
                 </ul>
             </div>
         </div>
@@ -469,6 +488,10 @@
                     <label for="neural-skip-input">Skip Frames</label>
                     <input type="checkbox" id="neural-skip-input">
                 </div>
+            </div>
+            <!--Settings for Huegene-->
+            <div id="huegene-settings" class="automata-settings">
+                <p>No settings available for Huegene</p>
             </div>
         </div>
     </div>

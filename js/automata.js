@@ -1260,6 +1260,7 @@ export class Huegene extends Automata {
   constructor(neighborhood = mooreNeighborhood()) {
     super();
     this.neighborhood = neighborhood;
+    this.baseState = [0, 0, 0];
 
     // Select a random fill color
     this.grid = new Array(this.rows)
@@ -1270,7 +1271,7 @@ export class Huegene extends Automata {
     this.penState = this.genRandomPenColor();
 
     // Select hue offsets for each cell
-    this.randomFactor = 10; // Sets maximum possible offset/automata randomness
+    this.randomFactor = 40; // Sets maximum possible offset/automata randomness
     this.offsetGrid = new Array(this.rows).fill(null).map((_) =>
       new Array(this.cols).fill(null).map((_) => {
         const offset = Math.floor(Math.random() * (this.randomFactor + 1));
@@ -1286,20 +1287,15 @@ export class Huegene extends Automata {
           const x = this.thread.x;
           const y = this.thread.y;
 
-          // Check current color
+          // Unpack current cell's color
           const cellColor = unpackRGB(grid[y][x]);
-          // return packRGB(shiftHue(cellColor, Math.floor(Math.random() * 10))); //! Psychedelic mode
-          if (
-            cellColor[0] != backgroundColor[0] &&
-            cellColor[1] != backgroundColor[1] &&
-            cellColor[2] != backgroundColor[2]
-          ) {
+          // If the current cell is filled, return its color
+          if (cellColor[0] != 0 || cellColor[1] != 0 || cellColor[2] != 0) {
             return grid[y][x];
           }
 
-          // TODO: Pick randomly from colored neighbors
-          // Find neighbors that are colored in
-          let emptyNeighbors = 0;
+          // Get neighborhood indices of filled neighbors
+          const filledNeighborIndices = [];
           for (let i = 0; i < this.constants.neighborhoodSize; i++) {
             const dx = neighborhood[i][0];
             const dy = neighborhood[i][1];
@@ -1308,37 +1304,37 @@ export class Huegene extends Automata {
                 (x + dx + this.constants.cols) % this.constants.cols
               ]
             );
-            // Square when summing neighbor colors
-            averageColor[0] += Math.pow(neighborColor[0], 2);
-            averageColor[1] += Math.pow(neighborColor[1], 2);
-            averageColor[2] += Math.pow(neighborColor[2], 2);
-            // Check if neighbor is empty
+            // Check if neighbor is not empty
             if (
-              neighborColor[0] == backgroundColor[0] &&
-              neighborColor[1] == backgroundColor[1] &&
-              neighborColor[2] == backgroundColor[2]
+              neighborColor[0] != 0 ||
+              neighborColor[1] != 0 ||
+              neighborColor[2] != 0
             ) {
-              emptyNeighbors += 1;
+              filledNeighborIndices.push(i);
             }
           }
 
-          // Fallback case
-          const filledNeighbors =
-            this.constants.neighborhoodSize - emptyNeighbors;
-          if (filledNeighbors == 0) {
+          // If there are no filled neighbors, keep cell color
+          if (filledNeighborIndices.length === 0) {
             return grid[y][x];
           }
-          // Square root for true average
-          averageColor[0] = Math.round(
-            Math.sqrt(averageColor[0] / filledNeighbors)
+
+          // Randomly select a filled neighbor index
+          const randomIndex = Math.floor(
+            Math.random() * filledNeighborIndices.length
           );
-          averageColor[1] = Math.round(
-            Math.sqrt(averageColor[1] / filledNeighbors)
+          const selectedNeighborIndex = filledNeighborIndices[randomIndex];
+          const randNeighbor = neighborhood[selectedNeighborIndex];
+          const dx = randNeighbor[0];
+          const dy = randNeighbor[1];
+          const randColor = unpackRGB(
+            grid[(y + dy + this.constants.rows) % this.constants.rows][
+              (x + dx + this.constants.cols) % this.constants.cols
+            ]
           );
-          averageColor[2] = Math.round(
-            Math.sqrt(averageColor[2] / filledNeighbors)
-          );
-          return packRGB(shiftHue(averageColor, offsetGrid[y][x]));
+
+          // Make a random decision whether to update or not
+          return packRGB(shiftHue(randColor, offsetGrid[y][x]));
         },
         { output: [this.cols, this.rows] }
       )
@@ -1351,6 +1347,7 @@ export class Huegene extends Automata {
       .setFunctions([packRGB, unpackRGB, shiftHue]);
   }
 
+  // TODO: Create a setOffsetGrid function
   // Override calculating the next grid state
   getNextState() {
     // Reset constants
@@ -1362,6 +1359,23 @@ export class Huegene extends Automata {
         backgroundColor: packRGB(backgroundColor),
       })
       .setOutput([this.cols, this.rows]);
+
+    // Update offsetGrid if needed
+    if (
+      !(this.rows == this.offsetGrid.length) ||
+      !(this.cols == this.offsetGrid[0].length)
+    ) {
+      this.offsetGrid = reshape2DArray(
+        this.offsetGrid,
+        this.rows,
+        this.cols,
+        null,
+        () => {
+          const offset = Math.floor(Math.random() * (this.randomFactor + 1));
+          return Math.random() < 0.5 ? offset : -offset;
+        }
+      );
+    }
 
     // Update grid using the kernel
     this.grid = this.gridUpdateKernel(
@@ -1380,28 +1394,42 @@ export class Huegene extends Automata {
 
   // Override randomizing the grid
   randomize() {
-    this.grid = new Array(this.rows)
-      .fill(null)
-      .map(() =>
+    // Use lifelike automata to randomize
+    let randEngine = new LifeLikeAutomata("B3458/S35678"); // Stain Rule
+    if (this.penState == packRGB([0, 0, 0])) this.cycleDraw();
+    for (let i = 0; i <= 20; i++) {
+      randEngine.updateGrid(false, false);
+    }
+    randEngine.grid = new Array(this.rows).fill(null).map(
+      () =>
         new Array(this.cols)
           .fill(null)
-          .map(() => [
-            Math.floor(Math.random() * 256),
-            Math.floor(Math.random() * 256),
-            Math.floor(Math.random() * 256),
-          ])
-      );
+          .map(() =>
+            Math.random() < 0.001 ? this.penState : packRGB([0, 0, 0])
+          ) // Change probability of 1 to get sparser/denser patterns
+    );
+
+    // Update the grid
+    this.grid = randEngine.grid;
     window.requestAnimationFrame(() => this.drawGrid());
   }
 
   // Override cycle between draw state
   cycleDraw() {
-    // Change pen state
-    this.penState = this.genRandomPenColor();
-    const penState = unpackRGB(this.penState);
-    setConsoleText(
-      `Updated pen to draw RGB(${penState[0]},${penState[1]},${penState[2]})`
-    );
+    // Change pen state between erase and colored
+    if (this.penState == packRGB([0, 0, 0])) {
+      // Pick a colored pen
+      this.penState = this.genRandomPenColor();
+      const penState = unpackRGB(this.penState);
+      setConsoleText(
+        `Updated pen to draw RGB(${penState[0]},${penState[1]},${penState[2]})`
+      );
+    } else {
+      // Pick an erasing pen
+      this.penState = packRGB([0, 0, 0]);
+      setConsoleText(`Updated pen to draw Erase (Black fill)`);
+    }
+
     window.requestAnimationFrame(() => this.drawCursor());
   }
 
@@ -1429,7 +1457,7 @@ export class Huegene extends Automata {
 }
 
 //! Intialize and trigger automata class
-export let automata = new Huegene(); // Automata Definition
+export let automata = new LifeLikeAutomata(); // Automata Definition
 export function setAutomata(newAutomataName, args = [], grid = null) {
   // Recast Elementary CA
   if (automata instanceof ElementaryCA) {
@@ -1513,7 +1541,11 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
       automata.grid = oldGrid.map((row) =>
         row.map((state) => ([0, 1].includes(state) ? state : 1))
       );
-      setConsoleText("Changed automata to neural");
+      setConsoleText("Changed automata to Neural CA");
+      break;
+    case "Huegene":
+      automata = new Huegene(...args);
+      setConsoleText("Changed automata to Huegene");
       break;
     default:
       break;

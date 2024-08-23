@@ -155,9 +155,16 @@ export function downloadObjectAsJSON(obj, filename) {
 }
 
 // Reshape a grid to a specific dimension, filling up with 0
-export function reshape2DArray(array, targetRows, targetCols, fillValue = 0) {
+export function reshape2DArray(
+  array,
+  targetRows,
+  targetCols,
+  fillValue = 0,
+  genFunction = null
+) {
+  // Fill the array with the fill value or call a function to generate the value
   const newArray = Array.from({ length: targetRows }, () =>
-    Array(targetCols).fill(fillValue)
+    Array(targetCols).fill(genFunction ? genFunction() : fillValue)
   );
 
   // Copy values from the old array to the new array (within bounds)

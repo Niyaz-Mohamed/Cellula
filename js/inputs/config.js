@@ -8,6 +8,7 @@ export let fillRadius = 3;
 export let paused = false;
 export let backgroundColor = [21, 25, 31]; // #15191f (rich black)
 
+// TODO: Add any new automata here and also in automata select sidenav, info, and settings
 // Maps to be used for html modifications
 export const nameMap = {
   "Langton's Ant": "Ants",
@@ -25,6 +26,7 @@ export const infoMap = {
   Wireworld: "wire-info",
   "Rock, Paper, Scissors": "rps-info",
   "Neural CA": "neural-info",
+  Huegene: "huegene-info",
 }; //! Maps each automata name to the id of its info content
 
 export const settingsMap = {
@@ -35,6 +37,7 @@ export const settingsMap = {
   Wireworld: "wire-settings",
   "Rock, Paper, Scissors": "rps-settings",
   "Neural CA": "neural-settings",
+  Huegene: "huegene-settings",
 }; //! This maps each automata name to the id of its info content
 
 // Setter functions
