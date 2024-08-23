@@ -455,3 +455,36 @@ presetSelector.onchange = (event) => {
   automata.activation = argMap[event.target.value].activation;
   automata.randomize();
 };
+
+//! Huegene Rules
+// Handle changes in random factor
+document
+  .getElementById("huegene-random-input")
+  .addEventListener("input", function (event) {
+    // Strip non-digit characters from the input
+    let randFactor = Number(event.target.value.replace(/\D/g, ""), 10);
+    randFactor = randFactor < 0 ? 0 : randFactor;
+    event.target.value = randFactor;
+    // Assign rule
+    automata.randomFactor = randFactor;
+    automata.updateOffset(true);
+  });
+
+// TODO: Add in fade and psychedelic effects
+// // Switch on/off fade
+// document
+//   .getElementById("huegene-fade-input")
+//   .addEventListener("input", function (_) {
+//     automata.fade = document.getElementById("huegene-fade-input").checked;
+//     console.log(automata.fade);
+//   });
+
+// // Switch on/off psychedelic mode
+// document
+//   .getElementById("huegene-psychedelic-input")
+//   .addEventListener("input", function (_) {
+//     automata.psychedelic = document.getElementById(
+//       "huegene-psychedelic-input"
+//     ).checked;
+//     console.log(automata.psychedelic);
+//   });

@@ -326,7 +326,10 @@
                 <img src="./images/Huegene.webp" alt="Huegene GIF">
                 <h2>Description</h2>
                 <p>
-                    Huegene is an automata I found on reddit.
+                    Huegene is an automata modeling slow evolution by changing the hue of cells. Some models of huegene
+                    involve predator and prey, but this implementation is a simpler version I found on a <a
+                        href='https://www.reddit.com/r/creativecoding/comments/ozt21p/huegene_cellular_automata/'>reddit
+                        post</a>.
                 </p>
                 <h2>Rules</h2>
                 <p>Huegene works by keeping the value and saturation of every color constant and changing only hue.
@@ -491,7 +494,19 @@
             </div>
             <!--Settings for Huegene-->
             <div id="huegene-settings" class="automata-settings">
-                <p>No settings available for Huegene</p>
+                <div class="rule-div">
+                    <label for="huegene-random-input">Random Factor</label>
+                    <p class="desc">Number >= 0, represents randomness of hue evolution.</p>
+                    <input type="text" id="huegene-random-input" />
+                </div>
+                <!-- <div class="rule-div horizontal-rule">
+                    <label for="huegene-fade-input">Fade Pixels</label>
+                    <input type="checkbox" id="huegene-fade-input">
+                </div>
+                <div class="rule-div horizontal-rule">
+                    <label for="huegene-psychedelic-input">Psychedelic Mode</label>
+                    <input type="checkbox" id="huegene-psychedelic-input">
+                </div> -->
             </div>
         </div>
     </div>

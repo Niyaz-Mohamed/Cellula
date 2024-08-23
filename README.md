@@ -18,11 +18,12 @@ Usage of the website is simple and instructions are provided in the console at t
 
 ## Future Development
 
-I intend to develop this project further in the future by implementing [multiple neighborhood cellular automata](https://slackermanz.com/understanding-multiple-neighborhood-cellular-automata/) (Credit to Slackermanz), which tend to display more complex behaviors and tend to form stable solitons.
+I intend to develop this project further in the future by implementing [multiple neighborhood cellular automata](https://slackermanz.com/understanding-multiple-neighborhood-cellular-automata/) (Credit to Slackermanz), which tend to display more complex behavior and often form stable solitons.
 
 ## Gallery
 
-| ![Game of Life](images/Life.webp)    | ![Brian's Brain](images/BrianBrain.webp)   |
-| ------------------------------------ | ------------------------------------------ |
-| ![Wireworld](images/Wireworld.webp)  | ![Rock Paper Scissors](images/RPS.webp)    |
-| ![Wireworld](images/Elementary.webp) | ![Rock Paper Scissors](images/Neural.webp) |
+| ![Game of Life](images/Life.webp)        | ![Brian's Brain](images/BrianBrain.webp) |
+| ---------------------------------------- | ---------------------------------------- |
+| ![Wireworld](images/Wireworld.webp)      | ![Rock Paper Scissors](images/RPS.webp)  |
+| ![Elementary](images/Elementary.webp)    | ![Neural](images/Neural.webp)            |
+| ![Langton's Ant](images/LangtonAnt.webp) | ![Huegene](images/Huegene.webp)          |

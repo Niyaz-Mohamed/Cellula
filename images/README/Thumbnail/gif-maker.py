@@ -24,5 +24,6 @@ image_files = [
     "Wireworld.png",
     "RPS.png",
     "Neural.png",
+    "Huegene.png",
 ]
 create_gif(image_files, "Thumbnail.gif", 1)

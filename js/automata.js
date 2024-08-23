@@ -1271,19 +1271,21 @@ export class Huegene extends Automata {
     this.penState = this.genRandomPenColor();
 
     // Select hue offsets for each cell
-    this.randomFactor = 40; // Sets maximum possible offset/automata randomness
-    this.offsetGrid = new Array(this.rows).fill(null).map((_) =>
-      new Array(this.cols).fill(null).map((_) => {
-        const offset = Math.floor(Math.random() * (this.randomFactor + 1));
-        return Math.random() < 0.5 ? offset : -offset; // Offset can be negative or positive, equal probability
-      })
-    );
+    this.randomFactor = 40;
+    document.getElementById("huegene-random-input").value = this.randomFactor;
+    this.updateOffset();
+
+    // Extra Settings
+    this.fade = false;
+    this.psychedelic = false;
+    this.fadeKeepRate = 0.9;
+    this.psychedelicRate = 30;
 
     // TODO: Implement psychedelic mode where color of grid just cycles through various colors
     // Implement GPU kernel to update grid
     this.gridUpdateKernel = this.gpu
       .createKernel(
-        function (grid, neighborhood, offsetGrid) {
+        function (grid, neighborhood, offsetGrid, fade, psychedelic) {
           const x = this.thread.x;
           const y = this.thread.y;
 
@@ -1291,7 +1293,13 @@ export class Huegene extends Automata {
           const cellColor = unpackRGB(grid[y][x]);
           // If the current cell is filled, return its color
           if (cellColor[0] != 0 || cellColor[1] != 0 || cellColor[2] != 0) {
-            return grid[y][x];
+            if (psychedelic)
+              shiftHue(cellColor, this.constants.psychedelicRate);
+            if (fade)
+              cellColor.map((color) =>
+                Math.round(color * this.constants.fadeKeepRate)
+              );
+            return packRGB(cellColor);
           }
 
           // Get neighborhood indices of filled neighbors
@@ -1316,7 +1324,13 @@ export class Huegene extends Automata {
 
           // If there are no filled neighbors, keep cell color
           if (filledNeighborIndices.length === 0) {
-            return grid[y][x];
+            if (psychedelic)
+              shiftHue(cellColor, this.constants.psychedelicRate);
+            if (fade)
+              cellColor.map((color) =>
+                Math.round(color * this.constants.fadeKeepRate)
+              );
+            return packRGB(cellColor);
           }
 
           // Randomly select a filled neighbor index
@@ -1327,13 +1341,18 @@ export class Huegene extends Automata {
           const randNeighbor = neighborhood[selectedNeighborIndex];
           const dx = randNeighbor[0];
           const dy = randNeighbor[1];
-          const randColor = unpackRGB(
+          let randColor = unpackRGB(
             grid[(y + dy + this.constants.rows) % this.constants.rows][
               (x + dx + this.constants.cols) % this.constants.cols
             ]
           );
 
-          // Make a random decision whether to update or not
+          // Add effects before final update
+          if (psychedelic) shiftHue(randColor, this.constants.psychedelicRate);
+          if (fade)
+            randColor.map((color) =>
+              Math.round(color * this.constants.fadeKeepRate)
+            );
           return packRGB(shiftHue(randColor, offsetGrid[y][x]));
         },
         { output: [this.cols, this.rows] }
@@ -1343,28 +1362,16 @@ export class Huegene extends Automata {
         cols: this.cols,
         neighborhoodSize: this.neighborhood.length,
         backgroundColor: packRGB(backgroundColor),
+        fadeKeepRate: this.fadeKeepRate,
+        psychedelicRate: this.psychedelicRate,
       })
       .setFunctions([packRGB, unpackRGB, shiftHue]);
   }
 
-  // TODO: Create a setOffsetGrid function
-  // Override calculating the next grid state
-  getNextState() {
-    // Reset constants
-    this.gridUpdateKernel
-      .setConstants({
-        rows: this.rows,
-        cols: this.cols,
-        neighborhoodSize: this.neighborhood.length,
-        backgroundColor: packRGB(backgroundColor),
-      })
-      .setOutput([this.cols, this.rows]);
-
-    // Update offsetGrid if needed
-    if (
-      !(this.rows == this.offsetGrid.length) ||
-      !(this.cols == this.offsetGrid[0].length)
-    ) {
+  // Update the offset of the automata
+  updateOffset(override = false) {
+    if (this.offset && !override) {
+      // Cases where grid size is being updated without override
       this.offsetGrid = reshape2DArray(
         this.offsetGrid,
         this.rows,
@@ -1375,13 +1382,46 @@ export class Huegene extends Automata {
           return Math.random() < 0.5 ? offset : -offset;
         }
       );
+    } else {
+      this.offsetGrid = new Array(this.rows).fill(null).map((_) =>
+        new Array(this.cols).fill(null).map((_) => {
+          const offset = Math.floor(Math.random() * (this.randomFactor + 1));
+          return Math.random() < 0.5 ? offset : -offset; // Offset can be negative or positive, equal probability
+        })
+      );
+    }
+  }
+
+  // Override calculating the next grid state
+  getNextState() {
+    // Reset constants
+    this.gridUpdateKernel
+      .setConstants({
+        rows: this.rows,
+        cols: this.cols,
+        neighborhoodSize: this.neighborhood.length,
+        backgroundColor: packRGB(backgroundColor),
+        fadeKeepRate: this.fadeKeepRate,
+        psychedelicRate: this.psychedelicRate,
+      })
+      .setOutput([this.cols, this.rows]);
+
+    // Update offsetGrid if needed
+    if (
+      !(this.rows == this.offsetGrid.length) ||
+      !(this.cols == this.offsetGrid[0].length)
+    ) {
+      this.updateOffset();
     }
 
     // Update grid using the kernel
+    console.log(this.fade, this.psychedelic);
     this.grid = this.gridUpdateKernel(
       this.grid,
       this.neighborhood,
-      this.offsetGrid
+      this.offsetGrid,
+      this.fade,
+      this.psychedelic
     );
     // Call kernel
     return this.grid;
@@ -1394,9 +1434,16 @@ export class Huegene extends Automata {
 
   // Override randomizing the grid
   randomize() {
+    // Mix up colors
+    if (!(this.penState == packRGB([0, 0, 0]))) {
+      this.cycleDraw();
+    }
+    this.cycleDraw();
+
     // Use lifelike automata to randomize
     let randEngine = new LifeLikeAutomata("B3458/S35678"); // Stain Rule
-    if (this.penState == packRGB([0, 0, 0])) this.cycleDraw();
+    this;
+
     for (let i = 0; i <= 20; i++) {
       randEngine.updateGrid(false, false);
     }
@@ -1405,7 +1452,7 @@ export class Huegene extends Automata {
         new Array(this.cols)
           .fill(null)
           .map(() =>
-            Math.random() < 0.001 ? this.penState : packRGB([0, 0, 0])
+            Math.random() < 0.0001 ? this.penState : packRGB([0, 0, 0])
           ) // Change probability of 1 to get sparser/denser patterns
     );
 
