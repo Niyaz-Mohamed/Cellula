@@ -302,23 +302,8 @@ export function hsvToRgb(hsvColor) {
 }
 
 // Fade any rgb color to black
-export function fadeRGB(color, fadeKeepRate, fallbackFade = 5) {
-  let newColor = color.map((channel) =>
-    Math.max(Math.floor(channel * fadeKeepRate), 0)
-  );
-  // Return black as is
-  // if (
-  //   packRGB(color) == packRGB([0, 0, 0]) ||
-  //   color.every((channel) => channel < fallbackFade)
-  // )
-  //   newColor = [0, 0, 0];
-  // else if (
-  //   packRGB(newColor) == packRGB(color) ||
-  //   newColor.every((channel) => channel == newColor[0])
-  // ) {
-  //   // Fallback case where you fade by fallback
-  //   newColor = newColor.map((channel) => Math.max(channel - fallbackFade, 0));
-  //   if (newColor.every((channel) => channel < 3)) console.log(newColor, color);
-  // }
-  return newColor;
+export function fadeRGB(color, fadeKeepRate) {
+  const colorSum = color[0] + color[1] + color[2];
+  if (colorSum < 20) return [0, 0, 0]; // When difference is too small to see, just return black
+  return color.map((channel) => Math.floor(channel * fadeKeepRate));
 }

@@ -128,10 +128,11 @@ export class Automata {
     // Update draw times
     this.drawTimes.push(Date.now() - this.lastDraw);
     this.lastDraw = Date.now();
-    this.drawTimes = this.drawTimes.slice(0, 10);
+    this.drawTimes = this.drawTimes.slice(-50);
     const aveDrawTime =
       this.drawTimes.reduce((a, b) => a + b) / this.drawTimes.length;
     this.fps = Math.round(1000 / aveDrawTime);
+    document.getElementById("fps-span").innerHTML = this.fps;
   }
 
   // Draw the cursor only when requried
@@ -1279,12 +1280,11 @@ export class Huegene extends Automata {
     // Extra Settings
     this.fade = false;
     this.psychedelic = false;
-    this.fadeKeepRate = 0.96;
+    this.fadeKeepRate = 0.99;
     this.psychedelicRate = 4;
     document.getElementById("huegene-psychedelic-input").checked = false;
     document.getElementById("huegene-fade-input").checked = false;
 
-    // TODO: Implement psychedelic mode where color of grid just cycles through various colors
     // Implement GPU kernel to update grid
     this.gridUpdateKernel = this.gpu
       .createKernel(
@@ -1304,7 +1304,7 @@ export class Huegene extends Automata {
                 (x + dx + this.constants.cols) % this.constants.cols
               ]
             );
-            // Check if neighbor is not empty
+            // Check if neighbor is not empty (leave some leeway)
             if (
               neighborColor[0] != 0 ||
               neighborColor[1] != 0 ||
@@ -1344,6 +1344,9 @@ export class Huegene extends Automata {
           );
 
           // Update the required cells
+          if (psychedelic)
+            randColor = shiftHue(randColor, this.constants.psychedelicRate);
+          if (fade) randColor = fadeRGB(randColor, this.constants.fadeKeepRate);
           return packRGB(shiftHue(randColor, offsetGrid[y][x]));
         },
         { output: [this.cols, this.rows] }
@@ -1407,7 +1410,7 @@ export class Huegene extends Automata {
     }
 
     // Update grid using the kernel
-    this.grid = this.gridUpdateKernel(
+    const newGrid = this.gridUpdateKernel(
       this.grid,
       this.neighborhood,
       this.offsetGrid,
@@ -1415,7 +1418,7 @@ export class Huegene extends Automata {
       this.psychedelic
     );
     // Call kernel
-    return this.grid;
+    return newGrid;
   }
 
   // Override calculation of color required by a specific state as rgb value
@@ -1468,9 +1471,6 @@ export class Huegene extends Automata {
       setConsoleText(`Updated pen to draw Erase (Black fill)`);
     }
     window.requestAnimationFrame(() => this.drawCursor());
-
-    //TODO: REMOVE
-    console.log(this.grid[0][0]);
   }
 
   // Override get pen color
@@ -1479,7 +1479,6 @@ export class Huegene extends Automata {
     return `rgba(${penState[0]},${penState[1]},${penState[2]}, 0.8)`;
   }
 
-  // TODO: Restrict brightness/saturation values of generated colors
   // Get random color (in RGB) for pen
   genRandomPenColor() {
     return packRGB(hsvToRgb([Math.floor(Math.random() * 360), 0.6, 0.8]));
@@ -1536,7 +1535,7 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
       );
       setConsoleText("Changed automata to Langton's Ant");
       break;
-    case "Elementary CA":
+    case "Elementary":
       automata = new ElementaryCA(...args);
       // Convert non 0/1 cells to 1
       automata.grid = oldGrid.map((row) =>
@@ -1575,7 +1574,7 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
       );
       setConsoleText("Changed automata to Rock, Paper, Scissors");
       break;
-    case "Neural CA":
+    case "Neural":
       automata = new NeuralCA(...args);
       // Convert non 0/1 cells to 1
       automata.grid = oldGrid.map((row) =>
@@ -1596,7 +1595,3 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
   if (!paused) changePaused();
 }
 automata.updateGrid();
-
-// TODO: Is there a better way to present this?
-//! Track FPS
-// setInterval(() => console.log("Current FPS is " + automata.fps), 5000);

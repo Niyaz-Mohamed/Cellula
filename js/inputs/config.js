@@ -14,29 +14,28 @@ export const nameMap = {
   "Langton's Ant": "Ants",
   "Brian's Brain": "BB",
   "Rock, Paper, Scissors": "RPS",
-  "Elementary CA": "Elem",
-  "Neural CA": "Neural",
+  Elementary: "Elem",
 }; //! Used for setting automata name in top left
 
 export const infoMap = {
   Life: "life-info",
   "Langton's Ant": "ant-info",
-  "Elementary CA": "elementary-info",
+  Elementary: "elementary-info",
   "Brian's Brain": "brain-info",
   Wireworld: "wire-info",
   "Rock, Paper, Scissors": "rps-info",
-  "Neural CA": "neural-info",
+  Neural: "neural-info",
   Huegene: "huegene-info",
 }; //! Maps each automata name to the id of its info content
 
 export const settingsMap = {
   Life: "life-settings",
   "Langton's Ant": "ant-settings",
-  "Elementary CA": "elementary-settings",
+  Elementary: "elementary-settings",
   "Brian's Brain": "brain-settings",
   Wireworld: "wire-settings",
   "Rock, Paper, Scissors": "rps-settings",
-  "Neural CA": "neural-settings",
+  Neural: "neural-settings",
   Huegene: "huegene-settings",
 }; //! This maps each automata name to the id of its info content
 
@@ -55,6 +54,7 @@ export function setCellSize(size) {
   automata.rows = newRows;
   automata.cols = newCols;
   setConsoleText(`Cell Size set to: ${cellSize}`);
+  automata.drawTimes = automata.drawTimes.slice(-5);
   automata.drawGrid();
   automata.drawCursor();
 }

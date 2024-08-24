@@ -12,6 +12,7 @@
   opacity: var(--toolbar-opacity);
   display: none;
   z-index: 2;
+  scrollbar-color: var(--theme-color) var(--highlight-color);
 }
 
 .window-header {

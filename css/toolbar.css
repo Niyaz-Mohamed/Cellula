@@ -4,6 +4,12 @@
   color: var(--bg-color);
 }
 
+/*! FPS Tracker*/
+#fps-tracker {
+  background-color: var(--theme-color);
+  color: var(--bg-color);
+}
+
 /*! Console */
 #console-container {
   padding: 0px 10px 0px 10px;
