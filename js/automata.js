@@ -21,6 +21,7 @@ import {
   unpackRGB,
   shiftHue,
   hsvToRgb,
+  fadeRGB,
 } from "./utils.js";
 import {
   mouseX,
@@ -1278,8 +1279,10 @@ export class Huegene extends Automata {
     // Extra Settings
     this.fade = false;
     this.psychedelic = false;
-    this.fadeKeepRate = 0.9;
-    this.psychedelicRate = 30;
+    this.fadeKeepRate = 0.96;
+    this.psychedelicRate = 4;
+    document.getElementById("huegene-psychedelic-input").checked = false;
+    document.getElementById("huegene-fade-input").checked = false;
 
     // TODO: Implement psychedelic mode where color of grid just cycles through various colors
     // Implement GPU kernel to update grid
@@ -1288,19 +1291,8 @@ export class Huegene extends Automata {
         function (grid, neighborhood, offsetGrid, fade, psychedelic) {
           const x = this.thread.x;
           const y = this.thread.y;
-
           // Unpack current cell's color
           const cellColor = unpackRGB(grid[y][x]);
-          // If the current cell is filled, return its color
-          if (cellColor[0] != 0 || cellColor[1] != 0 || cellColor[2] != 0) {
-            if (psychedelic)
-              shiftHue(cellColor, this.constants.psychedelicRate);
-            if (fade)
-              cellColor.map((color) =>
-                Math.round(color * this.constants.fadeKeepRate)
-              );
-            return packRGB(cellColor);
-          }
 
           // Get neighborhood indices of filled neighbors
           const filledNeighborIndices = [];
@@ -1322,15 +1314,19 @@ export class Huegene extends Automata {
             }
           }
 
-          // If there are no filled neighbors, keep cell color
-          if (filledNeighborIndices.length === 0) {
+          // If there are no filled neighbors or cell is filled, keep cell color
+          if (
+            filledNeighborIndices.length === 0 ||
+            cellColor[0] != 0 ||
+            cellColor[1] != 0 ||
+            cellColor[2] != 0
+          ) {
+            let finalColor = cellColor;
             if (psychedelic)
-              shiftHue(cellColor, this.constants.psychedelicRate);
+              finalColor = shiftHue(finalColor, this.constants.psychedelicRate);
             if (fade)
-              cellColor.map((color) =>
-                Math.round(color * this.constants.fadeKeepRate)
-              );
-            return packRGB(cellColor);
+              finalColor = fadeRGB(finalColor, this.constants.fadeKeepRate);
+            return packRGB(finalColor);
           }
 
           // Randomly select a filled neighbor index
@@ -1347,12 +1343,7 @@ export class Huegene extends Automata {
             ]
           );
 
-          // Add effects before final update
-          if (psychedelic) shiftHue(randColor, this.constants.psychedelicRate);
-          if (fade)
-            randColor.map((color) =>
-              Math.round(color * this.constants.fadeKeepRate)
-            );
+          // Update the required cells
           return packRGB(shiftHue(randColor, offsetGrid[y][x]));
         },
         { output: [this.cols, this.rows] }
@@ -1364,8 +1355,9 @@ export class Huegene extends Automata {
         backgroundColor: packRGB(backgroundColor),
         fadeKeepRate: this.fadeKeepRate,
         psychedelicRate: this.psychedelicRate,
+        randomFactor: this.randomFactor,
       })
-      .setFunctions([packRGB, unpackRGB, shiftHue]);
+      .setFunctions([packRGB, unpackRGB, shiftHue, fadeRGB]);
   }
 
   // Update the offset of the automata
@@ -1415,7 +1407,6 @@ export class Huegene extends Automata {
     }
 
     // Update grid using the kernel
-    console.log(this.fade, this.psychedelic);
     this.grid = this.gridUpdateKernel(
       this.grid,
       this.neighborhood,
@@ -1476,8 +1467,10 @@ export class Huegene extends Automata {
       this.penState = packRGB([0, 0, 0]);
       setConsoleText(`Updated pen to draw Erase (Black fill)`);
     }
-
     window.requestAnimationFrame(() => this.drawCursor());
+
+    //TODO: REMOVE
+    console.log(this.grid[0][0]);
   }
 
   // Override get pen color
@@ -1606,4 +1599,4 @@ automata.updateGrid();
 
 // TODO: Is there a better way to present this?
 //! Track FPS
-setInterval(() => console.log("Current FPS is " + automata.fps), 5000);
+// setInterval(() => console.log("Current FPS is " + automata.fps), 5000);

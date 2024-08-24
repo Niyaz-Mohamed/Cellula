@@ -471,20 +471,20 @@ document
   });
 
 // TODO: Add in fade and psychedelic effects
-// // Switch on/off fade
-// document
-//   .getElementById("huegene-fade-input")
-//   .addEventListener("input", function (_) {
-//     automata.fade = document.getElementById("huegene-fade-input").checked;
-//     console.log(automata.fade);
-//   });
+// Switch on/off fade
+document
+  .getElementById("huegene-fade-input")
+  .addEventListener("input", function (_) {
+    automata.fade = document.getElementById("huegene-fade-input").checked;
+    console.log(automata.fade);
+  });
 
-// // Switch on/off psychedelic mode
-// document
-//   .getElementById("huegene-psychedelic-input")
-//   .addEventListener("input", function (_) {
-//     automata.psychedelic = document.getElementById(
-//       "huegene-psychedelic-input"
-//     ).checked;
-//     console.log(automata.psychedelic);
-//   });
+// Switch on/off psychedelic mode
+document
+  .getElementById("huegene-psychedelic-input")
+  .addEventListener("input", function (_) {
+    automata.psychedelic = document.getElementById(
+      "huegene-psychedelic-input"
+    ).checked;
+    console.log(automata.psychedelic);
+  });
