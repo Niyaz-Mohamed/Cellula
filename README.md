@@ -2,7 +2,7 @@
 
 > [Online cellular automata playground](https://niyaz-mohamed.github.io/Cellula) with hardware acceleration using GPU.js
 
-![Thumbnail](images/Thumbnail/Thumbnail.gif)
+![Made with pure HTML, CSS, and JS](images/Thumbnail/Thumbnail.gif)
 
 > **SEIZURE WARNING: Some patterns may strain the eyes or cause seizure. Use with care.**
 
