@@ -13,18 +13,30 @@ export let mouseX = 0;
 export let mouseY = 0;
 export var outlinePoints = [];
 
+//! MOBILE COMPATIBILITY EVENTS
+const moveEvents = ["mousemove", "touchmove"];
+const downEvents = ["mousedown", "touchstart"];
+const upEvents = ["mouseup", "touchend"];
+const leaveEvents = ["mouseleave", "touchcancel"];
+
+function registerEvents(element, events, callback) {
+  events.forEach((event) => element.addEventListener(event, callback));
+}
+
 //! MOUSE FUNCTIONS
 
 // Update mouse coordinate whenever mouse moves
-export function updateMousePosition(event) {
+function updateMousePosition(event) {
   const rect = ctx.canvas.getBoundingClientRect();
-  mouseX = event.clientX - rect.left;
-  mouseY = event.clientY - rect.top;
-  outlinePoints = midpointCircle(
-    Math.floor(mouseX / cellSize),
-    Math.floor(mouseY / cellSize),
-    fillRadius
-  );
+
+  // Handle touch and mouse event
+  if (event.touches && event.touches.length > 0) {
+    mouseX = event.touches[0].clientX - rect.left;
+    mouseY = event.touches[0].clientY - rect.top;
+  } else {
+    mouseX = event.clientX - rect.left;
+    mouseY = event.clientY - rect.top;
+  }
   automata.drawCursor();
 }
 
@@ -39,15 +51,12 @@ function drawLoop() {
 }
 
 export function registerCanvasCallbacks(ctx) {
-  ctx.canvas.addEventListener("mousemove", updateMousePosition);
-  ctx.canvas.addEventListener("mousedown", () => {
+  registerEvents(ctx.canvas, moveEvents, updateMousePosition);
+  registerEvents(ctx.canvas, downEvents, () => {
     isDrawing = true;
     requestAnimationFrame(drawLoop);
   });
-  ctx.canvas.addEventListener("mouseup", () => {
-    isDrawing = false;
-  });
-  ctx.canvas.addEventListener("mouseleave", () => {
+  registerEvents(ctx.canvas, upEvents.concat(leaveEvents), () => {
     isDrawing = false;
   });
 }
@@ -78,9 +87,12 @@ function triggerDragElement(element) {
 
   // Check for presence of a header
   if (document.getElementById(element.id + "-header")) {
-    document.getElementById(element.id + "-header").onmousedown = dragMouseDown;
+    const header = document.getElementById(element.id + "-header");
+    header.onmousedown = dragMouseDown;
+    header.ontouchstart = dragMouseDown;
   } else {
     element.onmousedown = dragMouseDown;
+    element.ontouchstart = dragMouseDown;
   }
 
   function dragMouseDown(e) {
@@ -90,14 +102,21 @@ function triggerDragElement(element) {
     yPos = e.clientY;
     document.onmouseup = closeDragElement;
     document.onmousemove = elementDrag;
+    document.ontouchend = closeDragElement;
+    document.ontouchmove = elementDrag;
   }
 
   function elementDrag(e) {
     e.preventDefault();
-    changeOfX = xPos - e.clientX;
-    changeOfY = yPos - e.clientY;
-    xPos = e.clientX;
-    yPos = e.clientY < minTop ? yPos : e.clientY; // Clamp mouse y position
+    // Get current position of touch/mouse
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+    // Calculate drag distance in x and y directions
+    changeOfX = xPos - clientX;
+    xPos = clientX;
+    changeOfY = yPos > minTop ? yPos - clientY : minTop;
+    yPos = clientY;
 
     // Set new position
     let newTop = element.offsetTop - changeOfY;
@@ -109,6 +128,8 @@ function triggerDragElement(element) {
     // Stop moving when mouse stops
     document.onmouseup = null;
     document.onmousemove = null;
+    document.ontouchend = null;
+    document.ontouchmove = null;
   }
 }
 

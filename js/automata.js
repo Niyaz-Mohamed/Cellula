@@ -137,21 +137,15 @@ export class Automata {
 
   // Draw the cursor only when requried
   drawCursor() {
-    // Draw the cursor/pen outline
+    // Calculate points to draw
     let x = Math.floor(mouseX / cellSize);
     let y = Math.floor(mouseY / cellSize);
+
+    // Clear the grid and draw
     overlayCtx.clearRect(0, 0, canvas.width, canvas.height);
-    if (outlinePoints[0] != [x + fillRadius + 1, y]) {
-      // Draw outline of pen
-      for (const [col, row] of midpointCircle(x, y, fillRadius + 1)) {
-        overlayCtx.fillStyle = this.getPenColor();
-        overlayCtx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
-      }
-    } else {
-      for (const [col, row] of outlinePoints) {
-        overlayCtx.fillStyle = this.getPenColor();
-        overlayCtx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
-      }
+    for (const [col, row] of midpointCircle(x, y, fillRadius + 1)) {
+      overlayCtx.fillStyle = this.getPenColor();
+      overlayCtx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
     }
   }
 
@@ -1434,24 +1428,15 @@ export class Huegene extends Automata {
     }
     this.cycleDraw();
 
-    // Use lifelike automata to randomize
-    let randEngine = new LifeLikeAutomata("B3458/S35678"); // Stain Rule
-    this;
-
-    for (let i = 0; i <= 20; i++) {
-      randEngine.updateGrid(false, false);
-    }
-    randEngine.grid = new Array(this.rows).fill(null).map(
+    // Update the grid
+    this.grid = new Array(this.rows).fill(null).map(
       () =>
         new Array(this.cols)
           .fill(null)
           .map(() =>
-            Math.random() < 0.0001 ? this.penState : packRGB([0, 0, 0])
-          ) // Change probability of 1 to get sparser/denser patterns
+            Math.random() < 0.0003 ? this.penState : packRGB([0, 0, 0])
+          ) // Change probability to get denser patterns
     );
-
-    // Update the grid
-    this.grid = randEngine.grid;
     window.requestAnimationFrame(() => this.drawGrid());
   }
 
