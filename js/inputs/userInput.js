@@ -97,6 +97,7 @@ function triggerDragElement(element) {
 
   function dragMouseDown(e) {
     e.preventDefault();
+    e.stopPropagation();
     // Get starting mouse position
     xPos = e.clientX;
     yPos = e.clientY;
@@ -108,6 +109,7 @@ function triggerDragElement(element) {
 
   function elementDrag(e) {
     e.preventDefault();
+    e.stopPropagation();
     // Get current position of touch/mouse
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;

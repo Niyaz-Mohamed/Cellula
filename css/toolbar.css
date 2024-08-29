@@ -1,3 +1,31 @@
+/*! Overall Toolbar */
+#toolbar {
+  position: relative;
+  height: auto;
+  min-height: max-content;
+  width: 100%;
+  align-content: center;
+  background-color: var(--highlight-color);
+  opacity: var(--toolbar-opacity);
+  z-index: 11;
+  box-sizing: content-box;
+  box-shadow: inset 0px 0px 0px 2px var(--theme-color);
+}
+
+#toolbar > * {
+  float: left;
+  height: var(--toolbar-height);
+  min-height: fit-content;
+  margin: 0px;
+  padding: 0px 10px 0px 10px;
+  color: var(--theme-color);
+  line-height: var(--toolbar-height);
+  font-size: 1em;
+  text-decoration: none;
+  box-shadow: inset 0px 0px 0px 2px var(--theme-color);
+  background-color: var(--bg-color);
+}
+
 /*! Title to left of tabbar */
 #app-title {
   background-color: var(--theme-color);
@@ -19,15 +47,26 @@
   text-align: left;
 }
 
+/* Hide the console when width is too small */
+@media (max-width: 690px) {
+  #console-container {
+    width: 100%;
+    float: left;
+  }
+}
+
 /*! Dropdown Boilerplate */
 .dropdown {
   padding: 0px !important;
   width: 5%;
   min-width: 100px;
+  text-align: center;
 }
 
 .dropbtn {
   padding: 0px;
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
 }
 
 /* Dropdown Content (Hidden by Default) */
@@ -68,19 +107,16 @@
 
 /* Hover changes */
 .dropdown-option:hover {
-  background-color: var(--highlight-color);
+  background-color: var(--theme-color);
 }
 
 .dropdown:hover .dropdown-content {
   display: block;
 }
 
-.dropdown:hover {
-  background-color: var(--theme-color);
-}
-
 .dropdown:hover .dropbtn {
   color: var(--bg-color);
+  background-color: var(--theme-color);
 }
 
 /*! Trigger Boilerplate */

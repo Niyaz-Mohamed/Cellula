@@ -5,7 +5,7 @@
   --theme-color: #95b0dc;
   --center-cell-color: rgb(255, 129, 129);
   --toolbar-height: 5vh;
-  --toolbar-opacity: 0.97;
+  --toolbar-opacity: 0.96;
 }
 
 * {
@@ -162,29 +162,6 @@ body {
   font-weight: bold;
   position: relative;
   cursor: crosshair;
-}
-
-#toolbar {
-  position: absolute;
-  height: var(--toolbar-height);
-  width: 100%;
-  align-content: center;
-  background-color: var(--bg-color);
-  opacity: var(--toolbar-opacity);
-  z-index: 11;
-  box-sizing: border-box;
-}
-
-#toolbar > * {
-  float: left;
-  height: 100%;
-  margin: 0px;
-  padding: 0px 10px 0px 10px;
-  color: var(--theme-color);
-  line-height: var(--toolbar-height);
-  font-size: 1em;
-  text-decoration: none;
-  box-shadow: inset 0px 0px 0px 2px var(--theme-color);
 }
 
 canvas {
