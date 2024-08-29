@@ -14,6 +14,8 @@ Other, more complex automata like Brian's Brain, Rock Paper Scissors, and Neural
 
 8 different automata are currently available. Each automata has settings which can be changed in the 'Settings' panel. Multiple utility actions (pausing, stepping, randomizing) are all available under the 'Controls' panel, with most utilities having an associated keyboard shortcut.
 
+> **To resolve performance issues:** If FPS is low, attempt to enable hardware acceleration for your browser. If this is not possible, then reduce grid resolution/zoom in by pressing 'E' or make your window smaller.
+
 ## 🚀 Future Development
 
 I intend to develop this project further in the future by implementing [multiple neighborhood cellular automata](https://slackermanz.com/understanding-multiple-neighborhood-cellular-automata/) (Credit to Slackermanz), which tend to display more complex behavior and form stable structures.
