@@ -358,24 +358,6 @@ document.getElementById("neural-randomize").onclick = (_) => {
   automata.randomize();
 };
 
-// Handle changes in activation
-const activationSelector = document.getElementById("neural-activation-select");
-activationSelector.selectedIndex = activationSelector.options.length - 2;
-activationSelector.onchange = (event) => {
-  setActivation(event.target.value);
-};
-
-function setActivation(type, args = []) {
-  const funcMap = {
-    identity: (x) => x,
-    power: (x) => Math.pow(x, 2),
-    absolute: (x) => Math.abs(x),
-    tanh: (x) => (Math.exp(2 * x) - 1) / (Math.exp(2 * x) + 1),
-    "inverse-gaussian": (x) => -(1 / Math.pow(2, 0.6 * Math.pow(x, 2))) + 1,
-  };
-  automata.activation = funcMap[type];
-}
-
 // Handle changes in skip frame
 document
   .getElementById("neural-skip-input")
@@ -456,6 +438,49 @@ presetSelector.onchange = (event) => {
   automata.randomize();
 };
 
+// Handle changes in activation
+const activationSelector = document.getElementById("neural-activation-select");
+activationSelector.selectedIndex = activationSelector.options.length - 1; // Initially set to custom
+activationSelector.onchange = (event) => {
+  setActivation(event.target.value);
+};
+
+function setActivation(type, args = []) {
+  const funcMap = {
+    identity: (x) => x,
+    power: (x) => Math.pow(x, 2),
+    absolute: (x) => Math.abs(x),
+    tanh: (x) => (Math.exp(2 * x) - 1) / (Math.exp(2 * x) + 1),
+    "inverse-gaussian": (x) => -(1 / Math.pow(2, Math.pow(x, 2))) + 1,
+  };
+  automata.activation = funcMap[type];
+}
+
+// Intialize activation func code editor
+const editor = ace.edit("neural-code-editor");
+editor.setTheme("ace/theme/monokai"); // Dark theme
+editor.session.setMode("ace/mode/javascript"); // JavaScript syntax highlighting
+editor.setOptions({
+  fontSize: "10px", // Font size
+  showLineNumbers: true,
+  showGutter: true,
+});
+editor.session.setUseWrapMode(true);
+editor.session.setUseSoftTabs(true);
+editor.setValue(
+  "function activation(x) {\n\treturn -(1 / Math.pow(2, 0.6 * Math.pow(x, 2))) + 1;\n}"
+);
+editor.session.on("change", function (delta) {
+  const code = editor.getValue();
+  try {
+    // Evaluate the code and assign the function to a variable
+    const activation = eval(`(${code})`);
+    console.log(eval(`(${code})`));
+  } catch (error) {
+    console.error("Error in the code:", error);
+  }
+});
+
 //! Huegene Rules
 // Handle changes in random factor
 document
@@ -470,7 +495,6 @@ document
     automata.updateOffset(true);
   });
 
-// TODO: Add in fade and psychedelic effects
 // Switch on/off fade
 document
   .getElementById("huegene-fade-input")
