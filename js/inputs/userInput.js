@@ -66,16 +66,19 @@ export function registerCanvasCallbacks(ctx) {
 document.querySelectorAll(".window").forEach((element) => {
   triggerDragElement(element);
   // Shift positions of windows randomly
-  element.style.top =
-    element.offsetTop +
-    Math.floor(
-      Math.random() * window.innerHeight * 0.5 + 0.1 * window.innerHeight
-    ) +
-    "px";
-  element.style.left =
-    element.offsetLeft +
-    Math.floor(Math.random() * window.innerWidth * 0.6) +
-    "px";
+  const mobileTopOffset =
+    window.innerWidth < 420
+      ? 0.25 * window.innerHeight +
+        Math.floor(Math.random() * window.innerHeight * 0.3)
+      : null; // Shift windows by different amounts if on mobile
+  const topOffset = Math.floor(
+    Math.random() * window.innerHeight * 0.5 + 0.1 * window.innerHeight
+  );
+  const leftOffset = Math.floor(Math.random() * window.innerWidth * 0.6);
+
+  // Set the offsets
+  element.style.top = mobileTopOffset ? mobileTopOffset : topOffset + "px";
+  element.style.left = leftOffset + "px";
 });
 
 function triggerDragElement(element) {
@@ -83,7 +86,11 @@ function triggerDragElement(element) {
     yPos = 0,
     changeOfX = 0,
     changeOfY = 0;
-  const minTop = window.innerHeight * 0.05; // 5vh, for clamping y position
+  // Clamping y position of the windows
+  const minTop =
+    window.innerWidth < 420
+      ? window.innerHeight * 0.25
+      : window.innerHeight * 0.05;
 
   // Check for presence of a header
   if (document.getElementById(element.id + "-header")) {
@@ -137,7 +144,7 @@ function triggerDragElement(element) {
 
 // Hide window when X is pressed
 document.querySelectorAll(".window-delete").forEach((btn) => {
-  btn.addEventListener("click", () => {
+  registerEvents(btn, ["click", "touchstart"], () => {
     btn.closest(".window").style.display = "none";
   });
 });
