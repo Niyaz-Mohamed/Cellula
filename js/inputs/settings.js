@@ -334,6 +334,7 @@ document.getElementById("rps-state-select").onchange = (event) => {
 };
 
 //! Neural CA Rules
+// Randomize grid weights
 document.getElementById("neural-randomize").onclick = (_) => {
   const settingsContainer = document.getElementById("neural-settings");
   const rows = parseInt(settingsContainer.querySelector(".row-select").value);
@@ -343,7 +344,7 @@ document.getElementById("neural-randomize").onclick = (_) => {
 
   function randomWeight() {
     let randWeight = (Math.random() * 2 - 1).toFixed(4);
-    if (randWeight < 0 && Math.random() < 0.1)
+    if (randWeight < 0 && Math.random() < 0.15)
       randWeight = Math.abs(randWeight); // Force more positive weights
     return randWeight;
   }
@@ -378,9 +379,8 @@ presetSelector.onchange = (event) => {
         [-0.9, -0.66, -0.9],
         [0.68, -0.9, 0.68],
       ],
-      activation: eval(
-        `(${"function activation(x) {\n\treturn -(1 / Math.pow(2, 0.6 * Math.pow(x, 2))) + 1\n}"})`
-      ),
+      activation:
+        "function activation(x) {\n\treturn -(1 / Math.pow(2, 0.6 * Math.pow(x, 2))) + 1\n}",
     },
     stars: {
       weights: [
@@ -388,19 +388,7 @@ presetSelector.onchange = (event) => {
         [-0.759, 0.627, -0.759],
         [0.565, -0.716, 0.565],
       ],
-      activation: eval(
-        `(${"function activation(x) {\n\treturn Math.abs(x)\n}"})`
-      ),
-    },
-    "slime-mold": {
-      weights: [
-        [0.8, -0.85, 0.8],
-        [-0.85, -0.2, -0.85],
-        [0.8, -0.85, 0.8],
-      ],
-      activation: eval(
-        `(${"function activation(x) {\n\treturn -1 / (0.89 * Math.pow(x, 2) + 1) + 1\n}"})`
-      ),
+      activation: "function activation(x) {\n\treturn Math.abs(x)\n}",
     },
     waves: {
       weights: [
@@ -408,9 +396,7 @@ presetSelector.onchange = (event) => {
         [-0.716, 0.627, -0.716],
         [0.565, -0.716, 0.565],
       ],
-      activation: eval(
-        `(${"function activation(x) {\n\treturn Math.abs(1.2 * x)\n}"})`
-      ),
+      activation: "function activation(x) {\n\treturn Math.abs(1.2 * x)\n}",
     },
     mitosis: {
       weights: [
@@ -418,9 +404,8 @@ presetSelector.onchange = (event) => {
         [0.88, 0.4, 0.88],
         [-0.939, 0.88, -0.939],
       ],
-      activation: eval(
-        `(${"function activation(x) {\n\treturn -1 / (0.91 * Math.pow(x, 2) + 1) + 1\n}"})`
-      ),
+      activation:
+        "function activation(x) {\n\treturn -1 / (0.91 * Math.pow(x, 2) + 1) + 1\n}",
     },
     pathways: {
       weights: [
@@ -428,9 +413,8 @@ presetSelector.onchange = (event) => {
         [1.0, 1.0, 1.0],
         [0.0, 1.0, 0.0],
       ],
-      activation: eval(
-        `(${"function activation(x) {\n\treturn 1 / Math.pow(2, Math.pow(x - 3.5, 2))\n}"})`
-      ),
+      activation:
+        "function activation(x) {\n\treturn 1 / Math.pow(2, Math.pow(x - 3.5, 2))\n}",
     },
     "game-of-life": {
       weights: [
@@ -438,9 +422,8 @@ presetSelector.onchange = (event) => {
         [1.0, 9.0, 1.0],
         [1.0, 1.0, 1.0],
       ],
-      activation: eval(
-        `(${"function activation(x) {\n\tif (x == 3 || x == 11 || x == 12) {\n\treturn 1;\n}\nreturn 0}"})`
-      ),
+      activation:
+        "function activation(x) {\n\tx = Math.round(x);\n\tif (x == 3 || x == 11 || x == 12) return 1;\n\treturn 0;\n}",
     },
   };
 
@@ -453,11 +436,9 @@ presetSelector.onchange = (event) => {
   createGrid("neural-settings");
 
   // Update activation
-  console.log(event.target.value);
-  activationSelector.selectedIndex = activationSelector.options.length - 1; // Set to custom activation
-  automata.activation = argMap[event.target.value].activation;
-  editor.setValue(automata.activation.toString());
+  editor.setValue(argMap[event.target.value].activation);
   automata.randomize();
+  automata.resetAnimationRequests();
 };
 
 // Handle changes in activation
@@ -485,9 +466,11 @@ function setActivation(type) {
     })
   );
   automata.activation = evaluatedFuncMap[type];
+  automata.resetAnimationRequests();
 
   // Update code editor
   editor.setValue(automata.activation.toString());
+  activationSelector.selectedIndex = Object.keys(funcMap).indexOf(type);
 }
 
 // Intialize activation func code editor
@@ -511,11 +494,14 @@ editor.session.on("change", function (_) {
   const code = editor.getValue();
   try {
     // Evaluate the code and test it on a value
-    const activation = genShieldedFunction(eval(`(${code})`));
-    const testValues = [Math.random(), Math.random(), Math.random(), 0, 1];
-    testValues.forEach((value) => activation(value));
-    automata.activation = activation;
-    setConsoleText("Updated Activation Function!");
+    if (code) {
+      const activation = genShieldedFunction(eval(`(${code})`));
+      const testValues = [Math.random(), Math.random(), Math.random(), 0, 1];
+      testValues.forEach((value) => activation(value));
+      automata.activation = activation;
+      automata.resetAnimationRequests();
+      setConsoleText("Updated Activation Function!");
+    }
   } catch (error) {
     console.log(`Error: ${error}`);
     setConsoleText("Invalid Activation Function!");

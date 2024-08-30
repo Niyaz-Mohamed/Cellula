@@ -228,6 +228,9 @@ function handleAction(action) {
             automata.baseState ? automata.baseState : 0
           )
         );
+      if (automata.ants) {
+        automata.ants = [];
+      }
       automata.resetAnimationRequests();
       setConsoleText("Cleared Grid");
       break;

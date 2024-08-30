@@ -455,7 +455,7 @@ export class LangtonsAnt extends Automata {
           newAnts[i][0] = (newAnts[i][0] + 1) % this.cols; // East
           break;
         case 2:
-          newAnts[i][1] = (newAnts[i][1] + 1) % this.cols; // South
+          newAnts[i][1] = (newAnts[i][1] + 1) % this.rows; // South
           break;
         case 3:
           newAnts[i][0] = (newAnts[i][0] - 1 + this.cols) % this.cols; // West
@@ -900,6 +900,8 @@ export class WireWorld extends Automata {
         // Fill only conductors when penstate is electrons
         if (this.penState == 2 || this.penState == 3) {
           if (this.grid[y][x] != 0) this.grid[y][x] = this.penState;
+        } else if (this.penState == 4) {
+          if (this.grid[y][x] == 2 || this.grid[y][x] == 3) this.grid[y][x] = 1;
         } else this.grid[y][x] = this.penState;
       }
     }
@@ -914,12 +916,11 @@ export class WireWorld extends Automata {
       1: "Conductor",
       2: "Electron Head",
       3: "Electron Tail",
+      4: "Signal Eraser",
     };
     // Change pen state
-    this.penState = (this.penState + 1) % 4;
-    setConsoleText(
-      `Updated pen to draw ${stateNames[this.penState]} [${this.penState}]`
-    );
+    this.penState = (this.penState + 1) % 5;
+    setConsoleText(`Updated pen to draw ${stateNames[this.penState]}`);
     window.requestAnimationFrame(() => this.drawCursor());
   }
 
@@ -930,6 +931,7 @@ export class WireWorld extends Automata {
       1: "rgba(255, 255, 0, 0.8)",
       2: "rgba(0, 0, 255, 0.8)",
       3: "rgba(255, 0, 0, 0.8)",
+      4: "rgba(0, 255, 0, 0.8)",
     };
     return stateColors[this.penState];
   }
@@ -957,6 +959,7 @@ export class RPSGame extends Automata {
     this.winCondition = winCondition;
     // Number of states played with, ranges between 3 and 5
     this.stateCount = [3, 4, 5].includes(stateCount) ? 3 : stateCount;
+    console.log(stateCount, this.stateCount);
 
     // Implement GPU kernel to update grid
     this.gridUpdateKernel = this.gpu
