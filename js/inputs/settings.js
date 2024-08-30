@@ -1,5 +1,6 @@
 import { automata, NeuralCA, setAutomata } from "../automata.js";
 import {
+  genShieldedFunction,
   getConsoleText,
   mooreNeighborhood,
   reshape2DArray,
@@ -377,7 +378,9 @@ presetSelector.onchange = (event) => {
         [-0.9, -0.66, -0.9],
         [0.68, -0.9, 0.68],
       ],
-      activation: (x) => -(1 / Math.pow(2, 0.6 * Math.pow(x, 2))) + 1,
+      activation: eval(
+        `(${"function activation(x) {\n\treturn -(1 / Math.pow(2, 0.6 * Math.pow(x, 2))) + 1\n}"})`
+      ),
     },
     stars: {
       weights: [
@@ -385,7 +388,9 @@ presetSelector.onchange = (event) => {
         [-0.759, 0.627, -0.759],
         [0.565, -0.716, 0.565],
       ],
-      activation: (x) => Math.abs(x),
+      activation: eval(
+        `(${"function activation(x) {\n\treturn Math.abs(x)\n}"})`
+      ),
     },
     "slime-mold": {
       weights: [
@@ -393,7 +398,9 @@ presetSelector.onchange = (event) => {
         [-0.85, -0.2, -0.85],
         [0.8, -0.85, 0.8],
       ],
-      activation: (x) => -1 / (0.89 * Math.pow(x, 2) + 1) + 1,
+      activation: eval(
+        `(${"function activation(x) {\n\treturn -1 / (0.89 * Math.pow(x, 2) + 1) + 1\n}"})`
+      ),
     },
     waves: {
       weights: [
@@ -401,7 +408,9 @@ presetSelector.onchange = (event) => {
         [-0.716, 0.627, -0.716],
         [0.565, -0.716, 0.565],
       ],
-      activation: (x) => Math.abs(1.2 * x),
+      activation: eval(
+        `(${"function activation(x) {\n\treturn Math.abs(1.2 * x)\n}"})`
+      ),
     },
     mitosis: {
       weights: [
@@ -409,7 +418,9 @@ presetSelector.onchange = (event) => {
         [0.88, 0.4, 0.88],
         [-0.939, 0.88, -0.939],
       ],
-      activation: (x) => -1 / (0.91 * Math.pow(x, 2) + 1) + 1,
+      activation: eval(
+        `(${"function activation(x) {\n\treturn -1 / (0.91 * Math.pow(x, 2) + 1) + 1\n}"})`
+      ),
     },
     pathways: {
       weights: [
@@ -417,7 +428,19 @@ presetSelector.onchange = (event) => {
         [1.0, 1.0, 1.0],
         [0.0, 1.0, 0.0],
       ],
-      activation: (x) => 1 / Math.pow(2, Math.pow(x - 3.5, 2)),
+      activation: eval(
+        `(${"function activation(x) {\n\treturn 1 / Math.pow(2, Math.pow(x - 3.5, 2))\n}"})`
+      ),
+    },
+    "game-of-life": {
+      weights: [
+        [1.0, 1.0, 1.0],
+        [1.0, 9.0, 1.0],
+        [1.0, 1.0, 1.0],
+      ],
+      activation: eval(
+        `(${"function activation(x) {\n\tif (x == 3 || x == 11 || x == 12) {\n\treturn 1;\n}\nreturn 0}"})`
+      ),
     },
   };
 
@@ -430,11 +453,10 @@ presetSelector.onchange = (event) => {
   createGrid("neural-settings");
 
   // Update activation
-  const activationSelector = document.getElementById(
-    "neural-activation-select"
-  );
+  console.log(event.target.value);
   activationSelector.selectedIndex = activationSelector.options.length - 1; // Set to custom activation
   automata.activation = argMap[event.target.value].activation;
+  editor.setValue(automata.activation.toString());
   automata.randomize();
 };
 
@@ -445,15 +467,27 @@ activationSelector.onchange = (event) => {
   setActivation(event.target.value);
 };
 
-function setActivation(type, args = []) {
+function setActivation(type) {
+  // String representations of preset strings
   const funcMap = {
-    identity: (x) => x,
-    power: (x) => Math.pow(x, 2),
-    absolute: (x) => Math.abs(x),
-    tanh: (x) => (Math.exp(2 * x) - 1) / (Math.exp(2 * x) + 1),
-    "inverse-gaussian": (x) => -(1 / Math.pow(2, Math.pow(x, 2))) + 1,
+    identity: "function activation(x) {\n\treturn x;\n}",
+    power: "function activation(x) {\n\treturn Math.pow(x, 2);\n}",
+    absolute: "function activation(x) {\n\treturn Math.abs(x);\n}",
+    tanh: "function activation(x) {\n\treturn (Math.exp(2 * x) - 1) / (Math.exp(2 * x) + 1);\n}",
+    "inverse-gaussian":
+      "function activation(x) {\n\treturn -(1 / Math.pow(2, Math.pow(x, 2))) + 1;\n}",
   };
-  automata.activation = funcMap[type];
+
+  // Convert string representations to actual functions using eval
+  const evaluatedFuncMap = Object.fromEntries(
+    Object.entries(funcMap).map(([key, funcString]) => {
+      return [key, eval(`(${funcString})`)];
+    })
+  );
+  automata.activation = evaluatedFuncMap[type];
+
+  // Update code editor
+  editor.setValue(automata.activation.toString());
 }
 
 // Intialize activation func code editor
@@ -470,14 +504,21 @@ editor.session.setUseSoftTabs(true);
 editor.setValue(
   "function activation(x) {\n\treturn -(1 / Math.pow(2, 0.6 * Math.pow(x, 2))) + 1;\n}"
 );
-editor.session.on("change", function (delta) {
+editor.session.on("change", function (_) {
+  // Set to custom activation
+  activationSelector.selectedIndex = activationSelector.options.length - 1;
+  // Parse the code
   const code = editor.getValue();
   try {
-    // Evaluate the code and assign the function to a variable
-    const activation = eval(`(${code})`);
-    console.log(eval(`(${code})`));
+    // Evaluate the code and test it on a value
+    const activation = genShieldedFunction(eval(`(${code})`));
+    const testValues = [Math.random(), Math.random(), Math.random(), 0, 1];
+    testValues.forEach((value) => activation(value));
+    automata.activation = activation;
+    setConsoleText("Updated Activation Function!");
   } catch (error) {
-    console.error("Error in the code:", error);
+    console.log(`Error: ${error}`);
+    setConsoleText("Invalid Activation Function!");
   }
 });
 

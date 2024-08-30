@@ -176,6 +176,17 @@ export function reshape2DArray(
   return newArray;
 }
 
+// Parses a function string and shields against misuse
+export function genShieldedFunction(func) {
+  return (x) => {
+    // Create a new scope for `f`
+    return (function () {
+      const document = null;
+      const window = null;
+      return func(x);
+    })();
+  };
+}
 // Generates random number using a normal distribution
 export function gaussianRandom(mean, variance) {
   let u1 = Math.random();
@@ -237,7 +248,7 @@ export function shiftHue(rgbColor, hueShift = 0) {
   const newR = r * matrix[0][0] + g * matrix[0][1] + b * matrix[0][2];
   const newG = r * matrix[1][0] + g * matrix[1][1] + b * matrix[1][2];
   const newB = r * matrix[2][0] + g * matrix[2][1] + b * matrix[2][2];
-  // Clamp values within range od RGB
+  // Clamp values within range of RGB
   return [
     Math.round(Math.max(Math.min(newR, 255), 0)),
     Math.round(Math.max(Math.min(newG, 255), 0)),
