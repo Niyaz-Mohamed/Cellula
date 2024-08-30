@@ -29,6 +29,7 @@ import {
   outlinePoints,
   registerCanvasCallbacks,
 } from "./inputs/userInput.js";
+import { editor } from "./inputs/settings.js";
 
 //! Intialize Canvas
 const canvas = document.getElementById("cellGrid");
@@ -350,6 +351,7 @@ export class LifeLikeAutomata extends Automata {
       // Parse sequences to obtain rules
       this.birthRules = [...new Set(parseSequence(ruleList[0]))];
       this.surviveRules = [...new Set(parseSequence(ruleList[1]))];
+      this.ruleString = ruleString;
     } else {
       setConsoleText("Invalid Rulestring!");
     }
@@ -658,7 +660,7 @@ export class ElementaryCA extends Automata {
       args: [this.ruleNumber],
       grid: this.grid.map((arr) => Array.from(arr)),
     };
-    downloadObjectAsJSON(automataData, "elementaryCA.json");
+    downloadObjectAsJSON(automataData, "elementary.json");
   }
 }
 
@@ -728,8 +730,10 @@ export class BriansBrain extends Automata {
       // Parse rulestring
       let ruleList = ruleString.split("/").map(Number);
       this.birthRules = [...new Set(ruleList)];
+      this.ruleString = ruleString;
     } else if (ruleString == "") {
       this.birthRules = [0];
+      this.ruleString = ruleString;
     } else {
       setConsoleText("Invalid Rulestring!");
     }
@@ -957,9 +961,9 @@ export class RPSGame extends Automata {
     this.neighborhood = neighborhood;
     // Minimum number of cells that beat current cells in the neighborhood for conversion to occur
     this.winCondition = winCondition;
+
     // Number of states played with, ranges between 3 and 5
-    this.stateCount = [3, 4, 5].includes(stateCount) ? 3 : stateCount;
-    console.log(stateCount, this.stateCount);
+    this.stateCount = [3, 4, 5].includes(stateCount) ? stateCount : 3;
 
     // Implement GPU kernel to update grid
     this.gridUpdateKernel = this.gpu
@@ -1147,7 +1151,7 @@ export class NeuralCA extends Automata {
       [-0.9, -0.66, -0.9],
       [0.68, -0.9, 0.68],
     ],
-    activation = (x) => -(1 / Math.pow(2, 0.6 * Math.pow(x, 2))) + 1 // Inverse Gaussian
+    activationString = "function activation(x) {\n\treturn -(1 / Math.pow(2, 0.6 * Math.pow(x, 2))) + 1;\n}" // Inverse Gaussian
   ) {
     super();
     // Set frameskips to true
@@ -1159,7 +1163,9 @@ export class NeuralCA extends Automata {
       weights.flat().length == neighborhood.flat().length / 2
         ? weights
         : reshape2DArray(weights, neighborhood.length, neighborhood[0].length);
-    this.activation = activation;
+    this.activationString = activationString;
+    editor.setValue(activationString);
+    this.activation = eval(`(${activationString})`);
     // Switch up colors to make the sim more interesting
     this.maskOptions = [
       [1, 0, 0],
@@ -1273,8 +1279,8 @@ export class NeuralCA extends Automata {
   // Override downloading the data
   saveData() {
     const automataData = {
-      name: "Neural CA",
-      args: [this.neighborhood, this.weights], // Ignore activation as it cannot be saved in JSON
+      name: "Neural",
+      args: [this.neighborhood, this.weights, this.activationString], // Ignore activation as it cannot be saved in JSON
       grid: this.grid.map((arr) => Array.from(arr)),
     };
     downloadObjectAsJSON(automataData, "neural.json");
@@ -1282,7 +1288,12 @@ export class NeuralCA extends Automata {
 }
 
 export class Huegene extends Automata {
-  constructor(neighborhood = mooreNeighborhood()) {
+  constructor(
+    randomFactor = 40,
+    fade = false,
+    psychedelic = false,
+    neighborhood = mooreNeighborhood()
+  ) {
     super();
     this.neighborhood = neighborhood;
 
@@ -1295,13 +1306,13 @@ export class Huegene extends Automata {
     this.penState = this.genRandomPenColor();
 
     // Select hue offsets for each cell
-    this.randomFactor = 40;
+    this.randomFactor = randomFactor;
     document.getElementById("huegene-random-input").value = this.randomFactor;
     this.updateOffset();
 
     // Extra Settings
-    this.fade = false;
-    this.psychedelic = false;
+    this.fade = fade;
+    this.psychedelic = psychedelic;
     this.fadeKeepRate = 0.99;
     this.psychedelicRate = 4;
     document.getElementById("huegene-psychedelic-input").checked = false;
@@ -1501,7 +1512,7 @@ export class Huegene extends Automata {
   saveData() {
     const automataData = {
       name: "Huegene",
-      args: [this.neighborhood],
+      args: [this.randomFactor, this.fade, this.psychedelic, this.neighborhood],
       grid: this.grid.map((arr) => Array.from(arr)),
     };
     downloadObjectAsJSON(automataData, "huegene.json");
@@ -1587,7 +1598,7 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
       // Convert cells to 2 or below
       automata.grid = oldGrid.map((row) =>
         row.map((state) =>
-          [0, 1, 2].includes(Math.round(state)) ? Math.round(state) : 0
+          [0, 1, 2, 3, 4].includes(Math.round(state)) ? Math.round(state) : 0
         )
       );
       setConsoleText("Changed automata to Rock, Paper, Scissors");

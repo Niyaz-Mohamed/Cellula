@@ -254,6 +254,7 @@ document.getElementById("file-input").addEventListener(
             automata.grid[0].length
           );
           // Update required info
+
           updateAutomataSelect(data["name"]);
           setAutomata(data["name"], data["args"], data["grid"]);
         } catch (error) {
@@ -475,6 +476,7 @@ function setActivation(type) {
 
 // Intialize activation func code editor
 const editor = ace.edit("neural-code-editor");
+export { editor }; // Make editor available in other files
 editor.setTheme("ace/theme/monokai"); // Dark theme
 editor.session.setMode("ace/mode/javascript"); // JavaScript syntax highlighting
 editor.setOptions({
@@ -484,9 +486,6 @@ editor.setOptions({
 });
 editor.session.setUseWrapMode(true);
 editor.session.setUseSoftTabs(true);
-editor.setValue(
-  "function activation(x) {\n\treturn -(1 / Math.pow(2, 0.6 * Math.pow(x, 2))) + 1;\n}"
-);
 editor.session.on("change", function (_) {
   // Set to custom activation
   activationSelector.selectedIndex = activationSelector.options.length - 1;
@@ -499,6 +498,7 @@ editor.session.on("change", function (_) {
       const testValues = [Math.random(), Math.random(), Math.random(), 0, 1];
       testValues.forEach((value) => activation(value));
       automata.activation = activation;
+      automata.activationString = code;
       automata.resetAnimationRequests();
       setConsoleText("Updated Activation Function!");
     }
