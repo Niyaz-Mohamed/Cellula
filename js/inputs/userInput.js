@@ -68,8 +68,7 @@ document.querySelectorAll(".window").forEach((element) => {
   // Shift positions of windows randomly
   const mobileTopOffset =
     window.innerWidth < 420
-      ? 0.25 * window.innerHeight +
-        Math.floor(Math.random() * window.innerHeight * 0.3)
+      ? 30 * 4 + Math.floor(Math.random() * window.innerHeight * 0.3)
       : null; // Shift windows by different amounts if on mobile
   const topOffset = Math.floor(
     Math.random() * window.innerHeight * 0.5 + 0.1 * window.innerHeight
@@ -92,10 +91,8 @@ function triggerDragElement(element) {
     changeOfX = 0,
     changeOfY = 0;
   // Clamping y position of the windows
-  const minTop =
-    window.innerWidth < 420
-      ? window.innerHeight * 0.25
-      : window.innerHeight * 0.05;
+  const minTop = window.innerWidth < 420 ? 30 * 4 : window.innerHeight * 0.05;
+  console.log(minTop);
 
   // Check for presence of a header
   if (document.getElementById(element.id + "-header")) {
