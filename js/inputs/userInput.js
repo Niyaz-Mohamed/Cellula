@@ -77,7 +77,7 @@ document.querySelectorAll(".window").forEach((element) => {
   const leftOffset = Math.floor(Math.random() * window.innerWidth * 0.6);
 
   // Set the offsets
-  element.style.top = mobileTopOffset ? mobileTopOffset : topOffset + "px";
+  element.style.top = (mobileTopOffset ? mobileTopOffset : topOffset) + "px";
   element.style.left = leftOffset + "px";
 });
 
@@ -91,6 +91,7 @@ function triggerDragElement(element) {
     window.innerWidth < 420
       ? window.innerHeight * 0.25
       : window.innerHeight * 0.05;
+  console.log(minTop, window.innerWidth);
 
   // Check for presence of a header
   if (document.getElementById(element.id + "-header")) {
@@ -151,7 +152,7 @@ document.querySelectorAll(".window-delete").forEach((btn) => {
 
 // Trigger a window to open
 document.querySelectorAll(".triggerbtn").forEach((btn) => {
-  btn.addEventListener("click", () => {
+  registerEvents(btn, ["click", "touchstart"], () => {
     document.getElementById(btn.id.slice(0, -4)).style.display = "block";
   });
 });
