@@ -91,7 +91,6 @@ function triggerDragElement(element) {
     window.innerWidth < 420
       ? window.innerHeight * 0.25
       : window.innerHeight * 0.05;
-  console.log(minTop, window.innerWidth);
 
   // Check for presence of a header
   if (document.getElementById(element.id + "-header")) {
