@@ -1,6 +1,6 @@
 # Cellula
 
-> [Online cellular automata playground](https://niyaz-mohamed.github.io/Cellula) with hardware acceleration using GPU.js
+> [Online cellular automata playground](https://niyaz-mohamed.github.io/Cellula) with hardware acceleration using GPU.js, for both PC and mobile
 
 ![Made with pure HTML, CSS, and JS](images/Thumbnail/Thumbnail.gif)
 

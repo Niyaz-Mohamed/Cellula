@@ -83,6 +83,9 @@ export class Automata {
     this.lastDraw = Date.now();
     this.drawTimes = [];
     this.fps = 0;
+    // Also keep track of animation frames requested
+    this.drawRequestIds = [];
+    this.updateRequestIds = [];
     // Create GPU, account for issues in chrome
     function initGPU() {
       try {
@@ -163,13 +166,19 @@ export class Automata {
       //// console.time("Update");
       let newGrid = this.getNextState();
       this.grid = newGrid;
-      window.requestAnimationFrame(() => this.drawGrid());
+      this.drawRequestIds.push(
+        window.requestAnimationFrame(() => this.drawGrid())
+      );
       //// console.timeEnd("Update");
       // Automatically loop animation
-      window.requestAnimationFrame(() => this.updateGrid());
+      this.updateRequestIds.push(
+        window.requestAnimationFrame(() => this.updateGrid())
+      );
     } else {
       // Handles mouse drawings
-      window.requestAnimationFrame(() => this.drawGrid());
+      this.drawRequestIds.push(
+        window.requestAnimationFrame(() => this.drawGrid())
+      );
     }
   }
 
@@ -233,6 +242,23 @@ export class Automata {
   saveData() {
     const automataData = { name: "Automata", args: [], grid: this.grid };
     downloadObjectAsJSON(automataData, "automata.json");
+  }
+
+  // Clear requested animation frames
+  clearDrawRequests() {
+    this.drawRequestIds.forEach((id) => window.cancelAnimationFrame(id));
+    this.drawRequestIds = [];
+  }
+
+  clearUpdateRequests() {
+    this.updateRequestIds.forEach((id) => window.cancelAnimationFrame(id));
+    this.updateRequestIds = [];
+  }
+
+  resetAnimationRequests() {
+    this.clearDrawRequests();
+    this.clearUpdateRequests();
+    automata.updateGrid(); // Retrigger animation
   }
 }
 
@@ -1256,7 +1282,6 @@ export class Huegene extends Automata {
   constructor(neighborhood = mooreNeighborhood()) {
     super();
     this.neighborhood = neighborhood;
-    this.baseState = [0, 0, 0];
 
     // Select a random fill color
     this.grid = new Array(this.rows)
@@ -1483,6 +1508,10 @@ export class Huegene extends Automata {
 //! Intialize and trigger automata class
 export let automata = new LifeLikeAutomata(); // Automata Definition
 export function setAutomata(newAutomataName, args = [], grid = null) {
+  // Clear old requests
+  automata.clearDrawRequests();
+  automata.clearUpdateRequests();
+
   // Recast Elementary CA
   if (automata instanceof ElementaryCA) {
     automata.grid = automata.grid.map((row) =>
@@ -1491,6 +1520,7 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
     setFillRadius(3);
   }
 
+  // Keep old grid, unless a grid is provided (from a save file)
   let oldGrid;
   if (!grid) {
     oldGrid = automata.grid;
@@ -1563,12 +1593,23 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
       automata = new NeuralCA(...args);
       // Convert non 0/1 cells to 1
       automata.grid = oldGrid.map((row) =>
-        row.map((state) => ([0, 1].includes(state) ? state : 1))
+        row.map((state) => ([0, 1].includes(Math.round(state)) ? state : 1))
       );
       setConsoleText("Changed automata to Neural CA");
       break;
     case "Huegene":
       automata = new Huegene(...args);
+      // Convert non 0/1 cells to 1
+      if (grid) {
+        automata.grid = oldGrid.slice();
+      } else {
+        automata.grid = oldGrid.map((row) =>
+          row.map((state) =>
+            Math.round(state) == 1 ? automata.penState : packRGB([0, 0, 0])
+          )
+        );
+      }
+
       setConsoleText("Changed automata to Huegene");
       break;
     default:
@@ -1577,6 +1618,7 @@ export function setAutomata(newAutomataName, args = [], grid = null) {
   automata.drawGrid();
   automata.drawCursor();
   automata.updateGrid();
-  if (!paused) changePaused();
 }
+
+// Begin the loop
 automata.updateGrid();

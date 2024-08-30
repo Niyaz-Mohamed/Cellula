@@ -50,14 +50,43 @@
   box-sizing: border-box;
 }
 
-/* Stylings for load */
+/*! Stylings for startup */
+b {
+  text-decoration: underline;
+}
+
+#startup {
+  border: 3px solid var(--center-cell-color);
+  max-width: 100px;
+}
+
+#startup-header {
+  background-color: var(--center-cell-color);
+}
+
+#startup-window-content {
+  padding: 0px 10px;
+  color: var(--center-cell-color);
+  flex-direction: column;
+}
+
+#startup-window-content > * {
+  width: 100%;
+  margin-bottom: 0px;
+}
+
+#startup-window-content:last-child {
+  margin-bottom: 10px;
+}
+
+/*! Stylings for load */
 #load-settings {
   width: 100%;
 }
 
 #load-settings {
   margin: 0px;
-  padding: 10px 10px;
+  padding: 10px;
   text-align: left;
 }
 

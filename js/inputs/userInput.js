@@ -79,6 +79,11 @@ document.querySelectorAll(".window").forEach((element) => {
   // Set the offsets
   element.style.top = (mobileTopOffset ? mobileTopOffset : topOffset) + "px";
   element.style.left = leftOffset + "px";
+
+  // Make startup visible
+  if (element.id == "startup") {
+    element.style.display = "block";
+  }
 });
 
 function triggerDragElement(element) {
@@ -209,6 +214,7 @@ function handleAction(action) {
     case "r":
     case "Randomize Grid":
       automata.randomize();
+      automata.resetAnimationRequests();
       setConsoleText("Randomized Grid");
       break;
 
@@ -222,7 +228,7 @@ function handleAction(action) {
             automata.baseState ? automata.baseState : 0
           )
         );
-      automata.drawGrid();
+      automata.resetAnimationRequests();
       setConsoleText("Cleared Grid");
       break;
 
