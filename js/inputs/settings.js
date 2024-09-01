@@ -527,7 +527,6 @@ document
   .getElementById("huegene-fade-input")
   .addEventListener("input", function (_) {
     automata.fade = document.getElementById("huegene-fade-input").checked;
-    console.log(automata.fade);
   });
 
 // Switch on/off psychedelic mode
@@ -537,5 +536,4 @@ document
     automata.psychedelic = document.getElementById(
       "huegene-psychedelic-input"
     ).checked;
-    console.log(automata.psychedelic);
   });

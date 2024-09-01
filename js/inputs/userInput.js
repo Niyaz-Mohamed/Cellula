@@ -92,7 +92,6 @@ function triggerDragElement(element) {
     changeOfY = 0;
   // Clamping y position of the windows
   const minTop = window.innerWidth < 420 ? 30 * 4 : window.innerHeight * 0.05;
-  console.log(minTop);
 
   // Check for presence of a header
   if (document.getElementById(element.id + "-header")) {
